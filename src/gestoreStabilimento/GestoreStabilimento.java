@@ -9,12 +9,21 @@ public class GestoreStabilimento{
     private String _nomeBagno;
     private int _ombrelloniTot;
     private ArrayList<Prenotazione> _elencoPrenotazioni;
-    private Calendario myCalendar;
+    private Calendario _myCalendar;
 
-    public GestoreStabilimento(String name, int maxOmbrelloni){
+    private GestoreStabilimento(String name){
         this._nomeBagno = name;
-        this._ombrelloniTot = maxOmbrelloni;
         this._elencoPrenotazioni = new ArrayList<>();
-        myCalendar = new Calendario();
+        this._myCalendar = new Calendario();
     }
+
+    public static GestoreStabilimento newBuilder(String name){
+        return new GestoreStabilimento(name);
+    }
+
+    public GestoreStabilimento _ombrelloniTot(int maxOmbrelloni){
+        this._ombrelloniTot = maxOmbrelloni;
+        return this;
+    }
+    //TODO vanno aggiunti anche i campi _elencoPrenotazioni e _myCalendar al builder? Oppure basta inizializzarli quando creo uno stabiliimento?
 }

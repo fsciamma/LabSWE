@@ -3,7 +3,7 @@ package Cliente;
 import java.util.regex.Pattern;
 
 public class Cliente {
-    private static final String EMAIL_REGEX_PATTERN = "^(.+)@(.+).(.+)$";
+    // private static final String EMAIL_REGEX_PATTERN = "^(.+)@(.+).(.+)$";
 
     private String _nome;
     private String _cognome;
