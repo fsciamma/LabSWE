@@ -26,7 +26,7 @@ create table Reservation(
 	customerID int constraint customer_fk references Customer(customerID),
 	ombrelloneID int constraint ombrellone_fk references Ombrellone(ombrelloneID),
 	start_date Date not null,
-	end_date Date not null check (end_date > start_date),
+	end_date Date not null check (end_date >= start_date),
 	-- aggiungere una colonna discount?
 	total_price decimal(10, 2));
 	
@@ -46,7 +46,7 @@ create table extra_prenotati(
 	reservationID smallint constraint reservation_fk references Reservation(reservationID),
 	extra_type smallint constraint extra_type_fk references ExtraType(eTypeID),
 	start_date Date not null,
-	end_date Date not null check (end_date > start_date));
+	end_date Date not null check (end_date >= start_date));
 
 -- popolamento tabelle e primi test
 
