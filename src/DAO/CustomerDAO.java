@@ -82,6 +82,12 @@ public class CustomerDAO {
         return getCustomers(cList, query);
     }
 
+    public ArrayList<Customer> findByFullName(String fn, String ln) throws SQLException {
+        ArrayList<Customer> cList = new ArrayList<>();
+        String query = "select * from customer where first_name = '" + fn + "' and last_name = '" + ln + "'";
+        return getCustomers(cList, query);
+    }
+
     public ArrayList<Customer> findByEMail(String em) throws SQLException {
         ArrayList<Customer> cList = new ArrayList<>();
         String query = "select * from customer where email = '" + em + "'";
@@ -101,5 +107,37 @@ public class CustomerDAO {
             }
         }
         return cList;
+    }
+
+    /**
+     *
+     * @param
+     * @return
+     */
+    public void updateCustomerInfo(int id) throws SQLException {
+        this.updateInfo(findById(id), id);
+    }
+
+    public void updateCustomerInfo(String fn, String ln) throws SQLException {
+        ArrayList<Customer> cList = findByFullName(fn, ln); //TODO viviamo in un mondo ideale in cui non ci sono omonimi :)
+        updateInfo(cList.get(0), cList.get(0).get_customerID());
+    }
+
+    private void updateInfo(Customer c, int id){
+        c.set_first_name();
+        c.set_last_name();
+        c.set_email();
+        String query = "select * from customer where customerid = " + id;
+        try(Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE)){
+            ResultSet rs = stmt.executeQuery(query);
+            while(rs.next()) {
+                rs.updateString("first_name", c.get_first_name());
+                rs.updateString("last_name", c.get_last_name());
+                rs.updateString("email", c.get_email());
+                rs.updateRow();
+            }
+        } catch (SQLException e){
+            System.out.println(e.getMessage());
+        }
     }
 }
