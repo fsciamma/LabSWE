@@ -2,8 +2,11 @@ package model;
 
 import java.util.Objects;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
 public class Customer {
+
+    private static final String EMAIL_REGEX_PATTERN = "^(.+)@(.+).(.+)$";
 
     private int _customerID;
     private String _first_name;
@@ -77,9 +80,18 @@ public class Customer {
         System.out.println("Nuova e-mail: ");
 
         String em = mySc.nextLine();
+        this.isValidEmail(em);
         if(!Objects.equals(em, ""))
             this._email = em;
         System.out.println("E-mail: " + this._email);
+    }
+
+    private void isValidEmail(final String em){
+        Pattern pattern = Pattern.compile(EMAIL_REGEX_PATTERN);
+
+        if(!pattern.matcher(em).matches()){
+            throw new IllegalArgumentException("Indirizzo e-mail non valido...");
+        }
     }
 
     @Override
