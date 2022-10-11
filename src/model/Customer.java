@@ -1,5 +1,8 @@
 package model;
 
+import java.util.Objects;
+import java.util.Scanner;
+
 public class Customer {
 
     private int _customerID;
@@ -33,6 +36,16 @@ public class Customer {
         this._first_name = _first_name;
     }
 
+    public void set_first_name(){
+        Scanner mySc = new Scanner(System.in);
+        System.out.println("Nuovo nome: ");
+
+        String fn = mySc.nextLine();
+        if(!Objects.equals(fn, ""))
+            this._first_name = fn;
+        System.out.println("Nome: " + this._first_name);
+    }
+
     public String get_last_name() {
         return _last_name;
     }
@@ -41,12 +54,32 @@ public class Customer {
         this._last_name = _last_name;
     }
 
+    public void set_last_name(){
+        Scanner mySc = new Scanner(System.in);
+        System.out.println("Nuovo cognome: ");
+
+        String ln = mySc.nextLine();
+        if(!Objects.equals(ln, ""))
+            this._last_name = ln;
+        System.out.println("Cognome: " + this._last_name);
+    }
+
     public String get_email() {
         return _email;
     }
 
     public void set_email(String _email) {
         this._email = _email;
+    }
+
+    public void set_email(){
+        Scanner mySc = new Scanner(System.in);
+        System.out.println("Nuova e-mail: ");
+
+        String em = mySc.nextLine();
+        if(!Objects.equals(em, ""))
+            this._email = em;
+        System.out.println("E-mail: " + this._email);
     }
 
     @Override
