@@ -7,6 +7,9 @@ public class Customer {
     private String _last_name;
     private String _email;
 
+    public Customer() {
+
+    }
     public Customer(int _customerID, String _first_name, String _last_name, String _email) {
         this._customerID = _customerID;
         this._first_name = _first_name;
@@ -44,5 +47,10 @@ public class Customer {
 
     public void set_email(String _email) {
         this._email = _email;
+    }
+
+    @Override
+    public String toString(){
+        return "Cliente #" + this._customerID + ": " + this._first_name + " " + this._last_name + ", e-mail: " + this._email;
     }
 }

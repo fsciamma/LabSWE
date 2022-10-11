@@ -1,5 +1,7 @@
 package DAO;
 
+import model.Customer;
+
 import java.sql.*;
 
 public class CustomerDAO {
@@ -32,9 +34,9 @@ public class CustomerDAO {
 
     public boolean addNewCustomer(String fn, String ln, String em){
         boolean success = false;
-        ResultSet rs;
+        String query = "select * from customer";
         try(Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE)){
-            rs = stmt.executeQuery("select * from customer");
+            ResultSet rs = stmt.executeQuery(query);
 
             rs.moveToInsertRow();
 
@@ -50,5 +52,20 @@ public class CustomerDAO {
             System.out.println(e.getMessage());
         }
         return success;
+    }
+
+    public Customer findById(int id) throws SQLException {
+        Customer c = new Customer();
+        String query = "select * from customer where customerid = " + id;
+        try(Statement stmt = conn.createStatement()){
+            ResultSet rs = stmt.executeQuery(query);
+            while(rs.next()){
+                c.set_customerID(rs.getInt("customerid"));
+                c.set_first_name(rs.getString("first_name"));
+                c.set_last_name(rs.getString("last_name"));
+                c.set_email(rs.getString("email"));
+            }
+        }
+        return c;
     }
 }
