@@ -3,6 +3,7 @@ package DAO;
 import model.Customer;
 
 import java.sql.*;
+import java.util.ArrayList;
 
 public class CustomerDAO {
     private Connection conn = null;
@@ -67,5 +68,38 @@ public class CustomerDAO {
             }
         }
         return c;
+    }
+
+    public ArrayList<Customer> findByFirstName(String ln) throws SQLException {
+        ArrayList<Customer> cList = new ArrayList<>();
+        String query = "select * from customer where last_name = '" + ln +"'";
+        return getCustomers(cList, query);
+    }
+
+    public ArrayList<Customer> findByLastName(String ln) throws SQLException {
+        ArrayList<Customer> cList = new ArrayList<>();
+        String query = "select * from customer where last_name = '" + ln +"'";
+        return getCustomers(cList, query);
+    }
+
+    public ArrayList<Customer> findByEMail(String em) throws SQLException {
+        ArrayList<Customer> cList = new ArrayList<>();
+        String query = "select * from customer where email = '" + em + "'";
+        return getCustomers(cList, query);
+    }
+
+    private ArrayList<Customer> getCustomers(ArrayList<Customer> cList, String query) throws SQLException {
+        try(Statement stmt = conn.createStatement()){
+            ResultSet rs = stmt.executeQuery(query);
+            while(rs.next()){
+                Customer c = new Customer();
+                c.set_customerID(rs.getInt("customerid"));
+                c.set_first_name(rs.getString("first_name"));
+                c.set_last_name(rs.getString("last_name"));
+                c.set_email(rs.getString("email"));
+                cList.add(c);
+            }
+        }
+        return cList;
     }
 }
