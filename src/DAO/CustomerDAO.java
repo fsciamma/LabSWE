@@ -35,12 +35,9 @@ public class CustomerDAO {
     }
 
     /**
-     * Permette di aggiungere un nuovo cliente al database*
-     *
-     * @return se l'inserimento è riuscito o meno
+     * Permette di aggiungere un nuovo cliente al database
      */
-    public boolean addNewCustomer(){ //TODO decidere se questo metodo sta in questa classe o va inserita una classe SystemDAO che crea nuovi oggetti da inserire nel db
-        boolean success = false;
+    public void addNewCustomer(){ //TODO decidere se questo metodo sta in questa classe o va inserita una classe SystemDAO che crea nuovi oggetti da inserire nel db
         boolean mailIsValid = false;
         Customer c = new Customer();
         c.set_first_name();
@@ -67,16 +64,35 @@ public class CustomerDAO {
             rs.insertRow();
             rs.beforeFirst();
 
-            success = true;
         } catch(SQLException e){
             System.out.println(e.getMessage());
         }
-        return success;
     }
 
     public Customer findById(int id) throws SQLException {
         Customer c = new Customer();
         String query = "select * from customer where customerid = " + id;
+        try {
+            return getCustomer(query, c);
+        } catch (SQLException e){
+            System.out.println("Il cliente #" +  id + " non è presente nel database");
+        }
+        return c;
+    }
+
+    public Customer findByInfo(String fn, String em) throws SQLException {
+        String[] fullName = fn.split(" "); //dà per assunto che n sia composto di un nome e un cognome
+        String query = "select * from customer where first_name = '" + fullName[0] + "' and last_name = '" + fullName[1] + "' and email = '" + em + "'";
+        Customer c = new Customer();
+        try {
+            return getCustomer(query, c);
+        } catch (SQLException e){
+            System.out.println("Cliente non trovato: i dati inseriti non risultano nel database");
+        }
+        return c;
+    }
+
+    private Customer getCustomer(String query, Customer c) throws SQLException {
         try(Statement stmt = conn.createStatement()){
             ResultSet rs = stmt.executeQuery(query);
             while(rs.next()){
@@ -89,6 +105,7 @@ public class CustomerDAO {
         if(c.get_customerID() == 0){
             throw new SQLException();
         }
+        System.out.println(c);
         return c;
     }
 
@@ -104,11 +121,6 @@ public class CustomerDAO {
         return getCustomers(cList, query);
     }
 
-    public ArrayList<Customer> findByFullName(String fn, String ln) throws SQLException {
-        ArrayList<Customer> cList = new ArrayList<>();
-        String query = "select * from customer where first_name = '" + fn + "' and last_name = '" + ln + "'";
-        return getCustomers(cList, query);
-    }
 
     public ArrayList<Customer> findByEMail(String em) throws SQLException {
         ArrayList<Customer> cList = new ArrayList<>();
@@ -146,11 +158,11 @@ public class CustomerDAO {
         }
     }
 
-    public void updateCustomerInfo(String n){ //TODO dovrebbe prendere anche l'indirizzo e-mail
+    public void updateCustomerInfo(String n){
         try {
             String[] fullName = n.split(" "); //dà per assunto che n sia composto di un nome e un cognome
-            ArrayList<Customer> cList = findByFullName(fullName[0], fullName[1]); //TODO viviamo in un mondo ideale in cui non ci sono omonimi :)
-            updateInfo(cList.get(0), cList.get(0).get_customerID());
+            Customer cList = findByInfo(fullName[0], fullName[1]);
+            //updateInfo(cList.get(0), cList.get(0).get_customerID());
         } catch (SQLException e){
             System.out.println("Non è stato trovato nessun cliente " + n);
         }
