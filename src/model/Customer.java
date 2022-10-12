@@ -80,9 +80,10 @@ public class Customer {
         System.out.println("Nuova e-mail: ");
 
         String em = mySc.nextLine();
-        this.isValidEmail(em);
-        if(!Objects.equals(em, ""))
+        if(!Objects.equals(em, "")) {
+            this.isValidEmail(em);
             this._email = em;
+        }
         System.out.println("E-mail: " + this._email);
     }
 
