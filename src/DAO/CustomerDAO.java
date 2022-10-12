@@ -128,6 +128,9 @@ public class CustomerDAO {
                 cList.add(c);
             }
         }
+        if(cList.isEmpty()){
+            throw new SQLException();
+        }
         return cList;
     }
 
@@ -143,10 +146,14 @@ public class CustomerDAO {
         }
     }
 
-    public void updateCustomerInfo(String n) throws SQLException { //TODO dovrebbe prendere anche l'indirizzo e-mail
-        String[] fullName = n.split(" ");
-        ArrayList<Customer> cList = findByFullName(fullName[0], fullName[1]); //TODO viviamo in un mondo ideale in cui non ci sono omonimi :)
-        updateInfo(cList.get(0), cList.get(0).get_customerID());
+    public void updateCustomerInfo(String n){ //TODO dovrebbe prendere anche l'indirizzo e-mail
+        try {
+            String[] fullName = n.split(" "); //dà per assunto che n sia composto di un nome e un cognome
+            ArrayList<Customer> cList = findByFullName(fullName[0], fullName[1]); //TODO viviamo in un mondo ideale in cui non ci sono omonimi :)
+            updateInfo(cList.get(0), cList.get(0).get_customerID());
+        } catch (SQLException e){
+            System.out.println("Non è stato trovato nessun cliente " + n);
+        }
     }
 
     private void updateInfo(Customer c, int id){
