@@ -86,6 +86,9 @@ public class CustomerDAO {
                 c.set_email(rs.getString("email"));
             }
         }
+        if(c.get_customerID() == 0){
+            throw new SQLException();
+        }
         return c;
     }
 
@@ -132,8 +135,12 @@ public class CustomerDAO {
      *
      * @param
      */
-    public void updateCustomerInfo(int id) throws SQLException {
-        this.updateInfo(findById(id), id);
+    public void updateCustomerInfo(int id){
+        try {
+            this.updateInfo(findById(id), id);
+        } catch (SQLException e){
+            System.out.println("Il cliente #" + id + " non è registrato.");
+        }
     }
 
     public void updateCustomerInfo(String n) throws SQLException { //TODO dovrebbe prendere anche l'indirizzo e-mail
