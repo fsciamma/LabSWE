@@ -21,7 +21,7 @@ public class LabSWE {
                     System.out.println("\t 1 - Aggiungi nuovo cliente");
                     System.out.println("\t 2 - Trova e modifica cliente");
                     System.out.println("\t 3 - Torna indietro");
-                    CustomerDAO cd = new CustomerDAO();
+                    CustomerDAO cd = new CustomerDAO(); //TODO va messo in un try? la connessione potrebbe fallire...
                     input = new Scanner(System.in);
                     switch (input.nextInt()) {
                         case 1 -> cd.addNewCustomer();
