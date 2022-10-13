@@ -1,15 +1,17 @@
 drop table if exists Customer cascade;
 drop table if exists Reservation cascade;
-drop table if exists CustomerInvoice cascade;
+drop table if exists CustomerInvoice;
 drop table if exists TipoOmbrellone cascade;
-drop table if exists Ombrellone cascade;
+drop table if exists Ombrellone;
 drop table if exists ExtraType cascade;
+drop table if exists extra_prenotati;
 
 create table Customer(
 	customerID smallserial primary key,
 	first_name varchar(128) not null,
 	last_name varchar(128) not null,
-	email varchar(255) not null);
+	email varchar(255) not null,
+	unique (first_name, last_name, email));
 	
 create table TipoOmbrellone(
 	typeID smallserial primary key,
