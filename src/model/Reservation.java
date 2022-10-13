@@ -11,12 +11,22 @@ public class Reservation {
     private float total_price;
     private float discount_percent = 0;
 
-    public Reservation(int reservationID, int customerID, int ombrelloneID, Date start_date, Date end_date) {
-        this.reservationID = reservationID;
+    /**
+     * Crea un oggetto prenotazione usando i parametri passati. Chiama un metodo per cercare gli ombrelloni liberi e ne
+     * assegna uno alla prenotazione.
+     *
+     * @param customerID
+     * @param start_date
+     * @param end_date
+     */
+    public Reservation(int customerID, Date start_date, Date end_date) {
         this.customerID = customerID;
-        this.ombrelloneID = ombrelloneID;
         this.start_date = start_date;
         this.end_date = end_date;
+        //reservationID viene assegnato dal database: forse devo creare un altro costruttore che costruisce una
+        //prenotazione da una riga del database...
+        //TODO chiamare metodo per cercare un OmbrelloneLibero nelle date indicate e assegnarlo a this.OmbrelloneID
+        //TODO aggiungere un try per creare una nuova riga nella tabella Reservation con i dati ricevuti: a questo punto alla prenotazione è assegnato anche un reservationID
     }
 
     public int getReservationID() {
