@@ -27,8 +27,8 @@ public class LabSWE {
                         case 1 -> cd.addNewCustomer();
                         case 2 -> {
                             System.out.println("\t Cercare per:");
-                            System.out.println("\t 1 - codice cliente");
-                            System.out.println("\t 2 - dati cliente");
+                            System.out.println("\t 1 - Codice cliente");
+                            System.out.println("\t 2 - Dati cliente");
                             System.out.println("\t 3 - Torna indietro");
                             input = new Scanner(System.in);
                             switch (input.nextInt()) {
@@ -36,18 +36,23 @@ public class LabSWE {
                                     System.out.println("Inserire codice cliente:");
                                     input = new Scanner(System.in);
                                     Customer c = cd.findById(input.nextInt());
-                                    clientOptions(c);
-                                    cd.updateCustomerInfo(c);
+                                    if(c.get_first_name() != null) { // non permette di modificare il cliente se non lo trova nel database
+                                        clientOptions(c);
+                                        cd.updateCustomerInfo(c);
+                                    }
                                 }
                                 case 2 -> {
-                                    System.out.println("Inserire dati cliente:");
+                                    System.out.println("Inserire dati cliente (Nome Cognome):");
                                     input = new Scanner(System.in);
                                     String fullName = input.nextLine();
+                                    System.out.println("Inserire dati cliente (e-mail):");
                                     input = new Scanner(System.in);
                                     String email = input.nextLine();
                                     Customer c = cd.findByInfo(fullName, email);
-                                    clientOptions(c);
-                                    cd.updateCustomerInfo(c);
+                                    if(c.get_customerID() != 0) { // non permette di modificare il cliente se non lo trova nel database
+                                        clientOptions(c);
+                                        cd.updateCustomerInfo(c);
+                                    }
                                 }
                                 case 3 -> {
                                     //TODO forse per tornare alla pagina precedente serve un booleano
