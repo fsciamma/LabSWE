@@ -37,7 +37,7 @@ public class LabSWE {
                                     input = new Scanner(System.in);
                                     Customer c = cd.findById(input.nextInt());
                                     clientOptions(c);
-                                    //TODO inserire il codice per modificare il database in base ai nuovi valori contenuti in c: il metodo dovrà essere contenuto in CustomerDAO
+                                    cd.updateCustomerInfo(c);
                                 }
                                 case 2 -> {
                                     System.out.println("Inserire dati cliente:");
@@ -47,7 +47,7 @@ public class LabSWE {
                                     String email = input.nextLine();
                                     Customer c = cd.findByInfo(fullName, email);
                                     clientOptions(c);
-                                    //TODO inserire il codice per modificare il database in base ai nuovi valori contenuti in c: il metodo dovrà essere contenuto in CustomerDAO
+                                    cd.updateCustomerInfo(c);
                                 }
                                 case 3 -> {
                                     //TODO forse per tornare alla pagina precedente serve un booleano
@@ -70,11 +70,15 @@ public class LabSWE {
 
     }
 
+    /**
+     * Permette di modificare le informazioni di un Customer
+     * @param c Il Customer da modificare
+     */
     private static void clientOptions(Customer c) {
         System.out.println("Vuoi eseguire delle modifiche al cliente #" + c.get_customerID() + "? (Y/N)");
         Scanner input = new Scanner(System.in);
         String line = input.nextLine();
-        if ("Y".equals(line) || "y".equals(line)) {
+        if ("Y".equals(line) || "y".equals(line)) {  // Se viene inserito qualsiasi altro carattere esce dal metodo, terminando la modifica
             boolean modifying = true;
             while (modifying) {
                 System.out.println("Cosa vuoi modificare?");
@@ -93,8 +97,15 @@ public class LabSWE {
                         c.set_last_name(input.nextLine());
                     }
                     case 3 -> {
-                        input = new Scanner(System.in);
-                        c.set_email(input.nextLine());
+                        boolean mailIsValid = false;
+                        while(!mailIsValid) {
+                            try {
+                                c.set_email();
+                                mailIsValid = true;
+                            } catch (IllegalArgumentException e) {
+                                System.out.println(e.getMessage());
+                            }
+                        }
                     }
                     case 4 -> modifying = false;
                 }
