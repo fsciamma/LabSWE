@@ -6,11 +6,16 @@ import java.sql.SQLException;
 
 public abstract class BaseDAO {
 
-    protected Connection conn = null; //Fare un singleton per avere una connessione comune a tutti gli ObjectDAO: viene condivisa la connessione fra tutti i DAO
+    static Connection conn = null; //Fare un singleton per avere una connessione comune a tutti gli ObjectDAO: viene condivisa la connessione fra tutti i DAO
 
     public BaseDAO() {
         try {
-            this.conn = getConnection();
+            if(conn == null) {
+                conn = getConnection();
+            }
+            else{
+                System.out.println("Esiste già una connessione: " + conn.toString()); //TODO riga da cancellare alla consegna del progetto
+            }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
