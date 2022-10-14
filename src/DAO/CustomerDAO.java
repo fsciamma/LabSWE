@@ -6,10 +6,18 @@ import java.sql.*;
 import java.util.ArrayList;
 
 public class CustomerDAO extends BaseDAO {
-    //TODO probabilmente deve essere un Singleton, e così tutti gli altri ObjectDAO
 
-    public CustomerDAO() {
+    private static CustomerDAO INSTANCE;
+
+    private CustomerDAO() {
         super();
+    }
+
+    public static CustomerDAO getINSTANCE(){
+        if(INSTANCE == null){
+            INSTANCE = new CustomerDAO();
+        }
+        return INSTANCE;
     }
 
 

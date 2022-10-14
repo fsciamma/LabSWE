@@ -14,10 +14,10 @@ public class UmbrellaTypeDAO extends BaseDAO {
     }
 
     public static UmbrellaTypeDAO getInstance(){
-        if(UmbrellaTypeDAO.INSTANCE == null){
-            UmbrellaTypeDAO.INSTANCE = new UmbrellaTypeDAO();
+        if(INSTANCE == null){
+            INSTANCE = new UmbrellaTypeDAO();
         }
-        return UmbrellaTypeDAO.INSTANCE;
+        return INSTANCE;
     }
 
     public UmbrellaType getUTypes() throws SQLException {
