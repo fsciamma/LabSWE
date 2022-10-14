@@ -5,34 +5,14 @@ import model.Customer;
 import java.sql.*;
 import java.util.ArrayList;
 
-public class CustomerDAO {
+public class CustomerDAO extends BaseDAO {
     //TODO probabilmente deve essere un Singleton, e così tutti gli altri ObjectDAO
-    private Connection conn = null;
 
     public CustomerDAO() {
-        try {
-            this.conn = getConnection();
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
+        super();
     }
 
-    public Connection getConnection() throws SQLException { //TODO forse dovremmo fare una classe DAO da cui ereditano tutte questo metodo
-        try {
-            Class.forName("org.postgresql.Driver");
-        } catch (ClassNotFoundException e) {
-            System.out.println("Class not found " + e);
-        }
-        try {
-            String host = "jdbc:postgresql://localhost:5432/laZattera_db";
-            String uName = "filippos";
-            String uPass = "filippos";
-            return DriverManager.getConnection(host, uName, uPass);
-        } catch (SQLException var5) {
-            System.out.println(var5.getMessage());
-            return null;
-        }
-    }
+
 
     /**
      * Permette di aggiungere un nuovo cliente al database
@@ -92,9 +72,8 @@ public class CustomerDAO {
      * @param fn Prende il nome completo del Customer, che deve essere inserito separando Nome e Cognome con uno spazio
      * @param em Prende l'indirizzo e-mail del Customer
      * @return Customer c: oggetto Customer che presenta le informazioni ottenute dal DB usando la chiave (Nome, Cognome, E-mail)
-     * @throws SQLException
      */
-    public Customer findByInfo(String fn, String em) throws SQLException {
+    public Customer findByInfo(String fn, String em){
         String[] fullName = fn.split(" "); //dà per assunto che n sia composto di un nome e un cognome
         String query = "select * from customer where first_name = '" + fullName[0] + "' and last_name = '" + fullName[1] + "' and email = '" + em + "'";
         Customer c = new Customer();
