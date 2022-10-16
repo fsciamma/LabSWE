@@ -25,8 +25,8 @@ public class UmbrellaTypeDAO extends BaseDAO {
         String query = "select * from tipoOmbrellone";
         try(Statement stmt = conn.createStatement()){
             ResultSet rs = stmt.executeQuery(query);
-            TypeDetails tD = new TypeDetails();
             while(rs.next()){
+                TypeDetails tD = new TypeDetails();
                 tD.setTypeName(rs.getString("type_name"));
                 tD.setTypePrice(rs.getFloat("daily_price"));
                 u.getUTypeMap().put(rs.getInt("typeid"), tD);
