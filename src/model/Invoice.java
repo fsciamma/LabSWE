@@ -6,6 +6,8 @@ public class Invoice {
     private float invoice_amount; //corrisponde a total_price * (100 - discount_percentage) indicati nella Reservation corrispondente
     private boolean paid = false;
 
+    public Invoice(){}
+
     public Invoice(int invoiceID, int customerID) {
         this.invoiceID = invoiceID;
         this.customerID = customerID;

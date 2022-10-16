@@ -25,6 +25,7 @@ public class CustomerDAO extends BaseDAO {
     /**
      * Permette di aggiungere un nuovo cliente al database
      */
+    //TODO rielaborare le funzioni secondo nuovo schema
     public void addNewCustomer(){ //TODO decidere se questo metodo sta in questa classe o va inserita una classe SystemDAO che crea nuovi oggetti da inserire nel db
         boolean mailIsValid = false;
         Customer c = new Customer();
