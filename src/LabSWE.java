@@ -1,12 +1,19 @@
-import DAO.CustomerDAO;
-import model.Customer;
-
-import java.sql.SQLException;
-import java.util.Scanner;
-
+import BusinessLogic.BusinessLogic;
 
 public class LabSWE {
-    public static void main(String[] args) throws SQLException{
+    public static void main(String[] args){
+        BusinessLogic.mainMenu();
+    }
+        /*
+        UmbrellaTypeDAO uTD = UmbrellaTypeDAO.getInstance();
+        UmbrellaType umbrellaTable = uTD.getUTypes();
+        try {
+            Umbrella u = UmbrellaDAO.getINSTANCE().getUmbrella(2);
+            Umbrella u2 = UmbrellaDAO.getINSTANCE().getUmbrella(5);
+            Umbrella u3 = UmbrellaDAO.getINSTANCE().getUmbrella(10);
+        } catch (SQLException e){
+            System.out.println("L'ombrellone non è salvato in memoria...");
+        }
         boolean running = true;
         while(running) {
             System.out.println("Scegli un'opzione:");
@@ -21,7 +28,7 @@ public class LabSWE {
                     System.out.println("\t 1 - Aggiungi nuovo cliente");
                     System.out.println("\t 2 - Trova e modifica cliente");
                     System.out.println("\t 3 - Torna indietro");
-                    CustomerDAO cd = new CustomerDAO(); //TODO va messo in un try? la connessione potrebbe fallire...
+                    CustomerDAO cd = CustomerDAO.getINSTANCE(); //TODO va messo in un try? la connessione potrebbe fallire...
                     input = new Scanner(System.in);
                     switch (input.nextInt()) {
                         case 1 -> cd.addNewCustomer();
@@ -55,10 +62,15 @@ public class LabSWE {
                                     }
                                 }
                                 case 3 -> {
+                                    System.out.println("SIUUUUM");
                                     //TODO forse per tornare alla pagina precedente serve un booleano
                                 }
                                 default -> System.out.println("Opzione non valida...");
                             }
+                        }
+                        case 3 -> {
+                            System.out.println("Torna a pagina precedente...");
+                            //TODO forse per tornare alla pagina precedente serve un booleano
                         }
                         default -> System.out.println("Opzione non valida...");
                     }
@@ -75,10 +87,13 @@ public class LabSWE {
 
     }
 
+         */
+
     /**
      * Permette di modificare le informazioni di un Customer
      * @param c Il Customer da modificare
      */
+    /*
     private static void clientOptions(Customer c) {
         System.out.println("Vuoi eseguire delle modifiche al cliente #" + c.get_customerID() + "? (Y/N)");
         Scanner input = new Scanner(System.in);
@@ -117,5 +132,7 @@ public class LabSWE {
             }
         }
     }
+
+     */
 }
 
