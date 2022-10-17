@@ -8,19 +8,27 @@ public abstract class BaseDAO {
 
     static Connection conn = null; //Fare un singleton per avere una connessione comune a tutti gli ObjectDAO: viene condivisa la connessione fra tutti i DAO
 
+    /**
+     * Costruttore della superclass BaseDAO: viene chiamato da tutti i DAO che vengono istanziati, che condividono tutti lo stesso attributo Connection: in questo modo, solo la prima volta che viene istanziato un DAO viene creata la connessione, gli altri useranno quella in comune.
+     */
     public BaseDAO() {
         try {
             if(conn == null) {
                 conn = getConnection();
             }
             else{
-                System.out.println("Esiste già una connessione: " + conn.toString()); //TODO riga da cancellare alla consegna del progetto
+                System.out.println("Esiste già una connessione: " + conn); //TODO riga da cancellare alla consegna del progetto
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
     }
 
+    /**
+     * Metodo che istanzia la connessione col database utilizzato
+     * @return Oggetto Connection condiviso tra tutti i DAO
+     * @throws SQLException
+     */
     public Connection getConnection() throws SQLException {
         try {
             Class.forName("org.postgresql.Driver");
