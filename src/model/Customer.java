@@ -23,6 +23,18 @@ public class Customer {
         this._email = _email;
     }
 
+    public static Customer createNewCustomer() {
+        Customer c = new Customer();
+        c.set_first_name();
+        c.set_last_name();
+        boolean mailIsValid = false;
+        while(!mailIsValid) {
+            c.set_email();
+            mailIsValid = true;
+        }
+        return c;
+    }
+
     public int get_customerID() {
         return _customerID;
     }
