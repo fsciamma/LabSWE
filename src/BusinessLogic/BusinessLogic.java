@@ -7,7 +7,9 @@ import java.sql.SQLException;
 import java.util.Scanner;
 
 public abstract class BusinessLogic {
-
+    /**
+     * Metodo che mostra il menù principale del programma, permette di accedere ai metodi per eseguire operazioni su clienti o prenotazioni o chiudere il programma
+     */
     public static void mainMenu() {
         boolean running = true;
         while(running) {
@@ -29,6 +31,9 @@ public abstract class BusinessLogic {
         }
     }
 
+    /**
+     * Metodo che mostra un sottomenù con le operazioni eseguibili riguardo ad un cliente
+     */
     private static void customerOptions(){
         boolean cRunning = true;
         while(cRunning) {
@@ -49,16 +54,22 @@ public abstract class BusinessLogic {
         }
     }
 
+    /**
+     * Metodo che invoca i metodi di Customer e CustomerDAO per aggiungere un nuovo cliente al database
+     */
     private static void addNewCustomer() {
         CustomerDAO cd = CustomerDAO.getINSTANCE();
         Customer newC = Customer.createNewCustomer();
         try {
             cd.addNewCustomer(newC);
         } catch (SQLException e) {
-            System.out.println("Fratm esiste già questo cliente");
+            System.out.println("Un cliente con le stesse credenziali è già salvato in memoria");
         }
     }
 
+    /**
+     * Metodo che permette di scegliere come eseguire la ricerca di un cliente nel database; se il cliente è presente nel database, invoca anche il metodo che permette di modificarne i campi
+     */
     private static void findCustomer() {
         boolean findCRunning = true;
         while(findCRunning) {
@@ -100,6 +111,11 @@ public abstract class BusinessLogic {
         }
     }
 
+    /**
+     * Metodo che permette di modificare i campi di un oggetto Customer c che è stato trovato nel database attraverso i metodi CustomerDAO.findById() o CustomerDAO.findByInfo()
+     * @param c è il Customer di cui si vuole modificare le informazioni e che viene poi restituito
+     */
+    //TODO [PROBABILMENTE SI PUO' USARE CUSTOMERDAO.FINDHOMONYM()] aggiungere il codice che spiega che, nel caso in cui il Customer c appena modificato sia identico ad uno già presente nel database, la modifica dei dati del suddetto c non è possibile e quindi verranno mantenuti i dati precedenti
     private static void modifyClientInfo(Customer c) {
         System.out.println("Vuoi eseguire delle modifiche al cliente #" + c.get_customerID() + "? (Y/N)");
         Scanner input = new Scanner(System.in);
