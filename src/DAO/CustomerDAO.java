@@ -26,18 +26,11 @@ public class CustomerDAO extends BaseDAO {
      * Permette di aggiungere un nuovo cliente al database
      */
     //TODO rielaborare le funzioni secondo nuovo schema
-    public void addNewCustomer(){ //TODO decidere se questo metodo sta in questa classe o va inserita una classe SystemDAO che crea nuovi oggetti da inserire nel db
-        boolean mailIsValid = false;
-        Customer c = new Customer();
-        c.set_first_name();
-        c.set_last_name();
-        while(!mailIsValid) {
-            try {
-                c.set_email();
-                mailIsValid = true;
-            } catch (IllegalArgumentException e) {
-                System.out.println(e.getMessage());
-            }
+    public void addNewCustomer(Customer newC) throws SQLException { //TODO decidere se questo metodo sta in questa classe o va inserita una classe SystemDAO che crea nuovi oggetti da inserire nel db
+        try {
+            findHomonym(newC);
+        } catch (RuntimeException e) {
+            throw new SQLException("Cliente con lo stesso nome già registrato");
         }
         String query = "select * from customer";
         ResultSet rs;
@@ -46,15 +39,31 @@ public class CustomerDAO extends BaseDAO {
 
             rs.moveToInsertRow();
 
-            rs.updateString("first_name", c.get_first_name());
-            rs.updateString("last_name", c.get_last_name());
-            rs.updateString("email", c.get_email());
+            rs.updateString("first_name", newC.get_first_name());
+            rs.updateString("last_name", newC.get_last_name());
+            rs.updateString("email", newC.get_email());
 
             rs.insertRow();
             rs.beforeFirst();
 
         } catch(SQLException e){
             System.out.println(e.getMessage());
+        }
+    }
+
+    /**
+     * Metodo per cercare nel database clienti con la stessa tripla univoca del cliente che si prova ad inserire
+     * @param newC
+     */
+    private void findHomonym(Customer newC) throws RuntimeException {
+        String query = "select * from customer where first_name = '" + newC.get_first_name() + "' and last_name = '" + newC.get_last_name() + "' and email = '" + newC.get_email() + "'";
+        Customer c = new Customer();
+        try {
+            c = getCustomer(query, c);
+            throw new RuntimeException("Cliente con stesse credenziali già registrato...");
+            //
+        } catch (SQLException ignored) {
+
         }
     }
 
@@ -113,7 +122,7 @@ public class CustomerDAO extends BaseDAO {
             }
         }
         if(c.get_customerID() == 0){
-            throw new SQLException();
+            throw new SQLException("Il cliente non è stato trovato");
         }
         System.out.println(c);
         return c;
