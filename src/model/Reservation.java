@@ -17,6 +17,11 @@ public class Reservation {
 
     }
 
+    /**
+     * Ritorna una Reservation in cui sono stati inseriti il codice cliente del Customer che l'ha richiesta e le date di inizio e fine prenotazione. L'ombrellone viene inserito successivamente nella BusinessLogic
+     * @param customerId il codice del Customer che ha richiesto la Reservation
+     * @return Reservation in cui sono inizializzati i parametri customerId, start_date e end_date
+     */
     public static Reservation createNewReservation(int customerId){
         Reservation r = new Reservation();
         r.setCustomerId(customerId);
@@ -43,9 +48,6 @@ public class Reservation {
                 System.out.println(e.getMessage());
             }
         }
-
-        //TODO inserire tutto
-
         return r;
     }
 
@@ -60,7 +62,6 @@ public class Reservation {
         this.start_date = set_date(mySc);
     }
 
-    
     public void setEnd_date() throws NumberFormatException, DateTimeException {
         Scanner mySc = new Scanner(System.in);
         System.out.println("Inserire data di fine: (dd-mm-yyyy)");
