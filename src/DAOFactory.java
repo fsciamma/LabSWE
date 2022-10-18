@@ -1,7 +1,4 @@
-import DAO.CustomerDAO;
-import DAO.InvoiceDAO;
-import DAO.ReservationDAO;
-import DAO.UmbrellaTypeDAO;
+import DAO.*;
 
 public class DAOFactory {
     private static DAOFactory INSTANCE;
@@ -28,6 +25,10 @@ public class DAOFactory {
 
     public InvoiceDAO createInvoiceDAO(){
         return InvoiceDAO.getINSTANCE();
+    }
+
+    public UmbrellaDAO createUmbrellaDAO(){
+        return UmbrellaDAO.getINSTANCE();
     }
     //TODO aggiungere gli altri metodi via via che vengono creati i rispettivi DAO
 }

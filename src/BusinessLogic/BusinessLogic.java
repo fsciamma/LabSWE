@@ -6,6 +6,7 @@ import DAO.UmbrellaTypeDAO;
 import model.*;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -20,12 +21,14 @@ public abstract class BusinessLogic {
             //System.out.println("\t -");
             System.out.println("\t 1 - Operazioni Cliente");
             System.out.println("\t 2 - Operazioni Prenotazione");
-            System.out.println("\t 3 - Esci");
+            System.out.println("\t 3 - Operazioni Stabilimento");
+            System.out.println("\t 4 - Esci");
             Scanner input = new Scanner(System.in);
             switch (input.nextInt()) {
                 case 1 -> customerOptions();
                 case 2 -> System.out.println("-- PRENOTAZIONE --");
-                case 3 -> {
+                case 3 -> resortOptions();
+                case 4 -> {
                     System.out.println("-- CHIUSURA PROGRAMMA --");
                     running = false;
                 }
@@ -61,7 +64,7 @@ public abstract class BusinessLogic {
      * Metodo che invoca i metodi di Customer e CustomerDAO per aggiungere un nuovo cliente al database
      */
     private static void addNewCustomer() {
-        CustomerDAO cd = CustomerDAO.getINSTANCE();
+        CustomerDAO cd = CustomerDAO.getINSTANCE(); //TODO qui va la factory
         Customer newC = Customer.createNewCustomer();
         try {
             cd.addNewCustomer(newC);
@@ -170,5 +173,93 @@ public abstract class BusinessLogic {
                 }
             }
         }
+    }
+
+    /**
+     * Metodo che permette di accedere a un sotto-menù con operazioni di utility per la gestione del bagno (e.g. operazioni di visualizzazione)
+     */
+    private static void resortOptions(){
+        boolean oRunning = true;
+        Scanner input = new Scanner(System.in);
+        while(oRunning){
+            System.out.println("Selezionare l'operazione che si vuole compiere: ");
+            System.out.println("\t 1 - Ricerca per clienti" );
+            System.out.println("\t 2 - Ricerca per prenotazioni attive");
+            System.out.println("\t 3 - Ricerca per pagamenti");
+            System.out.println("\t 4 - Torna indietro");
+            switch(input.nextInt()) {
+                case 1 -> {
+                    clientSearch();
+                }
+                case 2 -> {
+                    reservationSearch();
+                }
+                case 3 -> {
+                    paymentSearch();
+                }
+                case 4 -> oRunning = false;
+                default -> System.out.println("Opzione non valida...");
+            }
+
+        }
+    }
+
+    /**
+     * Metodo che permette da accedere a un sotto-menù con operazioni che permettono di visualizzare a schermo i clienti
+     * registrati al bagno secondo criteri selezionabili.
+     */
+    private static void clientSearch(){
+        boolean search = true;
+        Scanner option = new Scanner(System.in);
+        CustomerDAO cd = CustomerDAO.getINSTANCE();
+        Scanner customerData = new Scanner(System.in);
+        while(search){
+            System.out.println("Ricerca per: ");
+            System.out.println("\t 1 - ID cliente");
+            System.out.println("\t 2 - Nome e Cognome");
+            System.out.println("\t 3 - Nome");
+            System.out.println("\t 4 - Cognome");
+            System.out.println("\t 5 - Email");
+            System.out.println("\t 6 - Torna indietro");
+            switch(option.nextInt()){
+                case 1 -> { //TODO serve?
+                    System.out.println("Inserire codice cliente:");
+                    cd.findById(customerData.nextInt());
+                }
+                case 2 -> {
+                    System.out.println("Inserire nome e cognome del cliente da cercare: (formato: nome,cognome)");
+                    String[] fullName = customerData.nextLine().split(",");
+                    cd.findByFullName(fullName);
+                }
+                case 3 -> {
+                    System.out.println("Inserire nome del cliente: ");
+                    String name = customerData.nextLine();
+                    cd.findByFirstName(name);
+                }
+                case 4 -> {
+                    System.out.println("Inserire cognome del cliente: ");
+                    String surname = customerData.nextLine();
+                    cd.findByLastName(surname);
+                }
+                case 5 -> {
+                    System.out.println("Inserire cognome del cliente: ");
+                    String email = customerData.nextLine();
+                    cd.findByEMail(email);
+                }
+                case 6 -> {
+                    search = false;
+                }
+                default -> System.out.println("Opzione non valida...");
+
+            }
+        }
+    }
+
+    private static void reservationSearch(){
+        //TODO
+    }
+
+    private static void paymentSearch(){
+        //TODO
     }
 }

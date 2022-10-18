@@ -128,23 +128,49 @@ public class CustomerDAO extends BaseDAO {
         return c;
     }
 
-    public ArrayList<Customer> findByFirstName(String ln) throws SQLException {
+    public ArrayList<Customer> findByFirstName(String ln){ //TODO possibile renderlo case insensitive
         ArrayList<Customer> cList = new ArrayList<>();
-        String query = "select * from customer where last_name = '" + ln +"'";
-        return getCustomers(cList, query);
+        String query = "select * from customer where first_name = '" + ln +"'";
+        try{
+            return getCustomers(cList, query);
+        }catch(SQLException e){
+            System.out.println("Non sono stati trovati clienti con i dati forniti");
+        }
+        return cList;
     }
 
-    public ArrayList<Customer> findByLastName(String ln) throws SQLException {
+    public ArrayList<Customer> findByLastName(String ln){
         ArrayList<Customer> cList = new ArrayList<>();
         String query = "select * from customer where last_name = '" + ln +"'";
-        return getCustomers(cList, query);
+        try{
+            return getCustomers(cList, query);
+        } catch (SQLException e){
+            System.out.println("Non sono stati trovati clienti con i dati forniti");
+        }
+        return cList;
     }
 
 
-    public ArrayList<Customer> findByEMail(String em) throws SQLException {
+    public ArrayList<Customer> findByEMail(String em){
         ArrayList<Customer> cList = new ArrayList<>();
         String query = "select * from customer where email = '" + em + "'";
-        return getCustomers(cList, query);
+        try{
+            return getCustomers(cList, query);
+        }catch (SQLException e){
+            System.out.println("Non sono stati trovati clienti con i dati forniti");
+        }
+        return cList;
+    }
+
+    public ArrayList<Customer> findByFullName(String[] full_name){ //TODO capire se serve che riestituisca qualcosa, altrimenti renderlo void
+        ArrayList<Customer> cList = new ArrayList<>();
+        String query = "select * from customer where first_name = '" + full_name[0] + "' and last_name = '" + full_name[1] + "'";
+        try{
+            return getCustomers(cList, query);
+        } catch(SQLException e){
+            System.out.println("Non sono stati trovati clienti con i dati forniti");
+        }
+        return cList;
     }
 
     private ArrayList<Customer> getCustomers(ArrayList<Customer> cList, String query) throws SQLException {
@@ -161,6 +187,9 @@ public class CustomerDAO extends BaseDAO {
         }
         if(cList.isEmpty()){
             throw new SQLException();
+        }
+        for (Customer c: cList) {
+            System.out.println(c);
         }
         return cList;
     }

@@ -28,7 +28,7 @@ public class LabSWE {
                     System.out.println("\t 1 - Aggiungi nuovo cliente");
                     System.out.println("\t 2 - Trova e modifica cliente");
                     System.out.println("\t 3 - Torna indietro");
-                    CustomerDAO cd = CustomerDAO.getINSTANCE(); //TODO va messo in un try? la connessione potrebbe fallire...
+                    CustomerDAO cd = CustomerDAO.getINSTANCE();
                     input = new Scanner(System.in);
                     switch (input.nextInt()) {
                         case 1 -> cd.addNewCustomer();
@@ -63,14 +63,14 @@ public class LabSWE {
                                 }
                                 case 3 -> {
                                     System.out.println("SIUUUUM");
-                                    //TODO forse per tornare alla pagina precedente serve un booleano
+
                                 }
                                 default -> System.out.println("Opzione non valida...");
                             }
                         }
                         case 3 -> {
                             System.out.println("Torna a pagina precedente...");
-                            //TODO forse per tornare alla pagina precedente serve un booleano
+
                         }
                         default -> System.out.println("Opzione non valida...");
                     }
