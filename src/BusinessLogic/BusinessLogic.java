@@ -1,7 +1,9 @@
 package BusinessLogic;
 
 import DAO.CustomerDAO;
+import DAO.ReservationDAO;
 import model.Customer;
+import model.Reservation;
 
 import java.sql.SQLException;
 import java.util.Scanner;
@@ -85,6 +87,7 @@ public abstract class BusinessLogic {
                     Scanner customerNumber = new Scanner(System.in);
                     Customer c = cd.findById(customerNumber.nextInt());
                     if(c.get_first_name() != null) { // non permette di modificare il cliente se non lo trova nel database
+                        //TODO aggiungere un nuovo sottomenù dove sono mostrate le opzioni che possono essere scelte: modifica info cliente, crea nuova prenotazione, modifica prenotazione, cancella prenotazione...
                         modifyClientInfo(c);
                         cd.updateCustomerInfo(c);
                     }
@@ -109,6 +112,11 @@ public abstract class BusinessLogic {
                 default -> System.out.println("Opzione non valida...");
             }
         }
+    }
+
+    private static void addNewReservation(int customerId){
+        ReservationDAO rd = ReservationDAO.getInstance();
+        Reservation newRes = Reservation.createNewReservation(customerId);
     }
 
     /**
