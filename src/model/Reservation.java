@@ -1,87 +1,87 @@
 package model;
 
-import java.util.Date;
+import java.time.DateTimeException;
+import java.time.LocalDate;
+import java.util.Scanner;
 
 public class Reservation {
-    private int reservationID;
-    private int customerID;
-    private int ombrelloneID; // TODO serve la classe ombrellone_prenotato?
-    private Date start_date;
-    private Date end_date;
+    private int reservationId;
+    private int customerId;
+    private int ombrelloneId; // TODO serve la classe ombrellone_prenotato?
+    private LocalDate start_date;
+    private LocalDate end_date;
     private float total_price;
     private float discount_percent = 0;
 
-    /**
-     * Crea un oggetto prenotazione usando i parametri passati. Chiama un metodo per cercare gli ombrelloni liberi e ne
-     * assegna uno alla prenotazione.
-     *
-     * @param customerID
-     * @param start_date
-     * @param end_date
-     */
-    public Reservation(int customerID, Date start_date, Date end_date) {
-        this.customerID = customerID;
-        this.start_date = start_date;
-        this.end_date = end_date;
-        //reservationID viene assegnato dal database: forse devo creare un altro costruttore che costruisce una
-        //prenotazione da una riga del database...
-        //TODO chiamare metodo per cercare un OmbrelloneLibero nelle date indicate e assegnarlo a this.OmbrelloneID
-        //TODO aggiungere un try per creare una nuova riga nella tabella Reservation con i dati ricevuti: a questo punto alla prenotazione è assegnato anche un reservationID
+    public Reservation(){
+
     }
 
-    public int getReservationID() {
-        return reservationID;
+    public static Reservation createNewReservation(int customerId){
+        Reservation r = new Reservation();
+        r.setCustomerId(customerId);
+        boolean validStartDate = false;
+        while(!validStartDate) {
+            try {
+                r.setStart_date();
+                validStartDate = true;
+            } catch (NumberFormatException | DateTimeException e){
+                System.out.println(e.getMessage());
+            }
+        }
+        boolean validEndDate = false;
+        while(!validEndDate) {
+            try {
+                r.setEnd_date();
+                if(r.end_date.compareTo(r.start_date) >= 0) { // controlla che la data di fine prenotazione sia successiva a quella d'inizio prenotazione
+                    validEndDate = true;
+                }
+                else {
+                    System.out.println("La data di fine prenotazione è precedente alla data di inizio prenotazione.\nInserire una nuova data di fine prenotazione");
+                }
+            } catch (NumberFormatException | DateTimeException e){
+                System.out.println(e.getMessage());
+            }
+        }
+
+        //TODO inserire tutto
+
+        return r;
     }
 
-    public void setReservationID(int reservationID) {
-        this.reservationID = reservationID;
+    public void setCustomerId(int customerId) {
+        this.customerId = customerId;
     }
 
-    public int getCustomerID() {
-        return customerID;
+
+    public void setStart_date() throws NumberFormatException, DateTimeException{
+        Scanner mySc = new Scanner(System.in);
+        System.out.println("Inserire data di inizio: (dd-mm-yyyy)");
+        this.start_date = set_date(mySc);
     }
 
-    public void setCustomerID(int customerID) {
-        this.customerID = customerID;
+    
+    public void setEnd_date() throws NumberFormatException, DateTimeException {
+        Scanner mySc = new Scanner(System.in);
+        System.out.println("Inserire data di fine: (dd-mm-yyyy)");
+        this.end_date = set_date(mySc);
     }
 
-    public int getOmbrelloneID() {
-        return ombrelloneID;
-    }
+    private LocalDate set_date(Scanner mySc) {
+        String date = mySc.nextLine();
+        String[] fullDate = date.split("-");
+        LocalDate localDate;
 
-    public void setOmbrelloneID(int ombrelloneID) {
-        this.ombrelloneID = ombrelloneID;
-    }
-
-    public Date getStart_date() {
-        return start_date;
-    }
-
-    public void setStart_date(Date start_date) {
-        this.start_date = start_date;
-    }
-
-    public Date getEnd_date() {
-        return end_date;
-    }
-
-    public void setEnd_date(Date end_date) {
-        this.end_date = end_date;
-    }
-
-    public float getTotal_price() {
-        return total_price;
-    }
-
-    public void setTotal_price(float total_price) {
-        this.total_price = total_price;
-    }
-
-    public float getDiscount_percent() {
-        return discount_percent;
-    }
-
-    public void setDiscount_percent(float discount_percent) {
-        this.discount_percent = discount_percent;
+        try {
+            int dayOfMonth = Integer.parseInt(fullDate[0]);
+            int month = Integer.parseInt(fullDate[1]);
+            int year = Integer.parseInt(fullDate[2]);
+            localDate = LocalDate.of(year, month, dayOfMonth);
+        } catch (NumberFormatException n) {
+            throw new NumberFormatException("Inserire valori numerici...");
+        } catch (DateTimeException d) {
+            throw new DateTimeException("La data " + date + " non è valida...");
+        }
+        return localDate;
     }
 }
