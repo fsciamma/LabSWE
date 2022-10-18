@@ -2,17 +2,18 @@ package BusinessLogic;
 
 import DAO.CustomerDAO;
 import DAO.ReservationDAO;
-import model.Customer;
-import model.Reservation;
+import DAO.UmbrellaTypeDAO;
+import model.*;
 
 import java.sql.SQLException;
+import java.util.Map;
 import java.util.Scanner;
 
 public abstract class BusinessLogic {
     /**
      * Metodo che mostra il menù principale del programma, permette di accedere ai metodi per eseguire operazioni su clienti o prenotazioni o chiudere il programma
      */
-    public static void mainMenu() {
+    public static void mainMenu(){
         boolean running = true;
         while(running) {
             System.out.println("Scegli un'opzione:");
@@ -114,9 +115,17 @@ public abstract class BusinessLogic {
         }
     }
 
-    private static void addNewReservation(int customerId){
+    private static void addNewReservation(int customerId) throws SQLException {
         ReservationDAO rd = ReservationDAO.getInstance();
         Reservation newRes = Reservation.createNewReservation(customerId);
+        //TODO aggiungere un metodo per la ricerca di ombrelloni: permettere di ricercare ombrelloni di un certo tipo e aggiungerlo alla prenotazione appena creata (non era corretto inserirlo in createNewReservation in quanto andiamo a fare una query sugli ombrelloni). Il metodo potrebbe essere una cosa del tipo findUmbrella(Date newRes.getStart_date(), Date newRes.getEnd_date(), int tipoOmbrellone)
+        //TODO decidere se inserire le righe di codice che mostrano i tipi di ombrellone in un metodo a parte
+        UmbrellaTypeDAO uTD = UmbrellaTypeDAO.getInstance(); //Le righe successive mostrano a schermo il tipo di ombrellone che si può scegliere
+        UmbrellaType umbrellaTable = uTD.getUTypes();
+        System.out.println("Seleziona il tipo di ombrellone:");
+        for(Map.Entry<Integer, TypeDetails> type: umbrellaTable.getUTypeMap().entrySet()){ //cicla sugli elementi di umbrellaTable e li printa a schermo
+            System.out.println("\t" + type.getKey() + " - " + type.getValue().getTypeName());
+        }
     }
 
     /**
