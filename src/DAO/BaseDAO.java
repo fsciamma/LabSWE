@@ -20,7 +20,7 @@ public abstract class BaseDAO {
                 System.out.println("Esiste già una connessione: " + conn); //TODO riga da cancellare alla consegna del progetto
             }
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            System.err.println(e.getMessage());
         }
     }
 
@@ -41,7 +41,7 @@ public abstract class BaseDAO {
             String uPass = "filippos";
             return DriverManager.getConnection(host, uName, uPass);
         } catch (SQLException var5) {
-            System.out.println(var5.getMessage());
+            System.err.println(var5.getMessage());
             return null;
         }
     }

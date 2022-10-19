@@ -31,7 +31,7 @@ public class Reservation {
                 r.setStart_date();
                 validStartDate = true;
             } catch (NumberFormatException | DateTimeException e){
-                System.out.println(e.getMessage());
+                System.err.println(e.getMessage());
             }
         }
         boolean validEndDate = false;
@@ -42,10 +42,11 @@ public class Reservation {
                     validEndDate = true;
                 }
                 else {
-                    System.out.println("La data di fine prenotazione è precedente alla data di inizio prenotazione.\nInserire una nuova data di fine prenotazione");
+                    System.err.println("La data di fine prenotazione è precedente alla data di inizio prenotazione.");
+                    System.out.println("Inserire una nuova data di fine prenotazione");
                 }
             } catch (NumberFormatException | DateTimeException e){
-                System.out.println(e.getMessage());
+                System.err.println(e.getMessage());
             }
         }
         return r;
