@@ -18,4 +18,9 @@ public class Umbrella {
         this.umbrellaType = UmbrellaType.getInstance().getUTypeMap().get(tipoOmbrellone).getTypeName();
         this.daily_price = UmbrellaType.getInstance().getUTypeMap().get(tipoOmbrellone).getTypePrice();
     }
+
+    @Override
+    public String toString(){
+        return "Ombrellone #" + this.umbrellaId + ": " + this.umbrellaType + ", prezzo per giornata: " + this.daily_price + ".";
+    }
 }
