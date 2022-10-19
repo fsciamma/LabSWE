@@ -26,12 +26,13 @@ public class CustomerDAO extends BaseDAO {
      * Permette di aggiungere un nuovo cliente al database
      */
     //TODO rielaborare le funzioni secondo nuovo schema
-    public void addNewCustomer(Customer newC) throws SQLException { //TODO decidere se questo metodo sta in questa classe o va inserita una classe SystemDAO che crea nuovi oggetti da inserire nel db
+    public void addNewCustomer(Customer newC){ //TODO decidere se questo metodo sta in questa classe o va inserita una classe SystemDAO che crea nuovi oggetti da inserire nel db
         try {
             findHomonym(newC);
         } catch (RuntimeException e) {
-            throw new SQLException("Cliente con lo stesso nome già registrato");
+            System.err.println(e.getMessage());
         }
+        //prosegue se non ha trovato un customer con gli stessi dati
         String query = "select * from customer";
         ResultSet rs;
         try(Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE)){
@@ -47,19 +48,19 @@ public class CustomerDAO extends BaseDAO {
             rs.beforeFirst();
 
         } catch(SQLException e){
-            System.out.println(e.getMessage());
+            System.err.println(e.getMessage());
         }
     }
 
     /**
      * Metodo per cercare nel database clienti con la stessa tripla univoca del cliente che si prova ad inserire
-     * @param newC
+     * @param newC oggetto Customer di cui si cerca un omonimo
      */
     private void findHomonym(Customer newC) throws RuntimeException {
         String query = "select * from customer where first_name = '" + newC.get_first_name() + "' and last_name = '" + newC.get_last_name() + "' and email = '" + newC.get_email() + "'";
         Customer c = new Customer();
         try {
-            c = getCustomer(query, c);
+            getCustomer(query, c);
             throw new RuntimeException("Cliente con stesse credenziali già registrato...");
             //
         } catch (SQLException ignored) {
@@ -124,7 +125,7 @@ public class CustomerDAO extends BaseDAO {
         if(c.get_customerID() == 0){
             throw new SQLException("Il cliente non è stato trovato");
         }
-        System.out.println(c);
+        System.out.println(c); //TODO non è meglio farlo printare nel corpo della funzione che ha chiamato?
         return c;
     }
 
@@ -195,25 +196,27 @@ public class CustomerDAO extends BaseDAO {
     }
 
     /**
+     * Cerca se nel database è già presente un cliente con quei dati: se sì, ritorna un errore e non esegue la modifica sul database
      *
-     * @param c
+     * @param c oggetto Customer contenente le informazioni da modificare
      */
-    public void updateCustomerInfo(Customer c){ // TODO valutare se fa da middleman e se si può eliminare
-        this.updateInfo(c);
-    }
-
-    private void updateInfo(Customer c){ //TODO valutare se può essere un metodo comune a tutti gli ObjectDAO, nel caso, ognuno esegue un proprio override
-        String query = "select * from customer where customerid = " + c.get_customerID();
-        try(Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE)){
-            ResultSet rs = stmt.executeQuery(query);
-            while(rs.next()) {
-                rs.updateString("first_name", c.get_first_name());
-                rs.updateString("last_name", c.get_last_name());
-                rs.updateString("email", c.get_email());
-                rs.updateRow();
+    public void updateInfo(Customer c){ //TODO valutare se può essere un metodo comune a tutti gli ObjectDAO, nel caso, ognuno esegue un proprio override
+        try {
+            findHomonym(c);
+            String query = "select * from customer where customerid = " + c.get_customerID();
+            try(Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE)){
+                ResultSet rs = stmt.executeQuery(query);
+                while(rs.next()) {
+                    rs.updateString("first_name", c.get_first_name());
+                    rs.updateString("last_name", c.get_last_name());
+                    rs.updateString("email", c.get_email());
+                    rs.updateRow();
+                }
+            } catch (SQLException e){
+                System.err.println(e.getMessage());
             }
-        } catch (SQLException e){
-            System.out.println(e.getMessage());
+        } catch (RuntimeException e) {
+            System.err.println(e.getMessage());
         }
     }
 }
