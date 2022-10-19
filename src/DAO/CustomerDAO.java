@@ -29,25 +29,25 @@ public class CustomerDAO extends BaseDAO {
     public void addNewCustomer(Customer newC){ //TODO decidere se questo metodo sta in questa classe o va inserita una classe SystemDAO che crea nuovi oggetti da inserire nel db
         try {
             findHomonym(newC);
+            //prosegue se non ha trovato un customer con gli stessi dati
+            String query = "select * from customer";
+            ResultSet rs;
+            try(Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE)){
+                rs = stmt.executeQuery(query);
+
+                rs.moveToInsertRow();
+
+                rs.updateString("first_name", newC.get_first_name());
+                rs.updateString("last_name", newC.get_last_name());
+                rs.updateString("email", newC.get_email());
+
+                rs.insertRow();
+                rs.beforeFirst();
+
+            } catch(SQLException e){
+                System.err.println(e.getMessage());
+            }
         } catch (RuntimeException e) {
-            System.err.println(e.getMessage());
-        }
-        //prosegue se non ha trovato un customer con gli stessi dati
-        String query = "select * from customer";
-        ResultSet rs;
-        try(Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE)){
-            rs = stmt.executeQuery(query);
-
-            rs.moveToInsertRow();
-
-            rs.updateString("first_name", newC.get_first_name());
-            rs.updateString("last_name", newC.get_last_name());
-            rs.updateString("email", newC.get_email());
-
-            rs.insertRow();
-            rs.beforeFirst();
-
-        } catch(SQLException e){
             System.err.println(e.getMessage());
         }
     }
