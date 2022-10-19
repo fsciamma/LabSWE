@@ -6,7 +6,6 @@ import DAO.UmbrellaTypeDAO;
 import model.*;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -66,11 +65,7 @@ public abstract class BusinessLogic {
     private static void addNewCustomer() {
         CustomerDAO cd = CustomerDAO.getINSTANCE(); //TODO qui va la factory
         Customer newC = Customer.createNewCustomer();
-        try {
-            cd.addNewCustomer(newC);
-        } catch (SQLException e) {
-            System.out.println("Un cliente con le stesse credenziali è già salvato in memoria");
-        }
+        cd.addNewCustomer(newC);
     }
 
     /**
@@ -93,7 +88,7 @@ public abstract class BusinessLogic {
                     if(c.get_first_name() != null) { // non permette di modificare il cliente se non lo trova nel database
                         //TODO aggiungere un nuovo sottomenù dove sono mostrate le opzioni che possono essere scelte: modifica info cliente, crea nuova prenotazione, modifica prenotazione, cancella prenotazione...
                         modifyClientInfo(c);
-                        cd.updateCustomerInfo(c);
+                        cd.updateInfo(c);
                     }
                 }
                 case 2 -> {
@@ -106,7 +101,7 @@ public abstract class BusinessLogic {
                     Customer c = cd.findByInfo(fullName, email);
                     if(c.get_customerID() != 0) { // non permette di modificare il cliente se non lo trova nel database
                         modifyClientInfo(c);
-                        cd.updateCustomerInfo(c);
+                        cd.updateInfo(c);
                     }
                 }
                 case 3 -> {
@@ -147,14 +142,16 @@ public abstract class BusinessLogic {
                 System.out.println("\t 1 - Nome");
                 System.out.println("\t 2 - Cognome");
                 System.out.println("\t 3 - Indirizzo e-mail");
-                System.out.println("\t 4 - Torna indietro");
+                System.out.println("\t 4 - Termina modifiche");
                 input = new Scanner(System.in);
                 switch (input.nextInt()) {
                     case 1 -> {
+                        System.out.println("Inserire nuovo nome:");
                         input = new Scanner(System.in);
                         c.set_first_name(input.nextLine());
                     }
                     case 2 -> {
+                        System.out.println("Inserire nuovo cognome:");
                         input = new Scanner(System.in);
                         c.set_last_name(input.nextLine());
                     }
@@ -165,7 +162,7 @@ public abstract class BusinessLogic {
                                 c.set_email();
                                 mailIsValid = true;
                             } catch (IllegalArgumentException e) {
-                                System.out.println(e.getMessage());
+                                System.err.println(e.getMessage());
                             }
                         }
                     }
@@ -188,15 +185,9 @@ public abstract class BusinessLogic {
             System.out.println("\t 3 - Ricerca per pagamenti");
             System.out.println("\t 4 - Torna indietro");
             switch(input.nextInt()) {
-                case 1 -> {
-                    clientSearch();
-                }
-                case 2 -> {
-                    reservationSearch();
-                }
-                case 3 -> {
-                    paymentSearch();
-                }
+                case 1 -> clientSearch();
+                case 2 -> reservationSearch();
+                case 3 -> paymentSearch();
                 case 4 -> oRunning = false;
                 default -> System.out.println("Opzione non valida...");
             }
@@ -242,13 +233,11 @@ public abstract class BusinessLogic {
                     cd.findByLastName(surname);
                 }
                 case 5 -> {
-                    System.out.println("Inserire cognome del cliente: ");
+                    System.out.println("Inserire e-mail del cliente: ");
                     String email = customerData.nextLine();
                     cd.findByEMail(email);
                 }
-                case 6 -> {
-                    search = false;
-                }
+                case 6 -> search = false;
                 default -> System.out.println("Opzione non valida...");
 
             }
