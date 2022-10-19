@@ -2,6 +2,7 @@ package BusinessLogic;
 
 import DAO.CustomerDAO;
 import DAO.ReservationDAO;
+import DAO.UmbrellaDAO;
 import DAO.UmbrellaTypeDAO;
 import model.*;
 
@@ -14,7 +15,9 @@ public abstract class BusinessLogic {
     /**
      * Metodo che mostra il menù principale del programma, permette di accedere ai metodi per eseguire operazioni su clienti o prenotazioni o chiudere il programma
      */
-    public static void mainMenu(){
+    public static void mainMenu() throws SQLException {
+        UmbrellaTypeDAO utd = UmbrellaTypeDAO.getInstance();
+        UmbrellaType uTable = utd.getUTypes(); //TODO da riallocare in una init()
         boolean running = true;
         while(running) {
             System.out.println("Scegli un'opzione:");
@@ -184,20 +187,24 @@ public abstract class BusinessLogic {
         while(oRunning){
             System.out.println("Selezionare l'operazione che si vuole compiere: ");
             System.out.println("\t 1 - Ricerca per clienti" );
-            System.out.println("\t 2 - Ricerca per prenotazioni attive");
-            System.out.println("\t 3 - Ricerca per pagamenti");
-            System.out.println("\t 4 - Torna indietro");
+            System.out.println("\t 2 - Ricerca per ombrelloni");
+            System.out.println("\t 3 - Ricerca per prenotazioni attive");
+            System.out.println("\t 4 - Ricerca per pagamenti");
+            System.out.println("\t 5 - Torna indietro");
             switch(input.nextInt()) {
                 case 1 -> {
                     clientSearch();
                 }
                 case 2 -> {
-                    reservationSearch();
+                    umbrellaSearch();
                 }
                 case 3 -> {
+                    reservationSearch();
+                }
+                case 4 -> {
                     paymentSearch();
                 }
-                case 4 -> oRunning = false;
+                case 5 -> oRunning = false;
                 default -> System.out.println("Opzione non valida...");
             }
 
@@ -255,6 +262,28 @@ public abstract class BusinessLogic {
         }
     }
 
+    private static void umbrellaSearch(){
+        boolean search = true;
+        Scanner option = new Scanner(System.in);
+        UmbrellaDAO ud = UmbrellaDAO.getINSTANCE();
+        Scanner umbrellaData = new Scanner(System.in);
+        while(search){
+            System.out.println("Ricerca per: ");
+            System.out.println("\t 1 - ID ombrellone");
+            System.out.println("\t 2 - Tipo ombrellone");
+            System.out.println("\t 3 - Torna indietro");
+            switch (option.nextInt()){
+                case 1 -> {
+                    System.out.println("Inserire codice ombrellone: ");
+                    ud.findById(umbrellaData.nextInt());
+                }
+                case 3 -> {
+                    search = false;
+                }
+                default -> System.out.println("Opzione non valida...");
+            }
+        }
+    }
     private static void reservationSearch(){
         //TODO
     }
