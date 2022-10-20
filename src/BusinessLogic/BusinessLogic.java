@@ -190,9 +190,10 @@ public abstract class BusinessLogic {
             System.out.println("\t 5 - Torna indietro");
             switch(input.nextInt()) {
                 case 1 -> clientSearch();
-                case 2 -> reservationSearch();
-                case 3 -> paymentSearch();
-                case 4 -> oRunning = false;
+                case 2 -> umbrellaSearch();
+                case 3 -> reservationSearch();
+                case 4 -> paymentSearch();
+                case 5 -> oRunning = false;
                 default -> System.out.println("Opzione non valida...");
             }
 
@@ -248,6 +249,10 @@ public abstract class BusinessLogic {
         }
     }
 
+    /**
+     * Metodo che permette di accedere a un sotto-menù con operazioni che permettono di visualizzare a schermo gli ombrelloni
+     * in possesso del bagno secondo criteri selezionabili.
+     */
     private static void umbrellaSearch(){
         boolean search = true;
         Scanner option = new Scanner(System.in);
@@ -262,6 +267,10 @@ public abstract class BusinessLogic {
                 case 1 -> {
                     System.out.println("Inserire codice ombrellone: ");
                     ud.findById(umbrellaData.nextInt());
+                }
+                case 2 -> {
+                    System.out.println("Inserire codice tipo ombrellone: ");
+                    ud.findByType(umbrellaData.nextInt());
                 }
                 case 3 -> {
                     search = false;
