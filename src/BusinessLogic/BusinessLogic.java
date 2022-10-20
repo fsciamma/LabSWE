@@ -7,6 +7,7 @@ import DAO.UmbrellaTypeDAO;
 import model.*;
 
 import java.sql.SQLException;
+import java.util.InputMismatchException;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -26,7 +27,13 @@ public abstract class BusinessLogic {
             System.out.println("\t 3 - Operazioni Stabilimento");
             System.out.println("\t 4 - Esci");
             Scanner input = new Scanner(System.in);
-            switch (input.nextInt()) {
+            int choice = 0;
+            try{
+                choice = input.nextInt();
+            } catch (InputMismatchException ignored){
+
+            }
+            switch (choice) {
                 case 1 -> customerOptions();
                 case 2 -> System.out.println("-- PRENOTAZIONE --");
                 case 3 -> resortOptions();
@@ -34,13 +41,13 @@ public abstract class BusinessLogic {
                     System.out.println("-- CHIUSURA PROGRAMMA --");
                     running = false;
                 }
-                default -> System.out.println("Opzione non valida...");
+                default -> System.err.println("Opzione non valida...");
             }
         }
     }
 
     /**
-     * Metodo che mostra un sottomenù con le operazioni eseguibili riguardo ad un cliente
+     * Metodo che mostra un sotto-menù con le operazioni eseguibili riguardo a un cliente
      */
     private static void customerOptions(){
         boolean cRunning = true;
@@ -50,14 +57,20 @@ public abstract class BusinessLogic {
             System.out.println("\t 2 - Trova e modifica cliente");
             System.out.println("\t 3 - Torna indietro");
             Scanner cInput = new Scanner(System.in);
-            switch(cInput.nextInt()) {
+            int choice = 0;
+            try{
+                choice = cInput.nextInt();
+            } catch(InputMismatchException ignored){
+
+            }
+            switch(choice) {
                 case 1 -> addNewCustomer();
                 case 2 -> findCustomer();
                 case 3 -> {
                     System.out.println("Torna a pagina precedente...");
                     cRunning = false;
                 }
-                default -> System.out.println("Opzione non valida...");
+                default -> System.err.println("Opzione non valida...");
             }
         }
     }
@@ -83,20 +96,38 @@ public abstract class BusinessLogic {
             System.out.println("\t 3 - Torna indietro");
             CustomerDAO cd = CustomerDAO.getINSTANCE();
             Scanner findC_input = new Scanner(System.in);
-            switch (findC_input.nextInt()) {
+            int choice = 0;
+            try{
+                choice = findC_input.nextInt();
+            } catch(InputMismatchException ignored){
+
+            }
+            switch (choice) {
                 case 1 -> {
-                    System.out.println("Inserire codice cliente:");
-                    Scanner customerNumber = new Scanner(System.in);
-                    Customer c = cd.findById(customerNumber.nextInt());
+                    boolean notANumber = true;
+                    int choiceId = 0;
+                    while(notANumber){
+                        System.out.println("Inserire codice cliente:");
+                        Scanner customerNumber = new Scanner(System.in);
+                        try{
+                            choiceId = customerNumber.nextInt();
+                            notANumber = false;
+                        } catch(InputMismatchException i){
+                            System.err.println("Inserire un codice cliente valido...");
+                        }
+                    }
+                    Customer c = cd.findById(choiceId);
                     if(c.get_first_name() != null) { // non permette di modificare il cliente se non lo trova nel database
-                        //TODO aggiungere un nuovo sottomenù dove sono mostrate le opzioni che possono essere scelte: modifica info cliente, crea nuova prenotazione, modifica prenotazione, cancella prenotazione...
+                        //TODO aggiungere un nuovo sotto-menù dove sono mostrate le opzioni che possono essere scelte: modifica info cliente, crea nuova prenotazione, modifica prenotazione, cancella prenotazione...
                         modifyClientInfo(c);
                         cd.updateInfo(c);
                     }
                 }
                 case 2 -> {
                     System.out.println("Inserire dati cliente (Nome Cognome):");
+                    //TODO aggiungere un controllo con una regex che permetta di inserire solo nomi nel formato indicato nella riga precedente
                     Scanner customerInfo = new Scanner(System.in);
+                    //TODO inserire qui il controllo di cui sopra
                     String fullName = customerInfo.nextLine();
                     System.out.println("Inserire dati cliente (e-mail):");
                     customerInfo = new Scanner(System.in);
@@ -111,7 +142,7 @@ public abstract class BusinessLogic {
                     System.out.println("Torna a pagina precedente...");
                     findCRunning = false;
                 }
-                default -> System.out.println("Opzione non valida...");
+                default -> System.err.println("Opzione non valida...");
             }
         }
     }
@@ -119,7 +150,6 @@ public abstract class BusinessLogic {
     private static void addNewReservation(int customerId) throws SQLException {
         ReservationDAO rd = ReservationDAO.getInstance();
         Reservation newRes = Reservation.createNewReservation(customerId);
-        //TODO aggiungere un metodo per la ricerca di ombrelloni: permettere di ricercare ombrelloni di un certo tipo e aggiungerlo alla prenotazione appena creata (non era corretto inserirlo in createNewReservation in quanto andiamo a fare una query sugli ombrelloni). Il metodo potrebbe essere una cosa del tipo findUmbrella(Date newRes.getStart_date(), Date newRes.getEnd_date(), int tipoOmbrellone)
         //TODO decidere se inserire le righe di codice che mostrano i tipi di ombrellone in un metodo a parte
         UmbrellaTypeDAO uTD = UmbrellaTypeDAO.getInstance(); //Le righe successive mostrano a schermo il tipo di ombrellone che si può scegliere
         UmbrellaType umbrellaTable = uTD.getUTypes();
@@ -127,6 +157,9 @@ public abstract class BusinessLogic {
         for(Map.Entry<Integer, TypeDetails> type: umbrellaTable.getUTypeMap().entrySet()){ //cicla sugli elementi di umbrellaTable e li printa a schermo
             System.out.println("\t" + type.getKey() + " - " + type.getValue().getTypeName());
         }
+        //TODO input del tipo di ombrellone
+        //TODO aggiungere un metodo per la ricerca di ombrelloni liberi in una certa data: permettere di ricercare ombrelloni di un certo tipo e aggiungerlo alla prenotazione appena creata
+        //TODO metodo per scegliere l'ombrellone preferito dalla lista di Ombrelloni ritornata dal metodo precedente
     }
 
     /**
@@ -147,7 +180,13 @@ public abstract class BusinessLogic {
                 System.out.println("\t 3 - Indirizzo e-mail");
                 System.out.println("\t 4 - Termina modifiche");
                 input = new Scanner(System.in);
-                switch (input.nextInt()) {
+                int choice = 0;
+                try{
+                    choice = input.nextInt();
+                } catch(InputMismatchException ignored){
+
+                }
+                switch (choice) {
                     case 1 -> {
                         System.out.println("Inserire nuovo nome:");
                         input = new Scanner(System.in);
@@ -170,6 +209,7 @@ public abstract class BusinessLogic {
                         }
                     }
                     case 4 -> modifying = false;
+                    default -> System.err.println("Opzione non valida...");
                 }
             }
         }
@@ -188,13 +228,19 @@ public abstract class BusinessLogic {
             System.out.println("\t 3 - Ricerca per prenotazioni attive");
             System.out.println("\t 4 - Ricerca per pagamenti");
             System.out.println("\t 5 - Torna indietro");
-            switch(input.nextInt()) {
+            int choice = 0;
+            try{
+                choice = input.nextInt();
+            } catch(InputMismatchException ignored){
+
+            }
+            switch(choice) {
                 case 1 -> clientSearch();
                 case 2 -> umbrellaSearch();
                 case 3 -> reservationSearch();
                 case 4 -> paymentSearch();
                 case 5 -> oRunning = false;
-                default -> System.out.println("Opzione non valida...");
+                default -> System.err.println("Opzione non valida...");
             }
 
         }
@@ -209,7 +255,13 @@ public abstract class BusinessLogic {
         Scanner option = new Scanner(System.in);
         CustomerDAO cd = CustomerDAO.getINSTANCE();
         Scanner customerData = new Scanner(System.in);
+        int choice = 0;
         while(search){
+            try{
+                choice = option.nextInt();
+            } catch(InputMismatchException ignored){
+
+            }
             System.out.println("Ricerca per: ");
             System.out.println("\t 1 - ID cliente");
             System.out.println("\t 2 - Nome e Cognome");
@@ -243,7 +295,7 @@ public abstract class BusinessLogic {
                     cd.findByEMail(email);
                 }
                 case 6 -> search = false;
-                default -> System.out.println("Opzione non valida...");
+                default -> System.err.println("Opzione non valida...");
 
             }
         }
@@ -258,7 +310,13 @@ public abstract class BusinessLogic {
         Scanner option = new Scanner(System.in);
         UmbrellaDAO ud = UmbrellaDAO.getINSTANCE();
         Scanner umbrellaData = new Scanner(System.in);
+        int choice = 0;
         while(search){
+            try{
+                choice = option.nextInt();
+            } catch(InputMismatchException ignored){
+
+            }
             System.out.println("Ricerca per: ");
             System.out.println("\t 1 - ID ombrellone");
             System.out.println("\t 2 - Tipo ombrellone");
@@ -275,7 +333,7 @@ public abstract class BusinessLogic {
                 case 3 -> {
                     search = false;
                 }
-                default -> System.out.println("Opzione non valida...");
+                default -> System.err.println("Opzione non valida...");
             }
         }
     }
