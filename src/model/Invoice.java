@@ -1,9 +1,11 @@
 package model;
 
+import java.math.BigDecimal;
+
 public class Invoice {
     private int invoiceID;
     private int customerID;
-    private float invoice_amount; //corrisponde a total_price * (100 - discount_percentage) indicati nella Reservation corrispondente
+    private BigDecimal invoice_amount; //corrisponde a total_price * (100 - discount_percentage) indicati nella Reservation corrispondente
     private boolean paid = false;
 
     public Invoice(){}
@@ -29,11 +31,11 @@ public class Invoice {
         this.customerID = customerID;
     }
 
-    public float getInvoice_amount() {
+    public BigDecimal getInvoice_amount() {
         return invoice_amount;
     }
 
-    public void setInvoice_amount(float invoice_amount) {
+    public void setInvoice_amount(BigDecimal invoice_amount) {
         this.invoice_amount = invoice_amount;
     }
 
