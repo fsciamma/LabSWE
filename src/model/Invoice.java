@@ -46,4 +46,9 @@ public class Invoice {
     public void setPaid(boolean paid) {
         this.paid = paid;
     }
+
+    @Override
+    public String toString() {
+        return "Ricevuta dell'ordine #" + this.invoiceID + ": cliente #" + this.customerID + ", quota da pagare " + this.invoice_amount + "€, stato pagamento " + this.paid;
+    }
 }

@@ -436,14 +436,26 @@ public abstract class BusinessLogic {
                     }
                 }
                 case 2 -> {
-                    //TODO rifare in maniera analoga a case 1
                     System.out.println("Inserire codice cliente: ");
-                    // id.findByCustomerID(input.nextInt());
+                    input = new Scanner(System.in);
+                    try{
+                        id.findByCustomerID(input.nextInt());
+                    } catch (InputMismatchException i){
+                        System.err.println("Inserire un codice numerico...");
+                    } catch(SQLException s){
+                        System.err.println(s.getMessage());
+                    }
                 }
                 case 3 -> {
-                    //TODO rifare in maniera analoga a case 1
                     System.out.println("Inserire stato pagamento (true o false): ");
-                    // id.findByPaymentStatus(input.nextLine());
+                    input = new Scanner(System.in);
+                    try{
+                        id.findByPaymentStatus(input.nextBoolean());
+                    } catch (InputMismatchException i){
+                        System.err.println("Inserire un valore valido...");
+                    } catch(SQLException s){
+                        System.err.println(s.getMessage());
+                    }
                 }
                 case 4 -> pRunning = false;
                 default -> System.err.println("Opzione non valida...");
