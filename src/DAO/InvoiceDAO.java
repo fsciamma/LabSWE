@@ -18,7 +18,24 @@ public class InvoiceDAO extends BaseDAO{
         return INSTANCE;
     }
 
-    //TODO Rielaborare questi metodi seconod il nuovo schema
+    //TODO Rielaborare questi metodi secondo il nuovo schema
+    private Invoice getInvoice(String query, Invoice i) throws SQLException {
+        try(Statement stmt = conn.createStatement()) {
+            ResultSet rs = stmt.executeQuery(query);
+            while(rs.next()){
+                i.setInvoiceID(rs.getInt("invoiceid"));
+                i.setCustomerID(rs.getInt("customerid"));
+                i.setInvoice_amount(rs.getBigDecimal("invoice_amount"));
+                i.setPaid(rs.getBoolean("is_paid"));
+            }
+        }
+        if(i.getInvoiceID() == 0) {
+            throw new SQLException("La ricevuta non è stata trovata");
+        }
+        System.out.println(i);
+        return i;
+    }
+
     public void addNewInvoice(Invoice i){
         String query = "select * from customerinvoice";
         ResultSet rs;
@@ -28,7 +45,7 @@ public class InvoiceDAO extends BaseDAO{
             rs.moveToInsertRow();
 
             rs.updateInt("customerid", i.getCustomerID());
-            rs.updateBigDecimal("invoice_amount", new BigDecimal(Float.toString(i.getInvoice_amount())));
+            rs.updateBigDecimal("invoice_amount", i.getInvoice_amount()/*new BigDecimal(Float.toString(i.getInvoice_amount()))*/); //TODO capire se conviene più usare BigDecimal o float
             rs.updateBoolean("is_paid", i.isPaid());
 
             rs.insertRow();
@@ -36,6 +53,16 @@ public class InvoiceDAO extends BaseDAO{
 
         } catch(SQLException e){
             System.err.println(e.getMessage());
+        }
+    }
+
+    public void findByInvoiceID(int id) {
+        Invoice i = new Invoice();
+        String query = "select * from customerinvoice where invoiceid = " + id;
+        try{
+            getInvoice(query, i);
+        } catch(SQLException e){
+            System.err.println("Non sono state trovate ricevute con questo identificativo");
         }
     }
 }

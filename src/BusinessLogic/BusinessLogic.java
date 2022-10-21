@@ -1,9 +1,6 @@
 package BusinessLogic;
 
-import DAO.CustomerDAO;
-import DAO.ReservationDAO;
-import DAO.UmbrellaDAO;
-import DAO.UmbrellaTypeDAO;
+import DAO.*;
 import model.*;
 
 import java.sql.SQLException;
@@ -358,6 +355,38 @@ public abstract class BusinessLogic {
     }
 
     private static void paymentSearch(){
-        //TODO
+        boolean pRunning = true;
+        Scanner input = new Scanner(System.in);
+        InvoiceDAO id = InvoiceDAO.getINSTANCE();
+        while(pRunning){
+            System.out.println("Ricerca per: ");
+            System.out.println("\t 1 - Ricerca per codice ricevuta" );
+            System.out.println("\t 2 - Ricerca per codice cliente");
+            System.out.println("\t 3 - Ricerca per stato pagamento");
+            System.out.println("\t 4 - Torna indietro");
+            int tmp = 0;
+            try{
+                tmp = input.nextInt();
+            } catch(InputMismatchException ignore){
+
+            }
+            switch(tmp) {
+                case 1 -> {
+                    System.out.println("Inserire codice ricevuta/prenotazione: ");
+                    id.findByInvoiceID(input.nextInt());
+                }
+                case 2 -> {
+                    System.out.println("Inserire codice cliente: ");
+                    // id.findByCustomerID(input.nextInt());
+                }
+                case 3 -> {
+                    System.out.println("Inserire stato pagamento (true o false): ");
+                    // id.findByPaymentStatus(input.nextLine());
+                }
+                case 4 -> pRunning = false;
+                default -> System.err.println("Opzione non valida...");
+            }
+
+        }
     }
 }
