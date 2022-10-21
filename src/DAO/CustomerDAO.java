@@ -53,7 +53,7 @@ public class CustomerDAO extends BaseDAO {
     }
 
     /**
-     * Metodo per cercare nel database clienti con la stessa tripla univoca del cliente che si prova ad inserire
+     * Metodo per cercare nel database clienti con la stessa tripla univoca del cliente che si prova ad inserire; se trova un cliente già registrato con le stesse credenziali lancia un'eccezione
      * @param newC oggetto Customer di cui si cerca un omonimo
      */
     private void findHomonym(Customer newC) throws RuntimeException {
@@ -61,10 +61,9 @@ public class CustomerDAO extends BaseDAO {
         Customer c = new Customer();
         try {
             getCustomer(query, c);
-            throw new RuntimeException("Cliente con stesse credenziali già registrato...");
-            //
+            throw new RuntimeException("Cliente con stesse credenziali già registrato..."); //Viene lanciata solo se getCustomer non lancia la sua
         } catch (SQLException ignored) {
-
+            //Non è stato trovato nessun cliente con le stesse credenziali, quindi si può inserire senza problemi il nuovo cliente
         }
     }
 
