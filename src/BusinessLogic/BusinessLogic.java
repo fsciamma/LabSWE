@@ -16,8 +16,8 @@ public abstract class BusinessLogic {
         UmbrellaTypeDAO utd = UmbrellaTypeDAO.getInstance();
         UmbrellaType uTable = utd.getUTypes(); //TODO da riallocare in una init()
         boolean running = true;
-        Scanner input = new Scanner(System.in);
         while(running) {
+            Scanner input = new Scanner(System.in);
             System.out.println("Scegli un'opzione:");
             //System.out.println("\t -");
             System.out.println("\t 1 - Operazioni Cliente");
@@ -33,7 +33,10 @@ public abstract class BusinessLogic {
             }
             switch (choice) {
                 case 1 -> customerOptions();
-                case 2 -> System.out.println("-- PRENOTAZIONE --");
+                case 2 -> {
+                    System.out.println("-- PRENOTAZIONE --");
+                    System.out.println("IN COSTRUZIONE...");
+                }
                 case 3 -> resortOptions();
                 case 4 -> {
                     System.out.println("-- CHIUSURA PROGRAMMA --");
@@ -49,8 +52,8 @@ public abstract class BusinessLogic {
      */
     private static void customerOptions(){
         boolean cRunning = true;
-        Scanner cInput = new Scanner(System.in);
         while(cRunning) {
+            Scanner cInput = new Scanner(System.in);
             System.out.println("\t-- CLIENTE --");
             System.out.println("\t 1 - Aggiungi nuovo cliente");
             System.out.println("\t 2 - Trova e modifica cliente");
@@ -87,13 +90,13 @@ public abstract class BusinessLogic {
      */
     private static void findCustomer() {
         boolean findCRunning = true;
-        Scanner findC_input = new Scanner(System.in);
-        Scanner customerData = new Scanner(System.in);
         while(findCRunning) {
             System.out.println("\t Cercare per:");
             System.out.println("\t 1 - Codice cliente");
             System.out.println("\t 2 - Dati cliente");
             System.out.println("\t 3 - Torna indietro");
+            Scanner findC_input = new Scanner(System.in);
+            Scanner customerData;
             CustomerDAO cd = CustomerDAO.getINSTANCE();
             int choice;
             try{
@@ -107,6 +110,7 @@ public abstract class BusinessLogic {
                     int choiceId = 0;
                     while(notACNumber){
                         System.out.println("Inserire codice cliente:");
+                        customerData = new Scanner(System.in);
                         try{
                             choiceId = customerData.nextInt();
                             notACNumber = false;
@@ -114,23 +118,28 @@ public abstract class BusinessLogic {
                             System.err.println("Inserire un codice cliente valido...");
                         }
                     }
-                    Customer c = cd.findById(choiceId);
+                    Customer c = new Customer();
+                    try{
+                        c = cd.findById(choiceId);
+                    } catch (SQLException s){
+                        System.err.println(s.getMessage());
+                    }
                     if(c.get_first_name() != null) { // non permette di modificare il cliente se non lo trova nel database
                         //TODO aggiungere un nuovo sotto-menù dove sono mostrate le opzioni che possono essere scelte: modifica info cliente, crea nuova prenotazione, modifica prenotazione, cancella prenotazione...
                         modifyClientInfo(c);
-                        cd.updateInfo(c);
+                        cd.updateInfo(c); //TODO forse deve essere chiamato in modifyClientInfo, nell'ultima opzione...
                     }
                 }
                 case 2 -> {
                     boolean nameNotValid = true;
                     String fullName = "";
                     while(nameNotValid){
-                        System.out.println("Inserire dati cliente (Nome Cognome):");
+                        System.out.println("Inserire dati cliente (formato: Nome Cognome):");
+                        customerData = new Scanner(System.in);
                         fullName = customerData.nextLine();
                         if(fullName.matches("^[A-Z][a-z]+\\s[A-Z][a-z]+$")){ //controlla che le credenziali vengano passate nel formato corretto; NB non sono accettati nomi o cognomi composti da una sola lettera
                             nameNotValid = false;
-                        }
-                        else{
+                        } else {
                             System.err.println("Formato nome non valido...");
                         }
                     }
@@ -138,6 +147,7 @@ public abstract class BusinessLogic {
                     String email = "";
                     while(emailNotValid){
                         System.out.println("Inserire dati cliente (e-mail):");
+                        customerData = new Scanner(System.in);
                         email = customerData.nextLine();
                         if(email.matches("^(.+)@(.+).(.+)$")){
                             emailNotValid = false;
@@ -234,7 +244,6 @@ public abstract class BusinessLogic {
      */
     private static void resortOptions(){
         boolean oRunning = true;
-        Scanner input = new Scanner(System.in);
         while(oRunning){
             System.out.println("Selezionare l'operazione che si vuole compiere: ");
             System.out.println("\t 1 - Ricerca per clienti" );
@@ -242,6 +251,7 @@ public abstract class BusinessLogic {
             System.out.println("\t 3 - Ricerca per prenotazioni attive");
             System.out.println("\t 4 - Ricerca per pagamenti");
             System.out.println("\t 5 - Torna indietro");
+            Scanner input = new Scanner(System.in);
             int choice;
             try{
                 choice = input.nextInt();
@@ -266,16 +276,9 @@ public abstract class BusinessLogic {
      */
     private static void clientSearch(){
         boolean search = true;
-        Scanner option = new Scanner(System.in);
         CustomerDAO cd = CustomerDAO.getINSTANCE();
-        Scanner customerData = new Scanner(System.in);
         int choice;
         while(search){
-            try{
-                choice = option.nextInt();
-            } catch(InputMismatchException i){
-                choice = 0;
-            }
             System.out.println("Ricerca per: ");
             System.out.println("\t 1 - ID cliente");
             System.out.println("\t 2 - Nome e Cognome");
@@ -283,30 +286,66 @@ public abstract class BusinessLogic {
             System.out.println("\t 4 - Cognome");
             System.out.println("\t 5 - Email");
             System.out.println("\t 6 - Torna indietro");
+            Scanner option = new Scanner(System.in);
+            try{
+                choice = option.nextInt();
+            } catch(InputMismatchException i){
+                choice = 0;
+            }
+            Scanner customerData;
             switch(choice){
                 case 1 -> { //TODO serve?
                     System.out.println("Inserire codice cliente:");
-                    cd.findById(customerData.nextInt());
+                    customerData = new Scanner(System.in);
+                    try{
+                        System.out.println(cd.findById(customerData.nextInt()));
+                    } catch(InputMismatchException i){
+                        System.err.println("Inserire un codice cliente...");
+                    } catch(SQLException s){
+                        System.err.println(s.getMessage());
+                    }
                 }
                 case 2 -> {
-                    System.out.println("Inserire nome e cognome del cliente da cercare: (formato: nome,cognome)");
-                    String[] fullName = customerData.nextLine().split(",");
-                    cd.findByFullName(fullName);
+                    System.out.println("Inserire nome e cognome del cliente da cercare (formato: Nome Cognome):");
+                    customerData = new Scanner(System.in);
+                    String name = customerData.nextLine();
+                    if(name.matches("^[A-Z][a-z]+\\s[A-Z][a-z]+$")) {
+                        String[] fullName = name.split(" ");
+                        cd.findByFullName(fullName);
+                    } else {
+                        System.err.println("Formato nome non valido...");
+                    }
                 }
                 case 3 -> {
                     System.out.println("Inserire nome del cliente: ");
+                    customerData = new Scanner(System.in);
                     String name = customerData.nextLine();
-                    cd.findByFirstName(name);
+                    if(name.matches("^[A-Z][a-z]+$")){
+                        cd.findByFirstName(name);
+                    } else {
+                        System.err.println("Formato nome non valido...");
+                    }
+
                 }
                 case 4 -> {
                     System.out.println("Inserire cognome del cliente: ");
+                    customerData = new Scanner(System.in);
                     String surname = customerData.nextLine();
-                    cd.findByLastName(surname);
+                    if(surname.matches("^[A-Z][a-z]+$")){
+                        cd.findByLastName(surname);
+                    } else {
+                        System.err.println("Formato cognome non valido...");
+                    }
                 }
                 case 5 -> {
                     System.out.println("Inserire e-mail del cliente: ");
+                    customerData = new Scanner(System.in);
                     String email = customerData.nextLine();
-                    cd.findByEMail(email);
+                    if(email.matches("^(.+)@(.+).(.+)$")){
+                        cd.findByEMail(email);
+                    } else {
+                        System.err.println("Formato indirizzo e-mail non valido...");
+                    }
                 }
                 case 6 -> search = false;
                 default -> System.err.println("Opzione non valida...");
@@ -321,28 +360,42 @@ public abstract class BusinessLogic {
      */
     private static void umbrellaSearch(){
         boolean search = true;
-        Scanner option = new Scanner(System.in);
         UmbrellaDAO ud = UmbrellaDAO.getINSTANCE();
-        Scanner umbrellaData = new Scanner(System.in);
         int choice;
         while(search){
+            System.out.println("Ricerca per: ");
+            System.out.println("\t 1 - ID ombrellone");
+            System.out.println("\t 2 - Tipo ombrellone");
+            System.out.println("\t 3 - Torna indietro");
+            Scanner option = new Scanner(System.in);
             try{
                 choice = option.nextInt();
             } catch(InputMismatchException i){
                 choice = 0;
             }
-            System.out.println("Ricerca per: ");
-            System.out.println("\t 1 - ID ombrellone");
-            System.out.println("\t 2 - Tipo ombrellone");
-            System.out.println("\t 3 - Torna indietro");
+            Scanner umbrellaData;
             switch (choice){
                 case 1 -> {
                     System.out.println("Inserire codice ombrellone: ");
-                    ud.findById(umbrellaData.nextInt());
+                    umbrellaData = new Scanner(System.in);
+                    try {
+                        ud.findById(umbrellaData.nextInt());
+                    } catch (InputMismatchException i){
+                        System.err.println("Inserire un codice numerico...");
+                    } catch (SQLException s){
+                        System.err.println(s.getMessage());
+                    }
                 }
                 case 2 -> {
                     System.out.println("Inserire codice tipo ombrellone: ");
-                    ud.findByType(umbrellaData.nextInt());
+                    umbrellaData = new Scanner(System.in);
+                    try {
+                        ud.findByType(umbrellaData.nextInt());
+                    } catch (InputMismatchException i){
+                        System.err.println("Codice ombrellone non valido...");
+                    } catch (SQLException s){
+                        System.err.println(s.getMessage());
+                    }
                 }
                 case 3 -> search = false;
                 default -> System.err.println("Opzione non valida...");
@@ -356,7 +409,6 @@ public abstract class BusinessLogic {
 
     private static void paymentSearch(){
         boolean pRunning = true;
-        Scanner input = new Scanner(System.in);
         InvoiceDAO id = InvoiceDAO.getINSTANCE();
         while(pRunning){
             System.out.println("Ricerca per: ");
@@ -364,22 +416,32 @@ public abstract class BusinessLogic {
             System.out.println("\t 2 - Ricerca per codice cliente");
             System.out.println("\t 3 - Ricerca per stato pagamento");
             System.out.println("\t 4 - Torna indietro");
-            int tmp = 0;
+            Scanner input = new Scanner(System.in);
+            int choice;
             try{
-                tmp = input.nextInt();
-            } catch(InputMismatchException ignore){
-
+                choice = input.nextInt();
+            } catch(InputMismatchException i){
+                choice = 0;
             }
-            switch(tmp) {
+            switch(choice) {
                 case 1 -> {
                     System.out.println("Inserire codice ricevuta/prenotazione: ");
-                    id.findByInvoiceID(input.nextInt());
+                    input = new Scanner(System.in);
+                    try{
+                        id.findByInvoiceID(input.nextInt());
+                    } catch (InputMismatchException i){
+                        System.err.println("Inserire un codice numerico...");
+                    } catch(SQLException s){
+                        System.err.println(s.getMessage());
+                    }
                 }
                 case 2 -> {
+                    //TODO rifare in maniera analoga a case 1
                     System.out.println("Inserire codice cliente: ");
                     // id.findByCustomerID(input.nextInt());
                 }
                 case 3 -> {
+                    //TODO rifare in maniera analoga a case 1
                     System.out.println("Inserire stato pagamento (true o false): ");
                     // id.findByPaymentStatus(input.nextLine());
                 }

@@ -2,7 +2,6 @@ package DAO;
 
 import model.Invoice;
 
-import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -19,7 +18,7 @@ public class InvoiceDAO extends BaseDAO{
     }
 
     //TODO Rielaborare questi metodi secondo il nuovo schema
-    private Invoice getInvoice(String query, Invoice i) throws SQLException {
+    private Invoice getInvoice(String query, Invoice i) throws SQLException { //TODO può ritornare void?
         try(Statement stmt = conn.createStatement()) {
             ResultSet rs = stmt.executeQuery(query);
             while(rs.next()){
@@ -30,7 +29,7 @@ public class InvoiceDAO extends BaseDAO{
             }
         }
         if(i.getInvoiceID() == 0) {
-            throw new SQLException("La ricevuta non è stata trovata");
+            throw new SQLException();
         }
         System.out.println(i);
         return i;
@@ -56,13 +55,13 @@ public class InvoiceDAO extends BaseDAO{
         }
     }
 
-    public void findByInvoiceID(int id) {
+    public void findByInvoiceID(int id) throws SQLException{
         Invoice i = new Invoice();
         String query = "select * from customerinvoice where invoiceid = " + id;
         try{
             getInvoice(query, i);
-        } catch(SQLException e){
-            System.err.println("Non sono state trovate ricevute con questo identificativo");
+        } catch(SQLException s){
+            throw new SQLException("La ricevuta " + id + " non è stata trovata");
         }
     }
 }
