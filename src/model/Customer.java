@@ -125,4 +125,12 @@ public class Customer {
     public String toString(){
         return "Cliente #" + this._customerID + ": " + this._first_name + " " + this._last_name + ", e-mail: " + this._email;
     }
+
+    public String tabulated(){
+        String new_code = String.format("%-5s", this._customerID);
+        String new_name = String.format("%-15s", this._first_name);
+        String new_surname = String.format("%-15s", this._last_name);
+        String new_email = String.format("%-40s", this._email);
+        return new_code + "|" + new_name + "|" + new_surname + "|" + new_email;
+    }
 }

@@ -128,40 +128,46 @@ public class CustomerDAO extends BaseDAO {
         return c;
     }
 
-    public void findByFirstName(String ln){ //TODO possibile renderlo case insensitive
-        String query = "select * from customer where first_name = '" + ln +"'";
+    public void findAll(){
+        String query = "select * from customer";
+        System.out.println("Cod. " + "|" + String.format("%-15s", "Nome") + "|" + String.format("%-15s", "Cognome") + "|" + String.format("%-35s", "E-mail"));
+        System.out.println(String.format("%40s", "").replace("", "_"));
         try{
             getCustomers(query);
-        }catch(SQLException e){
-            System.out.println("Non sono stati trovati clienti con i dati forniti");
+        } catch (SQLException e) {
+            System.out.println("Non sono stati trovati clienti");
         }
+    }
+
+    public void findByFirstName(String ln){ //TODO possibile renderlo case insensitive
+        String query = "select * from customer where first_name = '" + ln +"'";
+        tabulateFindBy(query);
     }
 
     public void findByLastName(String ln){
         String query = "select * from customer where last_name = '" + ln +"'";
-        try{
-            getCustomers(query);
-        } catch (SQLException e){
-            System.out.println("Non sono stati trovati clienti con i dati forniti");
-        }
+        tabulateFindBy(query);
     }
 
 
     public void findByEMail(String em){
         String query = "select * from customer where email = '" + em + "'";
-        try{
-            getCustomers(query);
-        }catch (SQLException e){
-            System.out.println("Non sono stati trovati clienti con i dati forniti");
-        }
+        tabulateFindBy(query);
     }
 
     public void findByFullName(String[] full_name){ //TODO capire se serve che restituisca qualcosa, altrimenti renderlo void
         String query = "select * from customer where first_name = '" + full_name[0] + "' and last_name = '" + full_name[1] + "'";
+        tabulateFindBy(query);
+    }
+
+    private void tabulateFindBy(String query) {
+        System.out.println("Cod. " + "|" + String.format("%-15s", "Nome") + "|" + String.format("%-15s", "Cognome") + "|" + String.format("%-35s", "E-mail"));
+        System.out.println(String.format("%40s", "").replace("", "_"));
         try{
             getCustomers(query);
         } catch(SQLException e){
-            System.out.println("Non sono stati trovati clienti con i dati forniti");
+            System.err.println("\nNon sono stati trovati clienti con i dati forniti");
+            //TODO valutare se aggiungere una wait per far printare l'errore subito sotto alla tabella
         }
     }
 
@@ -182,7 +188,7 @@ public class CustomerDAO extends BaseDAO {
             throw new SQLException();
         }
         for (Customer c: cList) {
-            System.out.println(c);
+            System.out.println(c.tabulated());
         }
     }
 
