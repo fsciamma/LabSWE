@@ -285,7 +285,8 @@ public abstract class BusinessLogic {
             System.out.println("\t 3 - Nome");
             System.out.println("\t 4 - Cognome");
             System.out.println("\t 5 - Email");
-            System.out.println("\t 6 - Torna indietro");
+            System.out.println("\t 6 - Mostra tutti");
+            System.out.println("\t 7 - Torna indietro");
             Scanner option = new Scanner(System.in);
             try{
                 choice = option.nextInt();
@@ -347,10 +348,12 @@ public abstract class BusinessLogic {
                         System.err.println("Formato indirizzo e-mail non valido...");
                     }
                 }
-                case 6 -> search = false;
+                case 6 -> cd.findAll();
+                case 7 -> search = false;
                 default -> System.err.println("Opzione non valida...");
 
             }
+            System.out.println("\n");
         }
     }
 
