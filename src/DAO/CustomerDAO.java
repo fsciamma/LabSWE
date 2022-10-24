@@ -98,7 +98,7 @@ public class CustomerDAO extends BaseDAO {
         try {
             return getCustomer(query, c);
         } catch (SQLException e){
-            System.out.println("Cliente non trovato: i dati inseriti non risultano nel database");
+            System.err.println("Cliente non trovato: i dati inseriti non risultano nel database");
         }
         return c;
     }
@@ -133,9 +133,9 @@ public class CustomerDAO extends BaseDAO {
         System.out.println("Cod. " + "|" + String.format("%-15s", "Nome") + "|" + String.format("%-15s", "Cognome") + "|" + String.format("%-35s", "E-mail"));
         System.out.println(String.format("%40s", "").replace("", "_"));
         try{
-            getCustomers(query);
+            showCustomers(query);
         } catch (SQLException e) {
-            System.out.println("Non sono stati trovati clienti");
+            System.err.println("Non sono stati trovati clienti");
         }
     }
 
@@ -155,7 +155,7 @@ public class CustomerDAO extends BaseDAO {
         tabulateFindBy(query);
     }
 
-    public void findByFullName(String[] full_name){ //TODO capire se serve che restituisca qualcosa, altrimenti renderlo void
+    public void findByFullName(String[] full_name){
         String query = "select * from customer where first_name = '" + full_name[0] + "' and last_name = '" + full_name[1] + "'";
         tabulateFindBy(query);
     }
@@ -164,14 +164,14 @@ public class CustomerDAO extends BaseDAO {
         System.out.println("Cod. " + "|" + String.format("%-15s", "Nome") + "|" + String.format("%-15s", "Cognome") + "|" + String.format("%-35s", "E-mail"));
         System.out.println(String.format("%40s", "").replace("", "_"));
         try{
-            getCustomers(query);
+            showCustomers(query);
         } catch(SQLException e){
             System.err.println("\nNon sono stati trovati clienti con i dati forniti");
             //TODO valutare se aggiungere una wait per far printare l'errore subito sotto alla tabella
         }
     }
 
-    private void getCustomers(String query) throws SQLException {
+    private void showCustomers(String query) throws SQLException {
         ArrayList<Customer> cList = new ArrayList<>();
         try(Statement stmt = conn.createStatement()){
             ResultSet rs = stmt.executeQuery(query);
