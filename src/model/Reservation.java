@@ -1,5 +1,6 @@
 package model;
 
+import java.math.BigDecimal;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.Scanner;
@@ -10,7 +11,7 @@ public class Reservation {
     private int ombrelloneId; // TODO serve la classe ombrellone_prenotato?
     private LocalDate start_date;
     private LocalDate end_date;
-    private float total_price;
+    private BigDecimal total_price;
     private float discount_percent = 0;
 
     public Reservation(){
@@ -56,6 +57,29 @@ public class Reservation {
         this.customerId = customerId;
     }
 
+    public void setOmbrelloneId(int ombrelloneId) {
+        this.ombrelloneId = ombrelloneId;
+    }
+
+    public void setTotal_price(BigDecimal total_price) {
+        this.total_price = total_price;
+    }
+
+    public void setReservationId(int reservationId) {
+        this.reservationId = reservationId;
+    }
+
+    public void setStart_date(LocalDate start_date) {
+        this.start_date = start_date;
+    }
+
+    public void setEnd_date(LocalDate end_date) {
+        this.end_date = end_date;
+    }
+
+    public int getReservationId() {
+        return reservationId;
+    }
 
     public void setStart_date() throws NumberFormatException, DateTimeException{
         Scanner mySc = new Scanner(System.in);
@@ -85,5 +109,12 @@ public class Reservation {
             throw new DateTimeException("La data " + date + " non è valida...");
         }
         return localDate;
+    }
+
+    @Override
+    public String toString() {
+        return "Prenotazione #" + this.reservationId + " del cliente #" + this.customerId + ".\nPrenotato l'ombrellone " +
+                "#" + this.ombrelloneId + " nelle date dal " + this.start_date + " al " + this.end_date + ". Prezzo totale: " +
+                this.total_price + "€.";
     }
 }

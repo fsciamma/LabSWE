@@ -295,7 +295,7 @@ public abstract class BusinessLogic {
             }
             Scanner customerData;
             switch(choice){
-                case 1 -> { //TODO serve?
+                case 1 -> {
                     System.out.println("Inserire codice cliente:");
                     customerData = new Scanner(System.in);
                     try{
@@ -359,7 +359,7 @@ public abstract class BusinessLogic {
 
     /**
      * Metodo che permette di accedere a un sotto-menù con operazioni che permettono di visualizzare a schermo gli ombrelloni
-     * in possesso del bagno secondo criteri selezionabili.
+     * posseduti dal bagno secondo criteri selezionabili.
      */
     private static void umbrellaSearch(){
         boolean search = true;
@@ -405,14 +405,94 @@ public abstract class BusinessLogic {
             }
         }
     }
-
+    //TODO finire di sistemare
     private static void reservationSearch(){
-        //TODO
+        boolean rRunning = true;
+        ReservationDAO rd = ReservationDAO.getInstance();
+        int choice;
+        while(rRunning){
+            System.out.println("Ricerca per: ");
+            System.out.println("\t 1 - ID prenotazione");
+            System.out.println("\t 2 - ID cliente");
+            System.out.println("\t 3 - Id ombrellone");
+            System.out.println("\t 4 - Data (WIP)");
+            System.out.println("\t 5 - Mostra tutte");
+            System.out.println("\t 6 - Torna inidietro");
+            Scanner option = new Scanner(System.in);
+            try{
+                choice = option.nextInt();
+            } catch(InputMismatchException i){
+                choice = 0;
+            }
+            Scanner reservationData;
+            switch(choice){
+                case 1 -> {
+                    System.out.println("Inserisci codice prenotazione: ");
+                    reservationData = new Scanner(System.in);
+                    try {
+                        rd.findById(reservationData.nextInt());
+                    } catch (InputMismatchException i){
+                        System.err.println("Inserire un codice numerico...");
+                    } catch (SQLException s){
+                        System.err.println(s.getMessage());
+                    }
+                }
+                case 2 -> {
+                    System.out.println("Inserisci codice cliente: ");
+                    reservationData = new Scanner(System.in);
+                    try {
+                        rd.findByCustomerId(reservationData.nextInt());
+                    } catch (InputMismatchException i){
+                        System.err.println("Inserire un codice numerico...");
+                    } catch(SQLException s ){
+                        System.err.println(s.getMessage());
+                    }
+                }
+                case 3 -> {
+                    System.out.println("Inserisci codice ombrellone: ");
+                    reservationData = new Scanner(System.in);
+                    try {
+                        rd.findByUmbrellaId(reservationData.nextInt());
+                    } catch (InputMismatchException i){
+                        System.err.println("Inserire un codice numerico...");
+                    } catch (SQLException s){
+                        System.err.println(s.getMessage());
+                    }
+                }
+                //case 4 -> {
+                //    //TODO studiare un metodo per ricercare in un intervallo di date
+                //    //TODO fare in modo che prenda in ingrsso due input nel formato corretto
+                //    //TODO aggiungere eventualmente la possibilita che in assenza di seconda data mostri tutte le prenotazioni dalla data di partenza in poi
+                //    System.out.println("Inserisci data da cui far partire la ricerca (formato AAAA-MM-GG): ");
+                //    reservationData = new Scanner(System.in);
+                //    try {
+                //        rd.findByStartDate(reservationData.nextLine());
+                //    } catch (InputMismatchException i){
+                //        System.err.println("Inserire una data valida...");
+                //    } catch (SQLException s){
+                //        System.err.println(s.getMessage());
+                //    }
+                //}
+                case 5 -> {
+                    rd.findAll();
+                }
+                case 6 -> {
+                    rRunning = false;
+                }
+                default -> System.err.println("Opzione non valida...");
+            }
+        }
+
     }
 
+    /**
+     * Metodo che permette di accedere a un sotto-menù con operazioni che permettono di visualizzare a schermo le ricevute
+     * relative alle prenotazioni secondo criteri selezionabili.
+     */
     private static void paymentSearch(){
         boolean pRunning = true;
         InvoiceDAO id = InvoiceDAO.getINSTANCE();
+        int choice;
         while(pRunning){
             System.out.println("Ricerca per: ");
             System.out.println("\t 1 - Ricerca per codice ricevuta" );
@@ -420,7 +500,6 @@ public abstract class BusinessLogic {
             System.out.println("\t 3 - Ricerca per stato pagamento");
             System.out.println("\t 4 - Torna indietro");
             Scanner input = new Scanner(System.in);
-            int choice;
             try{
                 choice = input.nextInt();
             } catch(InputMismatchException i){
