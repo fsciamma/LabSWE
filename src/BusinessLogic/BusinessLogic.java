@@ -127,7 +127,6 @@ public abstract class BusinessLogic {
                     if(c.get_first_name() != null) { // non permette di modificare il cliente se non lo trova nel database
                         //TODO aggiungere un nuovo sotto-menù dove sono mostrate le opzioni che possono essere scelte: modifica info cliente, crea nuova prenotazione, modifica prenotazione, cancella prenotazione...
                         modifyClientInfo(c);
-                        cd.updateInfo(c); //TODO forse deve essere chiamato in modifyClientInfo, nell'ultima opzione...
                     }
                 }
                 case 2 -> {
@@ -211,16 +210,8 @@ public abstract class BusinessLogic {
                     choice = 0;
                 }
                 switch (choice) {
-                    case 1 -> {
-                        System.out.println("Inserire nuovo nome:");
-                        input = new Scanner(System.in);
-                        c.set_first_name(input.nextLine());
-                    }
-                    case 2 -> {
-                        System.out.println("Inserire nuovo cognome:");
-                        input = new Scanner(System.in);
-                        c.set_last_name(input.nextLine());
-                    }
+                    case 1 -> c.set_first_name();
+                    case 2 -> c.set_last_name();
                     case 3 -> {
                         boolean mailIsValid = false;
                         while (!mailIsValid) {
@@ -232,7 +223,10 @@ public abstract class BusinessLogic {
                             }
                         }
                     }
-                    case 4 -> modifying = false;
+                    case 4 -> {
+                        modifying = false;
+                        CustomerDAO.getINSTANCE().updateInfo(c); //Termina le modifiche sul Customer e fa l'update
+                    }
                     default -> System.err.println("Opzione non valida...");
                 }
             }
@@ -359,7 +353,7 @@ public abstract class BusinessLogic {
 
     /**
      * Metodo che permette di accedere a un sotto-menù con operazioni che permettono di visualizzare a schermo gli ombrelloni
-     * posseduti dal bagno secondo criteri selezionabili.
+     * in possesso del bagno secondo criteri selezionabili.
      */
     private static void umbrellaSearch(){
         boolean search = true;
@@ -473,12 +467,8 @@ public abstract class BusinessLogic {
                 //        System.err.println(s.getMessage());
                 //    }
                 //}
-                case 5 -> {
-                    rd.findAll();
-                }
-                case 6 -> {
-                    rRunning = false;
-                }
+                case 5 -> rd.findAll();
+                case 6 -> rRunning = false;
                 default -> System.err.println("Opzione non valida...");
             }
         }
