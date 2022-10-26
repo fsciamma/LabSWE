@@ -80,6 +80,7 @@ public class CustomerDAO extends BaseDAO {
             return getCustomer(query, c);
         } catch (SQLException e){
             System.err.println("Il cliente #" +  id + " non è presente nel database");
+            //TODO aggiungere una throw se il cliente non è stato trovato
         }
         return c;
     }
@@ -124,7 +125,6 @@ public class CustomerDAO extends BaseDAO {
         if(c.get_customerID() == 0){
             throw new SQLException("Il cliente non è stato trovato");
         }
-        //System.out.println(c); //TODO non è meglio farlo printare nel corpo della funzione che ha chiamato?
         return c;
     }
 
