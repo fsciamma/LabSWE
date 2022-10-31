@@ -22,8 +22,25 @@ public class ReservationDAO extends BaseDAO {
         return INSTANCE;
     }
 
-    public void addNewReservation(){
+    public void addNewReservation(Reservation newR){
+        String query = "select * from reservation";
+        ResultSet rs;
+        try(Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE)){
+            rs = stmt.executeQuery(query);
 
+            rs.moveToInsertRow();
+
+            rs.updateInt("customerid", newR.getCustomerId());
+            rs.updateInt("ombrelloneid", newR.getOmbrelloneId());
+            rs.updateDate("start_date", newR.getSQLStart_date());
+            rs.updateDate("end_date", newR.getSQLEnd_date());
+            rs.updateBigDecimal("total_price", newR.getTotal_price());
+
+            rs.insertRow();
+            rs.beforeFirst();
+        } catch(SQLException e){
+            System.err.println(e.getMessage());
+        }
     }
 
     public void findById(int id) throws SQLException {
