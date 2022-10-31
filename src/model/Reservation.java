@@ -1,6 +1,7 @@
 package model;
 
 import java.math.BigDecimal;
+import java.sql.Date;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.Scanner;
@@ -77,8 +78,36 @@ public class Reservation {
         this.end_date = end_date;
     }
 
+    public int getCustomerId() {
+        return customerId;
+    }
+
+    public int getOmbrelloneId() {
+        return ombrelloneId;
+    }
+
+    public BigDecimal getTotal_price() {
+        return total_price;
+    }
+
     public int getReservationId() {
         return reservationId;
+    }
+
+    public LocalDate getStart_date() {
+        return start_date;
+    }
+
+    public Date getSQLStart_date() {
+        return Date.valueOf(start_date);
+    }
+
+    public LocalDate getEnd_date() {
+        return end_date;
+    }
+
+    public Date getSQLEnd_date() {
+        return Date.valueOf(end_date);
     }
 
     public void setStart_date() throws NumberFormatException, DateTimeException{
