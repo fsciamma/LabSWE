@@ -175,6 +175,11 @@ public abstract class BusinessLogic {
         //TODO inserire codice per aggiungere una prenotazione per il cliente appena trovato
     }
 
+    /**
+     * Metodo che permette di aggiungere una Reservation a nome di un cliente appena aggiunto al database oppure che è stato appena cercato
+     * @param customerId ID del cliente che richiede una nuova prenotazione
+     * @throws SQLException
+     */
     private static void addNewReservation(int customerId) throws SQLException {
         Reservation newRes = Reservation.createNewReservation(customerId);
         //TODO decidere se inserire le righe di codice che mostrano i tipi di ombrellone in un metodo a parte
@@ -299,7 +304,6 @@ public abstract class BusinessLogic {
                 case 5 -> oRunning = false;
                 default -> System.err.println("Opzione non valida...");
             }
-
         }
     }
 
@@ -359,7 +363,6 @@ public abstract class BusinessLogic {
                     } else {
                         System.err.println("Formato nome non valido...");
                     }
-
                 }
                 case 4 -> {
                     System.out.println("Inserire cognome del cliente: ");
@@ -384,12 +387,10 @@ public abstract class BusinessLogic {
                 case 6 -> cd.findAll();
                 case 7 -> search = false;
                 default -> System.err.println("Opzione non valida...");
-
             }
             System.out.println("\n");
         }
     }
-
     /**
      * Metodo che permette di accedere a un sotto-menù con operazioni che permettono di visualizzare a schermo gli ombrelloni
      * in possesso del bagno secondo criteri selezionabili.
@@ -439,6 +440,10 @@ public abstract class BusinessLogic {
         }
     }
     //TODO finire di sistemare
+    /**
+     * Metodo che permette di accedere a un sotto-menù con operazioni che permettono di visualizzare a schermo le prenotazioni
+     * verso il bagno secondo criteri selezionabili.
+     */
     private static void reservationSearch(){
         boolean rRunning = true;
         ReservationDAO rd = ReservationDAO.getInstance();
@@ -511,7 +516,6 @@ public abstract class BusinessLogic {
                 default -> System.err.println("Opzione non valida...");
             }
         }
-
     }
 
     /**
@@ -571,7 +575,6 @@ public abstract class BusinessLogic {
                 case 4 -> pRunning = false;
                 default -> System.err.println("Opzione non valida...");
             }
-
         }
     }
 }
