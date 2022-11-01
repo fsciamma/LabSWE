@@ -5,6 +5,8 @@ import model.*;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.time.DateTimeException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Map;
@@ -438,7 +440,7 @@ public abstract class BusinessLogic {
             }
         }
     }
-    //TODO finire di sistemare
+
     private static void reservationSearch(){
         boolean rRunning = true;
         ReservationDAO rd = ReservationDAO.getInstance();
@@ -448,7 +450,7 @@ public abstract class BusinessLogic {
             System.out.println("\t 1 - ID prenotazione");
             System.out.println("\t 2 - ID cliente");
             System.out.println("\t 3 - Id ombrellone");
-            System.out.println("\t 4 - Data (WIP)");
+            System.out.println("\t 4 - Data");
             System.out.println("\t 5 - Mostra tutte");
             System.out.println("\t 6 - Torna inidietro");
             Scanner option = new Scanner(System.in);
@@ -492,26 +494,65 @@ public abstract class BusinessLogic {
                         System.err.println(s.getMessage());
                     }
                 }
-                //case 4 -> {
-                //    //TODO studiare un metodo per ricercare in un intervallo di date
-                //    //TODO fare in modo che prenda in ingrsso due input nel formato corretto
-                //    //TODO aggiungere eventualmente la possibilita che in assenza di seconda data mostri tutte le prenotazioni dalla data di partenza in poi
-                //    System.out.println("Inserisci data da cui far partire la ricerca (formato AAAA-MM-GG): ");
-                //    reservationData = new Scanner(System.in);
-                //    try {
-                //        rd.findByStartDate(reservationData.nextLine());
-                //    } catch (InputMismatchException i){
-                //        System.err.println("Inserire una data valida...");
-                //    } catch (SQLException s){
-                //        System.err.println(s.getMessage());
-                //    }
-                //}
+                case 4 -> {
+                //    TODO aggiungere eventualmente la possibilita che in assenza di seconda data mostri tutte le prenotazioni dalla data di partenza in poi
+                    LocalDate start = LocalDate.now();
+                    LocalDate end = LocalDate.now();
+                    boolean validStartDate = false;
+                    while(!validStartDate){
+                        System.out.println("Inserire data di inizio: (dd-mm-yyyy)");
+                        try{
+                            start = parseDate(start);
+                            validStartDate = true;
+                        } catch (NumberFormatException | DateTimeException e){
+                            System.err.println(e.getMessage());
+                        }
+                    }
+                    boolean validEndDate = false;
+                    while(!validEndDate){
+                        System.out.println("Inserire data di fine: (dd-mm-yyyy)");
+                        try{
+                            end = parseDate(end);
+                            if(end.compareTo(start) >= 0) { // controlla che la data di fine prenotazione sia successiva a quella d'inizio prenotazione
+                                validEndDate = true;
+                            }
+                            else {
+                                System.err.println("La data di fine prenotazione è precedente alla data di inizio prenotazione.");
+                                System.out.println("Inserire una nuova data di fine prenotazione");
+                            }
+                        } catch (NumberFormatException | DateTimeException e){
+                            System.err.println(e.getMessage());
+                        }
+                    }
+                    try{
+                        rd.findByDates(start, end);
+                    } catch(SQLException e){
+                        System.err.println(e.getMessage());
+                    }
+                }
                 case 5 -> rd.findAll();
                 case 6 -> rRunning = false;
                 default -> System.err.println("Opzione non valida...");
             }
         }
 
+    }
+
+    private static LocalDate parseDate(LocalDate _date){
+        Scanner s = new Scanner(System.in);
+        String date = s.nextLine();
+        String[] full_date = date.split("-");
+        try{
+            int dayOfMonth = Integer.parseInt(full_date[0]);
+            int month = Integer.parseInt(full_date[1]);
+            int year = Integer.parseInt(full_date[2]);
+            _date = LocalDate.of(year, month, dayOfMonth);
+        } catch(NumberFormatException n){
+            throw new NumberFormatException("Inserire valori numerici...");
+        } catch (DateTimeException d){
+            throw new DateTimeException("La data " + date + " non è valida...");
+        }
+        return _date;
     }
 
     /**

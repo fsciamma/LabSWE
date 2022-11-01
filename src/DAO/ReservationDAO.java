@@ -5,6 +5,7 @@ import model.Reservation;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class ReservationDAO extends BaseDAO {
@@ -63,6 +64,15 @@ public class ReservationDAO extends BaseDAO {
 
     public void findByUmbrellaId(int id) throws SQLException {
         String query = "select * from reservation where ombrelloneid = " + id;
+        try{
+            showReservations(query);
+        } catch (SQLException e){
+            throw new SQLException("Non sono state trovate prenotazioni con i dati forniti");
+        }
+    }
+
+    public void findByDates(LocalDate start, LocalDate end) throws SQLException {
+        String query = "select * from reservation where end_date >= '" + start + "' and start_date <= '" + end + "'";
         try{
             showReservations(query);
         } catch (SQLException e){
