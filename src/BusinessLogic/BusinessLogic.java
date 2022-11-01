@@ -189,7 +189,7 @@ public abstract class BusinessLogic {
         try{
             favoriteType = new Scanner(System.in).nextInt();
             System.out.println("E' stato richiesto un ombrellone del tipo: " + umbrellaTable.getUTypeMap().get(favoriteType).getTypeName());
-        } catch (InputMismatchException i){
+        } catch (InputMismatchException | NullPointerException i){
             favoriteType = 0;
             System.out.println("Nessun tipo specifico richiesto.");
         }
