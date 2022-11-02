@@ -23,6 +23,10 @@ public class ReservationDAO extends BaseDAO {
         return INSTANCE;
     }
 
+    /**
+     * Permette di aggiungere una nuova Reservation al database
+     * @param newR La Reservation che deve essere inserita nel database
+     */
     public void addNewReservation(Reservation newR){
         String query = "select * from reservation";
         ResultSet rs;
