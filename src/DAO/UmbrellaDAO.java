@@ -1,6 +1,5 @@
 package DAO;
 
-import model.Reservation;
 import model.Umbrella;
 
 import java.sql.ResultSet;
@@ -50,10 +49,7 @@ public class UmbrellaDAO extends BaseDAO{
         getUmbrella(query, u);
     }
 
-    //TODO valutare se passare l'oggetto Reservation o le due date di inizio e fine
-    public ArrayList<Integer> getAvailableUmbrellas(Reservation res, int type) throws SQLException{
-        LocalDate requested_start_date = res.getStart_date();
-        LocalDate requested_end_date = res.getEnd_date();
+    public ArrayList<Integer> getAvailableUmbrellas(LocalDate requested_start_date, LocalDate requested_end_date, int type) throws SQLException{
         ArrayList<Integer> availableUmbrellas;
 
         String query1 = "select ombrellone.ombrelloneid" +

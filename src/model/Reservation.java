@@ -76,7 +76,7 @@ public class Reservation {
     }
 
     private static Umbrella getAvailableUmbrella(Reservation res, Umbrella u, int favoriteType) throws SQLException {
-        ArrayList<Integer> availableUmbrellas = UmbrellaDAO.getINSTANCE().getAvailableUmbrellas(res, favoriteType);
+        ArrayList<Integer> availableUmbrellas = UmbrellaDAO.getINSTANCE().getAvailableUmbrellas(res.start_date, res.end_date, favoriteType);
         try{
             System.out.println("Per favore, seleziona uno degli ombrelloni disponibili.");
             boolean notValidNumber = true;
@@ -153,16 +153,8 @@ public class Reservation {
         return reservationId;
     }
 
-    public LocalDate getStart_date() {
-        return start_date;
-    }
-
     public Date getSQLStart_date() {
         return Date.valueOf(start_date);
-    }
-
-    public LocalDate getEnd_date() {
-        return end_date;
     }
 
     public Date getSQLEnd_date() {
