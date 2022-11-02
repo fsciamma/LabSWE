@@ -1,5 +1,7 @@
 package model;
 
+import DAO.UmbrellaDAO;
+
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.SQLException;
@@ -9,6 +11,8 @@ import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Map;
 import java.util.Scanner;
+
+import static java.time.temporal.ChronoUnit.DAYS;
 
 public class Reservation {
     private int reservationId;
@@ -29,12 +33,12 @@ public class Reservation {
      * @return Reservation in cui sono inizializzati i parametri customerId, start_date e end_date
      */
     public static Reservation createNewReservation(int customerId){
-        Reservation r = new Reservation();
-        r.setCustomerId(customerId);
-        r.setStart_date();
-        r.setEnd_date();
-        //completeMissingAttributes(r);
-        return r;
+        Reservation res = new Reservation();
+        res.setCustomerId(customerId);
+        res.setStart_date();
+        res.setEnd_date();
+        completeMissingAttributes(res);
+        return res;
     }
 
     public void setCustomerId(int customerId) {
@@ -43,6 +47,78 @@ public class Reservation {
 
     public void setOmbrelloneId(int ombrelloneId) {
         this.ombrelloneId = ombrelloneId;
+    }
+
+    public static void completeMissingAttributes(Reservation res){
+        Umbrella u = new Umbrella();
+        int favoriteType;
+        boolean notAvailable = true;
+
+        while(notAvailable) {
+            showUmbrellaTypes();
+            try {
+                favoriteType = getFavoriteType();
+                u = getAvailableUmbrella(res, u, favoriteType);
+                notAvailable = false;
+            } catch (SQLException e){
+                System.out.println(e.getMessage());
+            }
+        }
+
+        //TODO il codice seguente deve essere eseguito se non ci sono stati problemi nella ricerca di ombrelloni
+        if(u.getUmbrellaId() != 0) {
+            res.setOmbrelloneId(u.getUmbrellaId());
+            res.setTotal_price(BigDecimal.valueOf(u.getDaily_price() * (DAYS.between(res.start_date, res.end_date) + 1)));
+        } else {
+            //TODO aggiungere il codice per lanciare un'eccezione SE non ci sono ombrelloni disponibili
+            throw new RuntimeException("Nessun ombrellone disponibile");
+        }
+    }
+
+    private static Umbrella getAvailableUmbrella(Reservation res, Umbrella u, int favoriteType) throws SQLException {
+        ArrayList<Integer> availableUmbrellas = UmbrellaDAO.getINSTANCE().getAvailableUmbrellas(res, favoriteType);
+        try{
+            System.out.println("Per favore, seleziona uno degli ombrelloni disponibili.");
+            boolean notValidNumber = true;
+            int number;
+            while(notValidNumber){
+                Scanner input = new Scanner(System.in);
+                try{
+                    number = input.nextInt();
+                } catch (InputMismatchException i){
+                    number = 0;
+                }
+                if(availableUmbrellas.contains(number)){
+                    u = UmbrellaDAO.findById(number);
+                    notValidNumber = false;
+                } else {
+                    System.err.println("Ombrellone " + number + " non disponibile. Prego selezionare un altro numero.");
+                }
+            }
+        }catch (SQLException e){
+            System.err.println(e.getMessage());
+        }
+        return u;
+    }
+
+    private static int getFavoriteType() {
+        int favoriteType;
+        try{
+            favoriteType = new Scanner(System.in).nextInt();
+            System.out.println("E' stato richiesto un ombrellone del tipo: " + UmbrellaType.getInstance().getUTypeMap().get(favoriteType).getTypeName());
+        } catch (InputMismatchException | NullPointerException i){
+            favoriteType = 0;
+            System.out.println("Nessun tipo specifico richiesto.");
+        }
+        return favoriteType;
+    }
+
+    private static void showUmbrellaTypes() {
+        System.out.println("Seleziona il tipo di ombrellone:");
+        System.out.println("\t0 - Nessuna preferenza");
+        for(Map.Entry<Integer, TypeDetails> type: UmbrellaType.getInstance().getUTypeMap().entrySet()){ //cicla sugli elementi di umbrellaTable e li printa a schermo
+            System.out.println("\t" + type.getKey() + " - " + type.getValue().getTypeName());
+        }
     }
 
     public void setTotal_price(BigDecimal total_price) {
