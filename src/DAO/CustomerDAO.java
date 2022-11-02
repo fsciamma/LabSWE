@@ -122,6 +122,9 @@ public class CustomerDAO extends BaseDAO {
         return c;
     }
 
+    /**
+     * Printa a schermo la prima riga di una tabella dove verranno poi mostrati tutti i clienti. Chiama showCustomers() che scrive poi i clienti completi di informazioni
+     */
     public void findAll(){
         String query = "select * from customer";
         System.out.println("Cod. " + "|" + String.format("%-15s", "Nome") + "|" + String.format("%-15s", "Cognome") + "|" + String.format("%-35s", "E-mail"));
