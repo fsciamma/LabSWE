@@ -76,13 +76,7 @@ public class CustomerDAO extends BaseDAO {
     public Customer findById(int id) throws SQLException{
         Customer c = new Customer();
         String query = "select * from customer where customerid = " + id;
-        try {
-            return getCustomer(query, c);
-        } catch (SQLException e){
-            System.err.println("Il cliente #" +  id + " non è presente nel database");
-            //TODO aggiungere una throw se il cliente non è stato trovato
-        }
-        return c;
+        return getCustomer(query, c);
     }
 
     /**
