@@ -19,7 +19,7 @@ public abstract class BusinessLogic {
         boolean running = true;
         while(running) {
             Scanner input = new Scanner(System.in);
-            System.out.println("Scegli un'opzione:");
+            System.out.println("Selezionare un'opzione:");
             //System.out.println("\t -");
             System.out.println("\t 1 - Operazioni Cliente");
             System.out.println("\t 2 - Operazioni Prenotazione");
@@ -51,7 +51,7 @@ public abstract class BusinessLogic {
     /**
      * Metodo che mostra un sotto-menù con le operazioni eseguibili riguardo a un cliente
      */
-    private static void customerOptions() throws SQLException {
+    private static void customerOptions(){
         boolean cRunning = true;
         while(cRunning) {
             Scanner cInput = new Scanner(System.in);
@@ -80,12 +80,19 @@ public abstract class BusinessLogic {
     /**
      * Metodo che invoca i metodi di Customer e CustomerDAO per aggiungere un nuovo cliente al database
      */
-    private static void addNewCustomer() throws SQLException {
+    private static void addNewCustomer() {
         CustomerDAO cd = CustomerDAO.getINSTANCE(); //TODO qui va la factory
         Customer newC = Customer.createNewCustomer();
         cd.addNewCustomer(newC);
-        //TODO scrivere l'interfaccia per sapere se si vuole o meno creare una nuova prenotazione a nome del cliente appena inserito
-        addNewReservation(newC.get_customerID());
+        System.out.println("Vuoi effettuare una prenotazione? (Y/N)");
+        Scanner input = new Scanner(System.in);
+        String line = input.nextLine();
+        if ("Y".equals(line) || "y".equals(line)) {  // Se viene inserito qualsiasi altro carattere esce dall'if
+            addNewReservation(newC.get_customerID());
+        } else {
+            System.out.println("Non è stata aggiunta nessuna prenotazione.");
+        }
+
     }
 
     /**
@@ -93,6 +100,7 @@ public abstract class BusinessLogic {
      */
     private static void findCustomer() {
         boolean findCRunning = true;
+        Customer c = new Customer();
         while(findCRunning) {
             System.out.println("\t Cercare per:");
             System.out.println("\t 1 - Codice cliente");
@@ -116,20 +124,16 @@ public abstract class BusinessLogic {
                         customerData = new Scanner(System.in);
                         try{
                             choiceId = customerData.nextInt();
+                            c = cd.findById(choiceId);
                             notACNumber = false;
                         } catch(InputMismatchException i){
                             System.err.println("Inserire un codice cliente valido...");
+                        } catch (SQLException s){
+                            System.err.println(s.getMessage());
                         }
                     }
-                    Customer c = new Customer();
-                    try{
-                        c = cd.findById(choiceId);
-                    } catch (SQLException s){
-                        System.err.println(s.getMessage());
-                    }
-                    if(c.get_first_name() != null) { // non permette di modificare il cliente se non lo trova nel database
-                        //TODO aggiungere un nuovo sotto-menù dove sono mostrate le opzioni che possono essere scelte: modifica info cliente, crea nuova prenotazione, modifica prenotazione, cancella prenotazione...
-                        modifyClientInfo(c);
+                    if(c.get_first_name() != null) { // non permette di modificare il cliente se non lo trova nel database//TODO in realtà ora non dovrebbe più servire questo controllo...
+                        customerMenu(c);
                     }
                 }
                 case 2 -> {
@@ -140,6 +144,7 @@ public abstract class BusinessLogic {
                         customerData = new Scanner(System.in);
                         fullName = customerData.nextLine();
                         if(fullName.matches("^[A-Z][a-z]+\\s[A-Z][a-z]+$")){ //controlla che le credenziali vengano passate nel formato corretto; NB non sono accettati nomi o cognomi composti da una sola lettera
+                            //TODO modificare il metodo per aggiungere un nuovo Customer controllando con queste regex che nome e cognome siano validi
                             nameNotValid = false;
                         } else {
                             System.err.println("Formato nome non valido...");
@@ -158,10 +163,9 @@ public abstract class BusinessLogic {
                             System.err.println("Indirizzo e-mail non valido...");
                         }
                     }
-                    Customer c = cd.findByInfo(fullName, email);
+                    c = cd.findByInfo(fullName, email); //TODO probabilmente da mettere in un try/catch
                     if(c.get_customerID() != 0) { // non permette di modificare il cliente se non lo trova nel database
-                        modifyClientInfo(c);
-                        cd.updateInfo(c);
+                        customerMenu(c);
                     }
                 }
                 case 3 -> {
@@ -171,19 +175,46 @@ public abstract class BusinessLogic {
                 default -> System.err.println("Opzione non valida...");
             }
         }
-        //TODO inserire codice per aggiungere una prenotazione per il cliente appena trovato
+        //TODO inserire codice per aggiungere una prenotazione per il cliente appena trovato(il codice esiste già)
+        //TODO probabilmente si può spostare qua la chiamata al metodo customer_menu
+    }
+
+    private static void customerMenu(Customer c) {
+        boolean customer_menu = true;
+        Scanner findC_menu_input = new Scanner(System.in);
+        while(customer_menu) {
+            System.out.println("Selezionare un'opzione:");
+            System.out.println("\t1 - Aggiungi prenotazione"); //TODO aggiungere possibilità di modificare una prenotazione o cancellarla(volendo anche entro una certa data)
+            System.out.println("\t2 - Modifica dati cliente");
+            System.out.println("\t3 - Torna indietro");
+            int customer_choice;
+            try {
+                customer_choice = findC_menu_input.nextInt();
+            } catch (InputMismatchException i) {
+                customer_choice = 0;
+            }
+            switch (customer_choice) {
+                case 1 -> addNewReservation(c.get_customerID());
+                case 2 -> modifyClientInfo(c);
+                case 3 -> {
+                    System.out.println("Torna a pagina precedente...");
+                    customer_menu = false;
+                }
+                default -> System.out.println("Opzione non valida...");
+            }
+        }
     }
 
     /**
      * Metodo che permette di aggiungere una Reservation a nome di un cliente appena aggiunto al database oppure che è stato appena cercato
      * @param customerId ID del cliente che richiede una nuova prenotazione
-     * @throws SQLException
      */
     private static void addNewReservation(int customerId){
         Reservation newRes = Reservation.createNewReservation(customerId);
-        //TODO aggiungere un metodo per poter aggiungere già ora degli extras
         ReservationDAO rd = ReservationDAO.getInstance();
         rd.addNewReservation(newRes);
+        System.out.println("Prenotazione effettuata!");
+        //TODO aggiungere un metodo per poter aggiungere già ora degli extras
     }
 
     /**
