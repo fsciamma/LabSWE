@@ -14,8 +14,7 @@ public abstract class BusinessLogic {
      * Metodo che mostra il menù principale del programma, permette di accedere ai metodi per eseguire operazioni su clienti o prenotazioni o chiudere il programma
      */
     public static void mainMenu() throws SQLException {
-        UmbrellaTypeDAO utd = UmbrellaTypeDAO.getInstance();
-        UmbrellaType uTable = utd.getUTypes(); //TODO da riallocare in una init()
+        tableInit();
         boolean running = true;
         while(running) {
             Scanner input = new Scanner(System.in);
@@ -46,6 +45,11 @@ public abstract class BusinessLogic {
                 default -> System.err.println("Opzione non valida...");
             }
         }
+    }
+
+    private static void tableInit() throws SQLException {
+        UmbrellaTypeDAO utd = UmbrellaTypeDAO.getInstance();
+        UmbrellaType uTable = utd.getUTypes();
     }
 
     /**
@@ -118,7 +122,7 @@ public abstract class BusinessLogic {
             switch (choice) {
                 case 1 -> {
                     boolean notACNumber = true;
-                    int choiceId = 0;
+                    int choiceId;
                     while(notACNumber){
                         System.out.println("Inserire codice cliente:");
                         customerData = new Scanner(System.in);
