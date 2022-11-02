@@ -3,13 +3,10 @@ package BusinessLogic;
 import DAO.*;
 import model.*;
 
-import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.time.DateTimeException;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.InputMismatchException;
-import java.util.Map;
 import java.util.Scanner;
 
 public abstract class BusinessLogic {
@@ -182,50 +179,8 @@ public abstract class BusinessLogic {
      * @param customerId ID del cliente che richiede una nuova prenotazione
      * @throws SQLException
      */
-    private static void addNewReservation(int customerId) throws SQLException {
+    private static void addNewReservation(int customerId){
         Reservation newRes = Reservation.createNewReservation(customerId);
-        //TODO decidere se inserire le righe di codice che mostrano i tipi di ombrellone in un metodo a parte
-        UmbrellaTypeDAO uTD = UmbrellaTypeDAO.getInstance(); //Le righe successive mostrano a schermo il tipo di ombrellone che si può scegliere
-        UmbrellaType umbrellaTable = uTD.getUTypes();
-        System.out.println("Seleziona il tipo di ombrellone:");
-        System.out.println("\t0 - Nessuna preferenza");
-        for(Map.Entry<Integer, TypeDetails> type: umbrellaTable.getUTypeMap().entrySet()){ //cicla sugli elementi di umbrellaTable e li printa a schermo
-            System.out.println("\t" + type.getKey() + " - " + type.getValue().getTypeName());
-        }
-        int favoriteType;
-        try{
-            favoriteType = new Scanner(System.in).nextInt();
-            System.out.println("E' stato richiesto un ombrellone del tipo: " + umbrellaTable.getUTypeMap().get(favoriteType).getTypeName());
-        } catch (InputMismatchException | NullPointerException i){
-            favoriteType = 0;
-            System.out.println("Nessun tipo specifico richiesto.");
-        }
-        Umbrella u = new Umbrella();
-        try{
-            ArrayList<Integer> availableUmbrellas = UmbrellaDAO.getINSTANCE().getAvailableUmbrellas(newRes, favoriteType);
-            System.out.println("Per favore, seleziona uno degli ombrelloni disponibili.");
-            boolean notValidNumber = true;
-            int number;
-            while(notValidNumber){
-                Scanner input = new Scanner(System.in);
-                try{
-                    number = input.nextInt();
-                } catch (InputMismatchException i){
-                    number = 0;
-                }
-                if(availableUmbrellas.contains(number)){
-                    notValidNumber = false;
-                    u = UmbrellaDAO.findById(number);
-                } else {
-                    System.err.println("Ombrellone " + number + " non disponibile. Prego selezionare un altro numero.");
-                }
-            }
-        }catch (SQLException e){
-            System.err.println(e.getMessage());
-        }
-        //TODO il codice seguente deve essere eseguito se non ci sono stati problemi nella ricerca di ombrelloni
-        newRes.setOmbrelloneId(u.getUmbrellaId());
-        newRes.setTotal_price(BigDecimal.valueOf(u.getDaily_price() * (newRes.getEnd_date().compareTo(newRes.getStart_date()) + 1)));
         //TODO aggiungere un metodo per poter aggiungere già ora degli extras
         ReservationDAO rd = ReservationDAO.getInstance();
         rd.addNewReservation(newRes);
@@ -404,7 +359,7 @@ public abstract class BusinessLogic {
         while(search){
             System.out.println("Ricerca per: ");
             System.out.println("\t 1 - ID ombrellone");
-            System.out.println("\t 2 - Tipo ombrellone");
+            System.out.println("\t 2 - Tipo ombrellone"); //TODO da rivedere la logica: printa solo l'ultimo ombrellone del gruppo; inoltre, accetta anche numeri che non indicano tipi
             System.out.println("\t 3 - Torna indietro");
             Scanner option = new Scanner(System.in);
             try{
