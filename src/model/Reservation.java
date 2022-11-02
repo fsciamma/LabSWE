@@ -2,8 +2,12 @@ package model;
 
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.sql.SQLException;
 import java.time.DateTimeException;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.InputMismatchException;
+import java.util.Map;
 import java.util.Scanner;
 
 public class Reservation {
@@ -27,30 +31,9 @@ public class Reservation {
     public static Reservation createNewReservation(int customerId){
         Reservation r = new Reservation();
         r.setCustomerId(customerId);
-        boolean validStartDate = false;
-        while(!validStartDate) {
-            try {
-                r.setStart_date();
-                validStartDate = true;
-            } catch (NumberFormatException | DateTimeException e){
-                System.err.println(e.getMessage());
-            }
-        }
-        boolean validEndDate = false;
-        while(!validEndDate) {
-            try {
-                r.setEnd_date();
-                if(r.end_date.compareTo(r.start_date) >= 0) { // controlla che la data di fine prenotazione sia successiva a quella d'inizio prenotazione
-                    validEndDate = true;
-                }
-                else {
-                    System.err.println("La data di fine prenotazione è precedente alla data di inizio prenotazione.");
-                    System.out.println("Inserire una nuova data di fine prenotazione");
-                }
-            } catch (NumberFormatException | DateTimeException e){
-                System.err.println(e.getMessage());
-            }
-        }
+        r.setStart_date();
+        r.setEnd_date();
+        //completeMissingAttributes(r);
         return r;
     }
 
@@ -110,19 +93,44 @@ public class Reservation {
         return Date.valueOf(end_date);
     }
 
-    public void setStart_date() throws NumberFormatException, DateTimeException{
-        Scanner mySc = new Scanner(System.in);
-        System.out.println("Inserire data di inizio: (dd-mm-yyyy)");
-        this.start_date = set_date(mySc);
+    private void setStart_date(){
+        boolean validStartDate = false;
+        while(!validStartDate) {
+            System.out.println("Inserire data di inizio: (dd-mm-yyyy)");
+            try {
+                LocalDate tmp = set_date();
+                if (tmp.compareTo(LocalDate.now()) >= 0) {
+                    this.start_date = tmp;
+                    validStartDate = true;
+                } else {
+                    System.err.println("La data inserita è precedente alla giornata odierna...");
+                }
+            } catch (NumberFormatException | DateTimeException | ArrayIndexOutOfBoundsException e){
+                System.err.println(e.getMessage());
+            }
+        }
     }
 
-    public void setEnd_date() throws NumberFormatException, DateTimeException {
-        Scanner mySc = new Scanner(System.in);
-        System.out.println("Inserire data di fine: (dd-mm-yyyy)");
-        this.end_date = set_date(mySc);
+    private void setEnd_date(){
+        boolean validEndDate = false;
+        while(!validEndDate) {
+            System.out.println("Inserire data di fine: (dd-mm-yyyy)");
+            try {
+                LocalDate tmp = set_date();
+                if (tmp.compareTo(this.start_date) >= 0) {
+                    this.end_date = tmp;
+                    validEndDate = true;
+                } else {
+                    System.err.println("La data inserita è precedente alla data di inizio prenotazione...");
+                }
+            } catch (NumberFormatException | DateTimeException | ArrayIndexOutOfBoundsException e) {
+                System.err.println(e.getMessage());
+            }
+        }
     }
 
-    private LocalDate set_date(Scanner mySc) {
+    private LocalDate set_date() {
+        Scanner mySc = new Scanner(System.in);
         String date = mySc.nextLine();
         String[] fullDate = date.split("-");
         LocalDate localDate;
@@ -136,6 +144,8 @@ public class Reservation {
             throw new NumberFormatException("Inserire valori numerici...");
         } catch (DateTimeException d) {
             throw new DateTimeException("La data " + date + " non è valida...");
+        } catch (ArrayIndexOutOfBoundsException a){
+            throw new ArrayIndexOutOfBoundsException("Inserire tutti i parametri nel formato dd-mm-yyyy...");
         }
         return localDate;
     }
