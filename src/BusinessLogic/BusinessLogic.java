@@ -186,6 +186,10 @@ public abstract class BusinessLogic {
         //TODO probabilmente si può spostare qua la chiamata al metodo customer_menu
     }
 
+    /**
+     * Metodo che crea un'interfaccia e contiene la logica per navigare tra le opzioni attuabili sul customer in ingresso
+     * @param c Customer appena trovato da findCustomer()
+     */
     private static void customerMenu(Customer c) {
         boolean customer_menu = true;
         Scanner findC_menu_input = new Scanner(System.in);
