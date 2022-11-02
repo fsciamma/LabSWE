@@ -146,7 +146,6 @@ public class CustomerDAO extends BaseDAO {
         tabulateFindBy(query);
     }
 
-
     public void findByEMail(String em){
         String query = "select * from customer where email = '" + em + "'";
         tabulateFindBy(query);
@@ -157,6 +156,10 @@ public class CustomerDAO extends BaseDAO {
         tabulateFindBy(query);
     }
 
+    /**
+     * Printa a schermo una tabella con le informazioni dei clienti ottenuti dai metodi di ricerca specifici(findByName(), findBySurname()...)
+     * @param query La query generata dal metodo di ricerca che deve essere eseguita sul database
+     */
     private void tabulateFindBy(String query) {
         System.out.println("Cod. " + "|" + String.format("%-15s", "Nome") + "|" + String.format("%-15s", "Cognome") + "|" + String.format("%-35s", "E-mail"));
         System.out.println(String.format("%40s", "").replace("", "_"));
