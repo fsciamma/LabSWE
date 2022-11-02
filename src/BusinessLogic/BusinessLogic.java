@@ -13,7 +13,7 @@ public abstract class BusinessLogic {
     /**
      * Metodo che mostra il menù principale del programma, permette di accedere ai metodi per eseguire operazioni su clienti o prenotazioni o chiudere il programma
      */
-    public static void mainMenu() throws SQLException {
+    public static void mainMenu(){
         tableInit();
         boolean running = true;
         while(running) {
@@ -47,7 +47,10 @@ public abstract class BusinessLogic {
         }
     }
 
-    private static void tableInit() throws SQLException {
+    /**
+     * Inizializza la tabella statica dei tipi di ombrelloni
+     */
+    private static void tableInit(){
         UmbrellaTypeDAO utd = UmbrellaTypeDAO.getInstance();
         UmbrellaType uTable = utd.getUTypes();
     }

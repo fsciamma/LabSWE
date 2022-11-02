@@ -20,7 +20,7 @@ public class UmbrellaTypeDAO extends BaseDAO {
         return INSTANCE;
     }
 
-    public UmbrellaType getUTypes() throws SQLException {
+    public UmbrellaType getUTypes(){
         UmbrellaType u = UmbrellaType.getInstance();
         String query = "select * from tipoOmbrellone";
         try(Statement stmt = conn.createStatement()){
@@ -31,6 +31,8 @@ public class UmbrellaTypeDAO extends BaseDAO {
                 tD.setTypePrice(rs.getFloat("daily_price"));
                 u.getUTypeMap().put(rs.getInt("typeid"), tD);
             }
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
         }
         return u;
     }
