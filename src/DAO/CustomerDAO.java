@@ -171,6 +171,11 @@ public class CustomerDAO extends BaseDAO {
         }
     }
 
+    /**
+     * Printa a schermo le informazioni sui clienti ritornati dalla query
+     * @param query La query generata dal metodo di ricerca che deve essere eseguita sul database
+     * @throws SQLException
+     */
     private void showCustomers(String query) throws SQLException {
         ArrayList<Customer> cList = new ArrayList<>();
         try(Statement stmt = conn.createStatement()){
