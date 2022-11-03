@@ -17,7 +17,7 @@ import static java.time.temporal.ChronoUnit.DAYS;
 public class Reservation {
     private int reservationId;
     private int customerId;
-    private int ombrelloneId; // TODO serve la classe ombrellone_prenotato?
+    private int ombrelloneId;
     private LocalDate start_date;
     private LocalDate end_date;
     private BigDecimal total_price;
@@ -37,7 +37,8 @@ public class Reservation {
         res.setCustomerId(customerId);
         res.setStart_date();
         res.setEnd_date();
-        completeMissingAttributes(res);
+
+        completeMissingAttributes(res); //TODO gestire il caso in cui non c'è un ombrellone disponibile per le date selezionate
         return res;
     }
 
@@ -88,7 +89,7 @@ public class Reservation {
                 } catch (InputMismatchException i){
                     number = 0;
                 }
-                if(availableUmbrellas.contains(number)){
+                if(availableUmbrellas.contains(number)){ //TODO aggiungere un controllo che availableUmbrellas non sia vuoto?
                     u = UmbrellaDAO.findById(number);
                     notValidNumber = false;
                 } else {
