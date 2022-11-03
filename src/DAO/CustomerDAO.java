@@ -86,16 +86,10 @@ public class CustomerDAO extends BaseDAO {
      * @param em Prende l'indirizzo e-mail del Customer
      * @return Customer c: oggetto Customer che presenta le informazioni ottenute dal DB usando la chiave (Nome, Cognome, E-mail)
      */
-    public Customer findByInfo(String fn, String em){
+    public Customer findByInfo(String fn, String em) throws SQLException{
         String[] fullName = fn.split(" "); //dà per assunto che n sia composto di un nome e un cognome
         String query = "select * from customer where first_name = '" + fullName[0] + "' and last_name = '" + fullName[1] + "' and email = '" + em + "'";
-        Customer c = new Customer();
-        try {
-            return getCustomer(query, c);
-        } catch (SQLException e){
-            System.err.println("Cliente non trovato: i dati inseriti non risultano nel database");
-        }
-        return c;
+        return getCustomer(query, new Customer());
     }
 
     /**
