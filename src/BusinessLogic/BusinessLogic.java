@@ -131,16 +131,13 @@ public abstract class BusinessLogic {
                         customerData = new Scanner(System.in);
                         try{
                             choiceId = customerData.nextInt();
-                            c = cd.findById(choiceId);
                             notACNumber = false;
+                            c = cd.findById(choiceId);
                         } catch(InputMismatchException i){
                             System.err.println("Inserire un codice cliente valido...");
                         } catch (SQLException s){
                             System.err.println(s.getMessage());
                         }
-                    }
-                    if(c.get_first_name() != null) { // non permette di modificare il cliente se non lo trova nel database//TODO in realtà ora non dovrebbe più servire questo controllo...
-                        customerMenu(c);
                     }
                 }
                 case 2 -> {
@@ -170,9 +167,10 @@ public abstract class BusinessLogic {
                             System.err.println("Indirizzo e-mail non valido...");
                         }
                     }
-                    c = cd.findByInfo(fullName, email); //TODO probabilmente da mettere in un try/catch
-                    if(c.get_customerID() != 0) { // non permette di modificare il cliente se non lo trova nel database
-                        customerMenu(c);
+                    try{
+                        c = cd.findByInfo(fullName, email);
+                    } catch (SQLException e){
+                        System.err.println("Cliente non trovato: i dati inseriti non risultano nel database");
                     }
                 }
                 case 3 -> {
@@ -181,9 +179,10 @@ public abstract class BusinessLogic {
                 }
                 default -> System.err.println("Opzione non valida...");
             }
+            if(c.get_customerID() != 0){
+                customerMenu(c);
+            }
         }
-        //TODO inserire codice per aggiungere una prenotazione per il cliente appena trovato(il codice esiste già)
-        //TODO probabilmente si può spostare qua la chiamata al metodo customer_menu
     }
 
     /**
