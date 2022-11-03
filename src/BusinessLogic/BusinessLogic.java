@@ -147,7 +147,7 @@ public abstract class BusinessLogic {
                         System.out.println("Inserire dati cliente (formato: Nome Cognome):");
                         customerData = new Scanner(System.in);
                         fullName = customerData.nextLine();
-                        if(fullName.matches("^[A-Z][a-z]+\\s[A-Z][a-z]+$")){ //controlla che le credenziali vengano passate nel formato corretto; NB non sono accettati nomi o cognomi composti da una sola lettera
+                        if(fullName.matches("^([A-ZÀ-Ü^×]){1}([a-zà-ü^÷])*+\\s([A-ZÀ-Ü^×]){1}([a-zà-ü^÷])*+$")){ //controlla che le credenziali vengano passate nel formato corretto; NB non sono accettati nomi o cognomi composti da una sola lettera
                             //TODO modificare il metodo per aggiungere un nuovo Customer controllando con queste regex che nome e cognome siano validi
                             nameNotValid = false;
                         } else {
@@ -345,7 +345,7 @@ public abstract class BusinessLogic {
                     System.out.println("Inserire nome e cognome del cliente da cercare (formato: Nome Cognome):");
                     customerData = new Scanner(System.in);
                     String name = customerData.nextLine();
-                    if(name.matches("^[A-Z][a-z]+\\s[A-Z][a-z]+$")) {
+                    if(name.matches("^([A-ZÀ-Ü^×]){1}([a-zà-ü^÷])*+\\s([A-ZÀ-Ü^×]){1}([a-zà-ü^÷])*+$")) {
                         String[] fullName = name.split(" ");
                         cd.findByFullName(fullName);
                     } else {
@@ -356,7 +356,7 @@ public abstract class BusinessLogic {
                     System.out.println("Inserire nome del cliente: ");
                     customerData = new Scanner(System.in);
                     String name = customerData.nextLine();
-                    if(name.matches("^[A-Z][a-z]+$")){
+                    if(name.matches("^([A-ZÀ-Ü^×]){1}([a-zà-ü^÷])*+$")){
                         cd.findByFirstName(name);
                     } else {
                         System.err.println("Formato nome non valido...");
@@ -366,7 +366,7 @@ public abstract class BusinessLogic {
                     System.out.println("Inserire cognome del cliente: ");
                     customerData = new Scanner(System.in);
                     String surname = customerData.nextLine();
-                    if(surname.matches("^[A-Z][a-z]+$")){
+                    if(surname.matches("^([A-ZÀ-Ü^×]){1}([a-zà-ü^÷])*+$")){
                         cd.findByLastName(surname);
                     } else {
                         System.err.println("Formato cognome non valido...");

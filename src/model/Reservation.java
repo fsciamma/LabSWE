@@ -17,7 +17,7 @@ import static java.time.temporal.ChronoUnit.DAYS;
 public class Reservation {
     private int reservationId;
     private int customerId;
-    private int ombrelloneId; // TODO serve la classe ombrellone_prenotato?
+    private int ombrelloneId;
     private LocalDate start_date;
     private LocalDate end_date;
     private BigDecimal total_price;
