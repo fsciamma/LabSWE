@@ -148,7 +148,6 @@ public abstract class BusinessLogic {
                         customerData = new Scanner(System.in);
                         fullName = customerData.nextLine();
                         if(fullName.matches("^([A-ZÀ-Ü^×]){1}([a-zà-ü^÷])*+\\s([A-ZÀ-Ü^×]){1}([a-zà-ü^÷])*+$")){ //controlla che le credenziali vengano passate nel formato corretto; NB non sono accettati nomi o cognomi composti da una sola lettera
-                            //TODO modificare il metodo per aggiungere un nuovo Customer controllando con queste regex che nome e cognome siano validi
                             nameNotValid = false;
                         } else {
                             System.err.println("Formato nome non valido...");
@@ -508,7 +507,7 @@ public abstract class BusinessLogic {
                     while(!validStartDate){
                         System.out.println("Inserire data di inizio: (dd-mm-yyyy)");
                         try{
-                            start = parseDate(start);
+                            start = parseDate();
                             validStartDate = true;
                         } catch (NumberFormatException | DateTimeException e){
                             System.err.println(e.getMessage());
@@ -518,7 +517,7 @@ public abstract class BusinessLogic {
                     while(!validEndDate){
                         System.out.println("Inserire data di fine: (dd-mm-yyyy)");
                         try{
-                            end = parseDate(end);
+                            end = parseDate();
                             if(end.compareTo(start) >= 0) { // controlla che la data di fine prenotazione sia successiva a quella d'inizio prenotazione
                                 validEndDate = true;
                             }
@@ -543,10 +542,11 @@ public abstract class BusinessLogic {
         }
     }
 
-    private static LocalDate parseDate(LocalDate _date){
+    private static LocalDate parseDate(){
         Scanner s = new Scanner(System.in);
         String date = s.nextLine();
         String[] full_date = date.split("-");
+        LocalDate _date;
         try{
             int dayOfMonth = Integer.parseInt(full_date[0]);
             int month = Integer.parseInt(full_date[1]);
