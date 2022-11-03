@@ -419,7 +419,7 @@ public abstract class BusinessLogic {
                     System.out.println("Inserire codice ombrellone: ");
                     umbrellaData = new Scanner(System.in);
                     try {
-                        UmbrellaDAO.findById(umbrellaData.nextInt());
+                        ud.findById(umbrellaData.nextInt());
                     } catch (InputMismatchException i){
                         System.err.println("Inserire un codice numerico...");
                     } catch (SQLException s){
@@ -471,7 +471,7 @@ public abstract class BusinessLogic {
                     System.out.println("Inserisci codice prenotazione: ");
                     reservationData = new Scanner(System.in);
                     try {
-                        rd.findById(reservationData.nextInt());
+                        System.out.println(rd.findById(reservationData.nextInt()));
                     } catch (InputMismatchException i){
                         System.err.println("Inserire un codice numerico...");
                     } catch (SQLException s){
@@ -585,7 +585,7 @@ public abstract class BusinessLogic {
                     System.out.println("Inserire codice ricevuta/prenotazione: ");
                     input = new Scanner(System.in);
                     try{
-                        id.findByInvoiceID(input.nextInt());
+                        System.out.println(id.findByInvoiceID(input.nextInt()));
                     } catch (InputMismatchException i){
                         System.err.println("Inserire un codice numerico...");
                     } catch(SQLException s){

@@ -48,13 +48,9 @@ public class ReservationDAO extends BaseDAO {
         }
     }
 
-    public void findById(int id) throws SQLException {
+    public Reservation findById(int id) throws SQLException {
         String query = "select * from reservation where reservationid = " + id;
-        try{
-            showReservations(query);
-        } catch(SQLException s){
-            throw new SQLException("Non sono state trovate prenotazioni con i dati forniti");
-        }
+        return getReservation(query);
     }
 
     public void findByCustomerId(int id) throws SQLException {
@@ -93,7 +89,8 @@ public class ReservationDAO extends BaseDAO {
         }
     }
 
-    private Reservation getReservation(String query, Reservation r) throws SQLException {
+    private Reservation getReservation(String query) throws SQLException {
+        Reservation r = new Reservation();
         try(Statement stmt = conn.createStatement()){
             ResultSet rs = stmt.executeQuery(query);
             while(rs.next()){
