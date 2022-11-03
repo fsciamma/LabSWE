@@ -22,7 +22,8 @@ public class UmbrellaDAO extends BaseDAO{
         return INSTANCE;
     }
 
-    public static void getUmbrella(String query, Umbrella u) throws SQLException {
+    public static Umbrella getUmbrella(String query) throws SQLException {
+        Umbrella u = new Umbrella();
         try(Statement stmt = conn.createStatement()){
             ResultSet rs = stmt.executeQuery(query);
             while(rs.next()){
@@ -34,19 +35,18 @@ public class UmbrellaDAO extends BaseDAO{
             throw new SQLException("L'ombrellone non è stato trovato");
         }
         System.out.println(u); //TODO prob da rimuovere
+        return u;
     }
 
-    public static Umbrella findById(int id) throws SQLException{
-        Umbrella u = new Umbrella();
+    public Umbrella findById(int id) throws SQLException{
         String query = "select * from ombrellone where ombrelloneid = " + id;
-        getUmbrella(query, u);
-        return u;
+        return getUmbrella(query);
     }
 
     public void findByType(int typeId) throws SQLException {
         Umbrella u = new Umbrella();
         String query = "select * from ombrellone where tipo_ombrellone = " + typeId;
-        getUmbrella(query, u);
+        getUmbrella(query);
     }
 
     public ArrayList<Integer> getAvailableUmbrellas(LocalDate requested_start_date, LocalDate requested_end_date, int type) throws SQLException{

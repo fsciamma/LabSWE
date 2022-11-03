@@ -21,10 +21,10 @@ public class InvoiceDAO extends BaseDAO{
     /**
      * Metodo per recuperare una riga dal database con l'abiettivo di modificarla
      * @param query: Query utilizzata per recuperare i dati
-     * @param i : Oggetto Invoice che istanzia la riga del database scercata
      * @return L'Invoice da modificare
      */
-    private Invoice getInvoice(String query, Invoice i) throws SQLException { //TODO può ritornare void?
+    private Invoice getInvoice(String query) throws SQLException { //TODO può ritornare void?
+        Invoice i = new Invoice();
         try(Statement stmt = conn.createStatement()) {
             ResultSet rs = stmt.executeQuery(query);
             while(rs.next()){
@@ -91,15 +91,13 @@ public class InvoiceDAO extends BaseDAO{
 
     /**
      * Metodo che mostra a schermo l'Invoice che ha l'ID richiesto
+     *
      * @param id: ID dell'Invoice da cercare
+     * @return
      */
-    public void findByInvoiceID(int id) throws SQLException{
+    public Invoice findByInvoiceID(int id) throws SQLException{
         String query = "select * from customerinvoice where invoiceid = " + id;
-        try{
-            showInvoices(query);
-        } catch(SQLException s){
-            throw new SQLException("La ricevuta " + id + " non è stata trovata");
-        }
+        return getInvoice(query);
     }
 
     /**

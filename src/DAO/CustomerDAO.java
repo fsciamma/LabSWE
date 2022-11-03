@@ -58,9 +58,8 @@ public class CustomerDAO extends BaseDAO {
      */
     private void findHomonym(Customer newC) throws RuntimeException {
         String query = "select * from customer where first_name = '" + newC.get_first_name() + "' and last_name = '" + newC.get_last_name() + "' and email = '" + newC.get_email() + "'";
-        Customer c = new Customer();
         try {
-            getCustomer(query, c);
+            getCustomer(query);
             throw new RuntimeException("Cliente con stesse credenziali già registrato..."); //Viene lanciata solo se getCustomer non lancia la sua
         } catch (SQLException ignored) {
             //Non è stato trovato nessun cliente con le stesse credenziali, quindi si può inserire senza problemi il nuovo cliente
@@ -74,9 +73,8 @@ public class CustomerDAO extends BaseDAO {
      * @return Customer c: oggetto Customer che presenta le informazioni ottenute dal DB usando la chiave CodiceCliente
      */
     public Customer findById(int id) throws SQLException{
-        Customer c = new Customer();
         String query = "select * from customer where customerid = " + id;
-        return getCustomer(query, c);
+        return getCustomer(query);
     }
 
     /**
@@ -89,18 +87,18 @@ public class CustomerDAO extends BaseDAO {
     public Customer findByInfo(String fn, String em) throws SQLException{
         String[] fullName = fn.split(" "); //dà per assunto che n sia composto di un nome e un cognome
         String query = "select * from customer where first_name = '" + fullName[0] + "' and last_name = '" + fullName[1] + "' and email = '" + em + "'";
-        return getCustomer(query, new Customer());
+        return getCustomer(query);
     }
 
     /**
      * Cerca le informazioni su un Customer nel database
      *
      * @param query La query da usare per cercare il Customer nel database
-     * @param c Un placeholder che viene poi riempito con le informazioni estratte
      * @return Customer c: contenente le informazioni estratte dal database
      * @throws SQLException
      */
-    private Customer getCustomer(String query, Customer c) throws SQLException {
+    private Customer getCustomer(String query) throws SQLException {
+        Customer c = new Customer();
         try(Statement stmt = conn.createStatement()){
             ResultSet rs = stmt.executeQuery(query);
             while(rs.next()){
