@@ -57,11 +57,17 @@ public class Customer {
      */
     public void set_first_name(){
         Scanner mySc = new Scanner(System.in);
-        System.out.println("Nuovo nome: ");
-
-        String fn = mySc.nextLine();
-        if(!Objects.equals(fn, ""))
-            this._first_name = fn;
+        boolean validName = false;
+        while(!validName){
+            System.out.println("Nuovo nome: ");
+            String fn = mySc.nextLine();
+            if(!Objects.equals(fn, "") && fn.matches("^([A-ZÀ-Ü^×]){1}([a-zà-ü^÷])*+$")) {
+                this._first_name = fn;
+                validName = true;
+            } else{
+                System.err.println("Il nome inserito non è valido");
+            }
+        }
         System.out.println("Nome: " + this._first_name);
     }
 
@@ -78,11 +84,17 @@ public class Customer {
      */
     public void set_last_name(){
         Scanner mySc = new Scanner(System.in);
-        System.out.println("Nuovo cognome: ");
-
-        String ln = mySc.nextLine();
-        if(!Objects.equals(ln, ""))
-            this._last_name = ln;
+        boolean validName = false;
+        while(!validName) {
+            System.out.println("Nuovo cognome: ");
+            String ln = mySc.nextLine();
+            if (!Objects.equals(ln, "") && ln.matches("^([A-ZÀ-Ü^×]){1}([a-zà-ü^÷])*+$")) {
+                this._last_name = ln;
+                validName = true;
+            } else {
+                System.err.println("Il nome inserito non è valido");
+            }
+        }
         System.out.println("Cognome: " + this._last_name);
     }
 
