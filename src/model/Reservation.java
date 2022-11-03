@@ -52,17 +52,24 @@ public class Reservation {
 
     public static void completeMissingAttributes(Reservation res){
         Umbrella u = new Umbrella();
-        int favoriteType;
+        int favoriteType = 0;
         boolean notAvailable = true;
 
         while(notAvailable) {
-            showUmbrellaTypes();
-            try {
-                favoriteType = getFavoriteType();
-                u = getAvailableUmbrella(res, u, favoriteType);
+            if(checkAvailableUmbrella(res)){
+                showUmbrellaTypes(); //TODO c'è modo di combinare showUmbrellaTypes e checkAvailableUmbrella? in modo anche da printare a schermo il numero di ombrelloni disponibili
+                try {
+                    favoriteType = getFavoriteType();
+                    u = getAvailableUmbrella(res, u, favoriteType);
+                    notAvailable = false;
+                } catch (SQLException e){
+                    System.out.println(e.getMessage());
+                    if(favoriteType == 0){
+                        notAvailable = false;
+                    }
+                }
+            } else {
                 notAvailable = false;
-            } catch (SQLException e){
-                System.out.println(e.getMessage());
             }
         }
 
@@ -70,10 +77,12 @@ public class Reservation {
         if(u.getUmbrellaId() != 0) {
             res.setOmbrelloneId(u.getUmbrellaId());
             res.setTotal_price(BigDecimal.valueOf(u.getDaily_price() * (DAYS.between(res.start_date, res.end_date) + 1)));
-        } else {
-            //TODO aggiungere il codice per lanciare un'eccezione SE non ci sono ombrelloni disponibili
-            throw new RuntimeException("Nessun ombrellone disponibile");
         }
+    }
+
+    private static boolean checkAvailableUmbrella(Reservation res) {
+        UmbrellaDAO.getINSTANCE().checkAvailableUmbrella(res.start_date, res.end_date);
+        return true;
     }
 
     private static Umbrella getAvailableUmbrella(Reservation res, Umbrella u, int favoriteType) throws SQLException {

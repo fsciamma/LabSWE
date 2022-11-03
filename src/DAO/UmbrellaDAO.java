@@ -79,4 +79,20 @@ public class UmbrellaDAO extends BaseDAO{
         }
         return availableUmbrellas;
     }
+
+    public void checkAvailableUmbrella(LocalDate start_date, LocalDate end_date){
+        String query = "select ombrellone.ombrelloneid" +
+                " from ombrellone " +
+                " except select ombrelloneid" +
+                " from reservation" +
+                " where start_date <= '" + end_date + "' and end_date >= '" + start_date + "'";
+        try(Statement stmt = conn.createStatement()){
+            ResultSet rs = stmt.executeQuery(query);
+            if(!rs.isBeforeFirst()){
+                throw new RuntimeException("Non ci sono ombrelloni disponibili nelle date selezionate.");
+            }
+        } catch (SQLException s){
+            throw new RuntimeException("Problemi a stabilire la connessione");
+        }
+    }
 }

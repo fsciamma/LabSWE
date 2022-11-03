@@ -220,11 +220,16 @@ public abstract class BusinessLogic {
      * @param customerId ID del cliente che richiede una nuova prenotazione
      */
     private static void addNewReservation(int customerId){
-        Reservation newRes = Reservation.createNewReservation(customerId);
-        ReservationDAO rd = ReservationDAO.getInstance();
-        rd.addNewReservation(newRes);
-        System.out.println("Prenotazione effettuata!");
-        //TODO aggiungere un metodo per poter aggiungere già ora degli extras
+        try {
+            Reservation newRes = Reservation.createNewReservation(customerId);
+            ReservationDAO rd = ReservationDAO.getInstance();
+            rd.addNewReservation(newRes);
+            //TODO aggiungere controllo sulla corretta registrazione o meno della prenotazione
+            System.out.println("Prenotazione effettuata!");
+            //TODO aggiungere un metodo per poter aggiungere già ora degli extras
+        } catch (RuntimeException r){
+            System.out.println(r.getMessage());
+        }
     }
 
     /**
