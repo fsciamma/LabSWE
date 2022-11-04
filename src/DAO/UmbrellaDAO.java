@@ -49,24 +49,20 @@ public class UmbrellaDAO extends BaseDAO{
         getUmbrella(query);
     }
 
-    //TODO questo potrebbe già chiamare la view availableUmbrella?
-    public ArrayList<Integer> getAvailableUmbrellas(LocalDate requested_start_date, LocalDate requested_end_date, int type) throws SQLException{
+    public ArrayList<Integer> getAvailableUmbrellas(int type){
         ArrayList<Integer> availableUmbrellas;
 
-        String query1 = "select ombrellone.ombrelloneid" +
-                " from ombrellone join tipoombrellone on ombrellone.tipo_ombrellone = tipoombrellone.typeid";
+        String query = "select *" +
+                " from ombrellone join availableUmbrellas on ombrellone.ombrelloneid = availableUmbrellas.ombrelloneid";
         if(type != 0){
-            query1 = query1 + " where ombrellone.tipo_ombrellone = " + type;
+            query = query + " where ombrellone.tipo_ombrellone = " + type;
         }
-        String query2 = " except select ombrelloneid" +
-                " from reservation" +
-                " where start_date <= '" + requested_end_date + "' and end_date >= '" + requested_start_date + "'" +
-                " order by ombrelloneid asc";
-        availableUmbrellas = showAvailableUmbrellas(query1+query2);
+        query = query + " order by ombrellone.ombrelloneid asc";
+        availableUmbrellas = printAvailableUmbrellas(query);
         return availableUmbrellas;
     }
 
-    private ArrayList<Integer> showAvailableUmbrellas(String query) throws SQLException {
+    private ArrayList<Integer> printAvailableUmbrellas(String query){
         ArrayList<Integer> availableUmbrellas = new ArrayList<>();
         try(Statement stmt = conn.createStatement()){
             ResultSet rs = stmt.executeQuery(query);
@@ -74,16 +70,15 @@ public class UmbrellaDAO extends BaseDAO{
                 availableUmbrellas.add(rs.getInt("ombrelloneid"));
                 System.out.println(rs.getInt("ombrelloneid"));
             }
-        }
-        if(availableUmbrellas.isEmpty()){
-            throw new SQLException("Non ci sono ombrelloni del tipo selezionato disponibili in questo periodo");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
         return availableUmbrellas;
     }
 
     /**
      * Si interfaccia col database, fornendo informazioni sulle disponibilità singole dei tipi di ombrelloni
-     * @param req_start_date La LocalDate di inizio prenotazione
+     * @param req_start_date La LocalDate d'inizio prenotazione
      * @param req_end_date La LocalDate di fine prenotazione
      * @return Ritorna TRUE se c'è almeno un ombrellone di qualsiasi tipo disponibile
      */

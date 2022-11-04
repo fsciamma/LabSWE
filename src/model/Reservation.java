@@ -56,35 +56,27 @@ public class Reservation {
      */
     public static void completeMissingAttributes(Reservation res){
         Umbrella u = new Umbrella();
-        int favoriteType = 0;
+        int favoriteType;
         boolean available = false;
 
         while(!available) {
-            if(UmbrellaDAO.getINSTANCE().showAvailableUmbrellas(res.start_date, res.end_date)){
-                try {
-                    favoriteType = getFavoriteType();
-                    u = getAvailableUmbrella(res, u, favoriteType);
-                    available = true;
-                } catch (SQLException e){
-                    System.out.println(e.getMessage());
-                    if(favoriteType == 0){
-                        available = true;
-                    }
-                }
+            if(UmbrellaDAO.getINSTANCE().showAvailableUmbrellas(res.start_date, res.end_date)){ //NB se la view availableUmbrellas è vuota, non esegue il corpo
+                favoriteType = getFavoriteType();
+                u = getAvailableUmbrella(favoriteType);
+                available = true;
             } else {
                 throw new RuntimeException("Spiacente! Non ci sono ombrelloni disponibili per le date selezionate!");
             }
         }
-
-        //TODO il codice seguente deve essere eseguito se non ci sono stati problemi nella ricerca di ombrelloni
         res.setOmbrelloneId(u.getUmbrellaId());
         res.setTotal_price(BigDecimal.valueOf(u.getDaily_price() * (DAYS.between(res.start_date, res.end_date) + 1)));
 
     }
 
-    private static Umbrella getAvailableUmbrella(Reservation res, Umbrella u, int favoriteType) throws SQLException {
+    private static Umbrella getAvailableUmbrella(int favoriteType){
         UmbrellaDAO ud = UmbrellaDAO.getINSTANCE();
-        ArrayList<Integer> availableUmbrellas = ud.getAvailableUmbrellas(res.start_date, res.end_date, favoriteType);
+        Umbrella u = new Umbrella();
+        ArrayList<Integer> availableUmbrellas = ud.getAvailableUmbrellas(favoriteType);
         try{
             System.out.println("Per favore, seleziona uno degli ombrelloni disponibili.");
             boolean notValidNumber = true;
@@ -96,7 +88,7 @@ public class Reservation {
                 } catch (InputMismatchException i){
                     number = 0;
                 }
-                if(availableUmbrellas.contains(number)){ //TODO aggiungere un controllo che availableUmbrellas non sia vuoto?
+                if(availableUmbrellas.contains(number)){
                     u = ud.findById(number);
                     notValidNumber = false;
                 } else {
