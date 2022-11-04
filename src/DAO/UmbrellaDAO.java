@@ -80,19 +80,39 @@ public class UmbrellaDAO extends BaseDAO{
         return availableUmbrellas;
     }
 
-    public void checkAvailableUmbrella(LocalDate start_date, LocalDate end_date){
-        String query = "select ombrellone.ombrelloneid" +
-                " from ombrellone " +
+    public boolean showAvailableUmbrellas(LocalDate req_start_date, LocalDate req_end_date) {
+        String queryView = "create or replace view availableUmbrellas as" +
+                " select ombrelloneid" +
+                " from ombrellone" +
                 " except select ombrelloneid" +
                 " from reservation" +
-                " where start_date <= '" + end_date + "' and end_date >= '" + start_date + "'";
-        try(Statement stmt = conn.createStatement()){
-            ResultSet rs = stmt.executeQuery(query);
-            if(!rs.isBeforeFirst()){
-                throw new RuntimeException("Non ci sono ombrelloni disponibili nelle date selezionate.");
+                " where start_date <= '" + req_end_date + "' and end_date >= '" + req_start_date + "'";
+
+        String queryTable = "select count(availableUmbrellas.ombrelloneid), tipoombrellone.type_name" +
+                " from availableUmbrellas" +
+                " right join ombrellone on availableUmbrellas.ombrelloneid = ombrellone.ombrelloneid" +
+                " join tipoombrellone on tipoombrellone.typeid = ombrellone.tipo_ombrellone" +
+                " group by tipoombrellone.typeid" +
+                " order by tipoombrellone.typeid";
+
+        boolean availableUmbrellas = false;
+        try(Statement stmt = conn.createStatement()) {
+            stmt.execute(queryView);
+
+            ResultSet rs = stmt.executeQuery(queryTable);
+            System.out.println("Seleziona il tipo di ombrellone:");
+            System.out.println("\t0 - Nessuna preferenza");
+            int i = 1;
+            while(rs.next()){
+                System.out.println("\t" + i + " - " + rs.getString("type_name") + ": " + rs.getInt("count"));
+                i++;
+                if(!availableUmbrellas && rs.getInt("count") != 0){
+                    availableUmbrellas = true;
+                }
             }
         } catch (SQLException s){
             throw new RuntimeException("Problemi a stabilire la connessione");
         }
+        return availableUmbrellas;
     }
 }

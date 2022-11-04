@@ -9,7 +9,7 @@ import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
-import java.util.Map;
+
 import java.util.Scanner;
 
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -56,8 +56,7 @@ public class Reservation {
         boolean notAvailable = true;
 
         while(notAvailable) {
-            if(checkAvailableUmbrella(res)){
-                showUmbrellaTypes(); //TODO c'è modo di combinare showUmbrellaTypes e checkAvailableUmbrella? in modo anche da printare a schermo il numero di ombrelloni disponibili
+            if(UmbrellaDAO.getINSTANCE().showAvailableUmbrellas(res.start_date, res.end_date)){
                 try {
                     favoriteType = getFavoriteType();
                     u = getAvailableUmbrella(res, u, favoriteType);
@@ -78,11 +77,6 @@ public class Reservation {
             res.setOmbrelloneId(u.getUmbrellaId());
             res.setTotal_price(BigDecimal.valueOf(u.getDaily_price() * (DAYS.between(res.start_date, res.end_date) + 1)));
         }
-    }
-
-    private static boolean checkAvailableUmbrella(Reservation res) {
-        UmbrellaDAO.getINSTANCE().checkAvailableUmbrella(res.start_date, res.end_date);
-        return true;
     }
 
     private static Umbrella getAvailableUmbrella(Reservation res, Umbrella u, int favoriteType) throws SQLException {
@@ -122,14 +116,6 @@ public class Reservation {
             System.out.println("Nessun tipo specifico richiesto.");
         }
         return favoriteType;
-    }
-
-    private static void showUmbrellaTypes() {
-        System.out.println("Seleziona il tipo di ombrellone:");
-        System.out.println("\t0 - Nessuna preferenza");
-        for(Map.Entry<Integer, TypeDetails> type: UmbrellaType.getInstance().getUTypeMap().entrySet()){ //cicla sugli elementi di umbrellaTable e li printa a schermo
-            System.out.println("\t" + type.getKey() + " - " + type.getValue().getTypeName());
-        }
     }
 
     public void setTotal_price(BigDecimal total_price) {

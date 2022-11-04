@@ -51,8 +51,7 @@ public abstract class BusinessLogic {
      * Inizializza la tabella statica dei tipi di ombrelloni
      */
     private static void tableInit(){
-        UmbrellaTypeDAO utd = UmbrellaTypeDAO.getInstance();
-        UmbrellaType uTable = utd.getUTypes();
+        UmbrellaTypeDAO.getInstance().getUTypes();
     }
 
     /**
