@@ -87,14 +87,19 @@ public abstract class BusinessLogic {
     /**
      * Metodo che invoca i metodi di Customer e CustomerDAO per aggiungere un nuovo cliente al database
      */
-    private static void addNewCustomer() {
+    private static void addNewCustomer(){
         CustomerDAO cd = CustomerDAO.getINSTANCE(); //TODO qui va la factory
         Customer newC = Customer.createNewCustomer();
         cd.addNewCustomer(newC);
         System.out.println("Vuoi effettuare una prenotazione? (Y/N)");
         Scanner input = new Scanner(System.in);
         String line = input.nextLine();
-        if ("Y".equals(line) || "y".equals(line)) {  // Se viene inserito qualsiasi altro carattere esce dall'if
+        if ("Y".equals(line) || "y".equals(line)) { // Se viene inserito qualsiasi altro carattere esce dall'if
+            try{
+                newC = cd.findByInfo(newC.get_first_name() + " " + newC.get_last_name(), newC.get_email());
+            } catch (SQLException s){
+                System.err.println("A quanto pare il cliente non è stato salvato...");
+            }
             addNewReservation(newC.get_customerID());
         } else {
             System.out.println("Non è stata aggiunta nessuna prenotazione.");
