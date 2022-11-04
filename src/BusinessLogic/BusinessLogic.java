@@ -195,12 +195,12 @@ public abstract class BusinessLogic {
      */
     private static void customerMenu(Customer c) {
         boolean customer_menu = true;
-        Scanner findC_menu_input = new Scanner(System.in);
         while(customer_menu) {
             System.out.println("Selezionare un'opzione:");
             System.out.println("\t1 - Aggiungi prenotazione"); //TODO aggiungere possibilità di modificare una prenotazione o cancellarla(volendo anche entro una certa data)
             System.out.println("\t2 - Modifica dati cliente");
             System.out.println("\t3 - Torna indietro");
+            Scanner findC_menu_input = new Scanner(System.in);
             int customer_choice;
             try {
                 customer_choice = findC_menu_input.nextInt();
