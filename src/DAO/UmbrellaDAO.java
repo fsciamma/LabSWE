@@ -49,6 +49,7 @@ public class UmbrellaDAO extends BaseDAO{
         getUmbrella(query);
     }
 
+    //TODO questo potrebbe già chiamare la view availableUmbrella?
     public ArrayList<Integer> getAvailableUmbrellas(LocalDate requested_start_date, LocalDate requested_end_date, int type) throws SQLException{
         ArrayList<Integer> availableUmbrellas;
 
@@ -80,6 +81,12 @@ public class UmbrellaDAO extends BaseDAO{
         return availableUmbrellas;
     }
 
+    /**
+     * Si interfaccia col database, fornendo informazioni sulle disponibilità singole dei tipi di ombrelloni
+     * @param req_start_date La LocalDate di inizio prenotazione
+     * @param req_end_date La LocalDate di fine prenotazione
+     * @return Ritorna TRUE se c'è almeno un ombrellone di qualsiasi tipo disponibile
+     */
     public boolean showAvailableUmbrellas(LocalDate req_start_date, LocalDate req_end_date) {
         String queryView = "create or replace view availableUmbrellas as" +
                 " select ombrelloneid" +
@@ -95,9 +102,12 @@ public class UmbrellaDAO extends BaseDAO{
                 " group by tipoombrellone.typeid" +
                 " order by tipoombrellone.typeid";
 
-        boolean availableUmbrellas = false;
         try(Statement stmt = conn.createStatement()) {
-            stmt.execute(queryView);
+            stmt.execute(queryView); //crea una view contenente gli ombrelloni disponibili nelle date selezionate
+
+            if(!stmt.executeQuery("select * from availableUmbrellas").next()){ //controlla se la view è vuota
+                return false;
+            }
 
             ResultSet rs = stmt.executeQuery(queryTable);
             System.out.println("Seleziona il tipo di ombrellone:");
@@ -106,13 +116,10 @@ public class UmbrellaDAO extends BaseDAO{
             while(rs.next()){
                 System.out.println("\t" + i + " - " + rs.getString("type_name") + ": " + rs.getInt("count"));
                 i++;
-                if(!availableUmbrellas && rs.getInt("count") != 0){
-                    availableUmbrellas = true;
-                }
             }
         } catch (SQLException s){
             throw new RuntimeException("Problemi a stabilire la connessione");
         }
-        return availableUmbrellas;
+        return true;
     }
 }

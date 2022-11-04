@@ -50,33 +50,36 @@ public class Reservation {
         this.ombrelloneId = ombrelloneId;
     }
 
+    /**
+     * Modifica la Reservation che prende in ingresso aggiungendo dei valori ai campi ombrelloneid e total_price se è presente un ombrellone disponibile per le date richieste
+     * @param res La Reservation da modificare
+     */
     public static void completeMissingAttributes(Reservation res){
         Umbrella u = new Umbrella();
         int favoriteType = 0;
-        boolean notAvailable = true;
+        boolean available = false;
 
-        while(notAvailable) {
+        while(!available) {
             if(UmbrellaDAO.getINSTANCE().showAvailableUmbrellas(res.start_date, res.end_date)){
                 try {
                     favoriteType = getFavoriteType();
                     u = getAvailableUmbrella(res, u, favoriteType);
-                    notAvailable = false;
+                    available = true;
                 } catch (SQLException e){
                     System.out.println(e.getMessage());
                     if(favoriteType == 0){
-                        notAvailable = false;
+                        available = true;
                     }
                 }
             } else {
-                notAvailable = false;
+                throw new RuntimeException("Spiacente! Non ci sono ombrelloni disponibili per le date selezionate!");
             }
         }
 
         //TODO il codice seguente deve essere eseguito se non ci sono stati problemi nella ricerca di ombrelloni
-        if(u.getUmbrellaId() != 0) {
-            res.setOmbrelloneId(u.getUmbrellaId());
-            res.setTotal_price(BigDecimal.valueOf(u.getDaily_price() * (DAYS.between(res.start_date, res.end_date) + 1)));
-        }
+        res.setOmbrelloneId(u.getUmbrellaId());
+        res.setTotal_price(BigDecimal.valueOf(u.getDaily_price() * (DAYS.between(res.start_date, res.end_date) + 1)));
+
     }
 
     private static Umbrella getAvailableUmbrella(Reservation res, Umbrella u, int favoriteType) throws SQLException {
