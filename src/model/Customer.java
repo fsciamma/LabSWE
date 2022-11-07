@@ -138,6 +138,10 @@ public class Customer {
         return "Cliente #" + this._customerID + ": " + this._first_name + " " + this._last_name + ", e-mail: " + this._email;
     }
 
+    /**
+     * Metodo per la stampa di un customer nel formato della tabella
+     * @return String: Informazioni del cliente nel formato della tabella
+     */
     public String tabulated(){
         String new_code = String.format("%-5s", this._customerID);
         String new_name = String.format("%-15s", this._first_name);
