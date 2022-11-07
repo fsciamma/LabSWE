@@ -22,6 +22,11 @@ public class UmbrellaDAO extends BaseDAO{
         return INSTANCE;
     }
 
+    /**
+     * Metodo che fetcha un ombrellone dal database secondo la query immessa.
+     * @param query: query per la ricerca dell'ombrellone
+     * @return Umbrella: Istanza dell'ombrellone cercato dalla query nel Database
+     */
     public static Umbrella getUmbrella(String query) throws SQLException {
         Umbrella u = new Umbrella();
         try(Statement stmt = conn.createStatement()){
@@ -34,21 +39,36 @@ public class UmbrellaDAO extends BaseDAO{
         if(u.getUmbrellaId() == 0){
             throw new SQLException("L'ombrellone non è stato trovato");
         }
-        System.out.println(u); //TODO prob da rimuovere
         return u;
     }
 
+    /**
+     * Metodo che fetcha un ombrellone dal Database con l'id inserito.
+     * @param id: id dell'ombrellone da cercare.
+     * @return Umbrella: istanza dell'ombrellone cercato sul Database
+     */
     public Umbrella findById(int id) throws SQLException{
         String query = "select * from ombrellone where ombrelloneid = " + id;
         return getUmbrella(query);
     }
 
+    /**
+     * Metodo che fetcha un ombrellone dal Database con il tipo inserito.
+     * @param typeId: numero che codifica una tipologia di ombrellone da cercare
+     */
     public void findByType(int typeId) throws SQLException {
         Umbrella u = new Umbrella();
         String query = "select * from ombrellone where tipo_ombrellone = " + typeId;
-        getUmbrella(query);
+        getUmbrella(query); //TODO produci una funzione per mostrare più ombrelloni (una show per intendersi)
     }
 
+    /**
+     * Metodo che ritorna gli ombrelloni disponibili presi da una vista creata da showAvailableUmbrellas(), filtrati
+     * tramite input per tipo (opzionale).
+     * @param type: tipo di ombrellone da filtrare, se si vogliono vedere tutti gli ombrelloni disponibili questo deve
+     *            essere = 0
+     * @return ArrayList</Integer>: Lista di interi che rappresentano gli ombrelloni disponibili
+     */
     public ArrayList<Integer> getAvailableUmbrellas(int type){
         ArrayList<Integer> availableUmbrellas;
 
@@ -62,6 +82,11 @@ public class UmbrellaDAO extends BaseDAO{
         return availableUmbrellas;
     }
 
+    /**
+     * Metodo che mostra a schermo gli ombrelloni disponibili selezionati dalla query in ingresso
+     * @param query: query per selezionare gli ombrelloni da stampare
+     * @return ArrayList</Integer> : lista con gli interi che rappresentano gli ombrelloni appena stampati
+     */
     private ArrayList<Integer> printAvailableUmbrellas(String query){
         ArrayList<Integer> availableUmbrellas = new ArrayList<>();
         try(Statement stmt = conn.createStatement()){

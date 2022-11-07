@@ -20,6 +20,10 @@ public class UmbrellaTypeDAO extends BaseDAO {
         return INSTANCE;
     }
 
+    /**
+     * Metodo che associa in una mappa a ogni identificativo il rispettivo nome del tipo e prezzo.
+     * @return UmbrellaType: la mappa appena costruita
+     */
     public UmbrellaType getUTypes(){
         UmbrellaType u = UmbrellaType.getInstance();
         String query = "select * from tipoOmbrellone";

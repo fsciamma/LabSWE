@@ -546,6 +546,11 @@ public abstract class BusinessLogic {
         }
     }
 
+    /**
+     * Metodo che prende in ingresso da Command Line una data in formato gg-mm-aa e la riorganizza in un formato accettato
+     * da SQL
+     * @return: data inserita ma in un formato accettato da SQL
+     */
     private static LocalDate parseDate(){
         Scanner s = new Scanner(System.in);
         String date = s.nextLine();
