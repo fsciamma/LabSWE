@@ -48,11 +48,20 @@ public class ReservationDAO extends BaseDAO {
         }
     }
 
+    /**
+     * Metodo che fetcha una prenotazione dal Database con l'id inserito
+     * @param id: id della prenotazione da cercare
+     * @return Reservation r: istanza della prenotazione presente sul Database
+     */
     public Reservation findById(int id) throws SQLException {
         String query = "select * from reservation where reservationid = " + id;
         return getReservation(query);
     }
 
+    /**
+     * Metodo che mostra a schermo le prenotazioni che matchano l'ID del cliente inserito
+     * @param id: id del cliente relativo alle prenotazioni cercate
+     */
     public void findByCustomerId(int id) throws SQLException {
         String query = "select * from reservation where customerid = " + id;
         try{
@@ -62,6 +71,10 @@ public class ReservationDAO extends BaseDAO {
         }
     }
 
+    /**
+     * Metodo che mostra a schermo le prenotazioni che matchano l'ID dell'ombrellone inserito
+     * @param id: id dell'ombrellone relativo alle prenotazioni cercate
+     */
     public void findByUmbrellaId(int id) throws SQLException {
         String query = "select * from reservation where ombrelloneid = " + id;
         try{
@@ -71,6 +84,12 @@ public class ReservationDAO extends BaseDAO {
         }
     }
 
+    /**
+     * Metodo che mostra a schermo le prenotazioni attive nell'intervallo di date inserite (comprese). Per prenotazione
+     * attiva si intende una prenotazione che inizia, finisce o si svolge tra le due date.
+     * @param start: data d'inizio dell'intervallo di ricerca
+     * @param end: data di fine dell'intervallo di ricerca
+     */
     public void findByDates(LocalDate start, LocalDate end) throws SQLException {
         String query = "select * from reservation where end_date >= '" + start + "' and start_date <= '" + end + "'";
         try{
@@ -80,6 +99,9 @@ public class ReservationDAO extends BaseDAO {
         }
     }
 
+    /**
+     * Metodo che mostra a schermo tutte le prenotazioni registrate sul database
+     */
     public void findAll(){
         String query = "select * from reservation";
         try{
@@ -89,6 +111,11 @@ public class ReservationDAO extends BaseDAO {
         }
     }
 
+    /**
+     * Metodo che fetcha una prenotazione dal database secondo la query immessa.
+     * @param query: query per selezionare prenotazioni dal Database
+     * @return Reservation: istanza della prenotazione cercata dalla query nel Database
+     */
     private Reservation getReservation(String query) throws SQLException {
         Reservation r = new Reservation();
         try(Statement stmt = conn.createStatement()){
@@ -108,6 +135,10 @@ public class ReservationDAO extends BaseDAO {
         return r;
     }
 
+    /**
+     * Metodo usato per mostrare a schermo una o più prenotazioni cercate nel database
+     * @param query: query per selezionare una o più prenotazioni dal database
+     */
     private void showReservations(String query) throws SQLException {
         ArrayList<Reservation> rList = new ArrayList<>();
         try(Statement stmt = conn.createStatement()){

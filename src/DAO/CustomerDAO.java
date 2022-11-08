@@ -128,21 +128,37 @@ public class CustomerDAO extends BaseDAO {
         }
     }
 
+    /**
+     * Metodo che printa a schermo in una tabella tutti i clienti che matchano il nome inserito
+     * @param ln: nome dei clienti da cercare
+     */
     public void findByFirstName(String ln){ //TODO possibile renderlo case insensitive
         String query = "select * from customer where first_name = '" + ln +"'";
         tabulateFindBy(query);
     }
 
+    /**
+     * Metodo che printa a schermo in una tabella tutti i clienti che matchano il cognome inserito
+     * @param ln: cognome dei clienti da cercare
+     */
     public void findByLastName(String ln){
         String query = "select * from customer where last_name = '" + ln +"'";
         tabulateFindBy(query);
     }
 
+    /**
+     * Metodo che printa a schermo in una tabella tutti i clienti che matchano la mail inserita
+     * @param em: mail dei clienti da cercare
+     */
     public void findByEMail(String em){
         String query = "select * from customer where email = '" + em + "'";
         tabulateFindBy(query);
     }
 
+    /**
+     * Metodo che printa a schermo in una tabella tutti i clienti che matchano nome e cognome inseriti
+     * @param full_name: nome e cognome dei clienti da cercare
+     */
     public void findByFullName(String[] full_name){
         String query = "select * from customer where first_name = '" + full_name[0] + "' and last_name = '" + full_name[1] + "'";
         tabulateFindBy(query);
@@ -166,7 +182,6 @@ public class CustomerDAO extends BaseDAO {
     /**
      * Printa a schermo le informazioni sui clienti ritornati dalla query
      * @param query La query generata dal metodo di ricerca che deve essere eseguita sul database
-     * @throws SQLException
      */
     private void showCustomers(String query) throws SQLException {
         ArrayList<Customer> cList = new ArrayList<>();

@@ -73,6 +73,12 @@ public class Reservation {
 
     }
 
+    /**
+     * Metodo che utilizza il relativo metodo di UmbrellaDAO per selezionare un ombrellone da inserire nella prenotazione,
+     * con la possibilità di filtrare la scelta anche in base a un particlare tipo di ombrellone.
+     * @param favoriteType: intero rappresentate un tipo scelto come preferito per filtrare i risultati
+     * @return Umbrella: l'ombrellone selezionato da inserire nella prenotazione
+     */
     private static Umbrella getAvailableUmbrella(int favoriteType){
         UmbrellaDAO ud = UmbrellaDAO.getINSTANCE();
         Umbrella u = new Umbrella();
@@ -101,6 +107,10 @@ public class Reservation {
         return u;
     }
 
+    /**
+     * Metodo che viene usato per selezionare un tipo di ombrellone per filtrare la ricerca
+     * @return int : intero rappresentante il tipo selezionato
+     */
     private static int getFavoriteType() {
         int favoriteType;
         try{
@@ -153,6 +163,10 @@ public class Reservation {
         return Date.valueOf(end_date);
     }
 
+    /**
+     * Metodo usato per settare una data d'inizio per la prenotazione, modifica una data in formato gg-mm-aa presa in input
+     * da Scanner in un formato utilizzabile per SQL
+     */
     private void setStart_date(){
         boolean validStartDate = false;
         while(!validStartDate) {
@@ -171,6 +185,10 @@ public class Reservation {
         }
     }
 
+    /**
+     * Metodo usato per settare una data di fine per la prenotazione, modifica una data in formato gg-mm-aa presa in input
+     * da Scanner in un formato utilizzabile per SQL
+     */
     private void setEnd_date(){
         boolean validEndDate = false;
         while(!validEndDate) {
@@ -189,6 +207,10 @@ public class Reservation {
         }
     }
 
+    /**
+     * Metodo per cambiare il formato di una data da gg-mm-aa a aa-mm-gg
+     * @return LocalDate: data nel formato corretto
+     */
     private LocalDate set_date() {
         Scanner mySc = new Scanner(System.in);
         String date = mySc.nextLine();
