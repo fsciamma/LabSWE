@@ -187,6 +187,7 @@ public abstract class BusinessLogic {
     private static void customerMenu(Customer c) {
         boolean customer_menu = true;
         while(customer_menu) {
+            System.out.println(c);
             System.out.println("Selezionare un'opzione:");
             System.out.println("\t1 - Aggiungi prenotazione"); //TODO aggiungere possibilità di modificare una prenotazione o cancellarla(volendo anche entro una certa data)
             System.out.println("\t2 - Modifica dati cliente");

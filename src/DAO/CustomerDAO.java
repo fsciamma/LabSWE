@@ -206,10 +206,10 @@ public class CustomerDAO extends BaseDAO {
 
     /**
      * Cerca se nel database è già presente un cliente con quei dati: se sì, ritorna un errore e non esegue la modifica sul database
-     *
      * @param c oggetto Customer contenente le informazioni da modificare
+     * @return true se le credenziali sul db sono state modificate con successo, false altrimenti
      */
-    public void updateInfo(Customer c){ //TODO valutare se può essere un metodo comune a tutti gli ObjectDAO, nel caso, ognuno esegue un proprio override
+    public boolean updateInfo(Customer c){ //TODO valutare se può essere un metodo comune a tutti gli ObjectDAO, nel caso, ognuno esegue un proprio override
         try {
             findHomonym(c);
             String query = "select * from customer where customerid = " + c.get_customerID();
@@ -223,9 +223,12 @@ public class CustomerDAO extends BaseDAO {
                 }
             } catch (SQLException e){
                 System.err.println(e.getMessage());
+                //TODO deve ritornare false? Probabilmente sì, perché non è riuscito ad accedere al db...
             }
         } catch (RuntimeException e) {
-            System.err.println(e.getMessage());
+            System.err.println(e.getMessage() + "\nNon è stato possibile modificare le credenziali.");
+            return false;
         }
+        return true;
     }
 }
