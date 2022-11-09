@@ -21,6 +21,25 @@ public class Customer {
     }
 
     /**
+     * Costruttore di copia
+     * @param c Il Customer di cui copiare i valori
+     */
+    public Customer(Customer c){
+        this.copy(c);
+    }
+
+    /**
+     * Metodo per copiare i valori di un altro oggetto Customer
+     * @param c Il Customer di cui copiare i valori
+     */
+    public void copy(Customer c){
+        this._customerID = c._customerID;
+        this._first_name = c._first_name;
+        this._last_name = c._last_name;
+        this._email = c._email;
+    }
+
+    /**
      * Metodo per la creazione di un Customer inserendo da tastiera i valori dei campi di Customer.
      * @return un Customer che verrà poi passato a CustomerDAO per inserirlo nel database
      */
