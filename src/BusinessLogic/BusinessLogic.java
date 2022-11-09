@@ -14,7 +14,6 @@ public abstract class BusinessLogic {
      * Metodo che mostra il menù principale del programma, permette di accedere ai metodi per eseguire operazioni su clienti o prenotazioni o chiudere il programma
      */
     public static void mainMenu(){
-        tableInit();
         boolean running = true;
         while(running) {
             Scanner input = new Scanner(System.in);
@@ -45,13 +44,6 @@ public abstract class BusinessLogic {
                 default -> System.err.println("Opzione non valida...");
             }
         }
-    }
-
-    /**
-     * Inizializza la tabella statica dei tipi di ombrelloni
-     */
-    private static void tableInit(){
-        UmbrellaTypeDAO.getInstance().getUTypes();
     }
 
     /**
@@ -539,7 +531,13 @@ public abstract class BusinessLogic {
                         System.err.println(e.getMessage());
                     }
                 }
-                case 5 -> rd.findAll();
+                case 5 -> {
+                    try{
+                        rd.findAll();
+                    } catch(SQLException s){
+                        System.err.println(s.getMessage());
+                    }
+                }
                 case 6 -> rRunning = false;
                 default -> System.err.println("Opzione non valida...");
             }
@@ -549,7 +547,7 @@ public abstract class BusinessLogic {
     /**
      * Metodo che prende in ingresso da Command Line una data in formato gg-mm-aa e la riorganizza in un formato accettato
      * da SQL
-     * @return: data inserita ma in un formato accettato da SQL
+     * @return data inserita ma in un formato accettato da SQL
      */
     private static LocalDate parseDate(){
         Scanner s = new Scanner(System.in);
