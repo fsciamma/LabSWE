@@ -64,10 +64,8 @@ public class ReservationDAO extends BaseDAO {
      */
     public void findByCustomerId(int id) throws SQLException {
         String query = "select * from reservation where customerid = " + id;
-        try{
-            showReservations(query);
-        } catch (SQLException e) {
-            throw new SQLException("Non sono state trovate prenotazioni con i dati forniti");
+        if(!showReservations(query)){
+            throw new SQLException("Non sono state trovate prenotazioni per il cliente #" + id);
         }
     }
 
@@ -77,10 +75,8 @@ public class ReservationDAO extends BaseDAO {
      */
     public void findByUmbrellaId(int id) throws SQLException {
         String query = "select * from reservation where ombrelloneid = " + id;
-        try{
-            showReservations(query);
-        } catch (SQLException e){
-            throw new SQLException("Non sono state trovate prenotazioni con i dati forniti");
+        if(!showReservations(query)){
+            throw new SQLException("Non sono state trovate prenotazioni per l'ombrellone #" + id);
         }
     }
 
@@ -92,21 +88,17 @@ public class ReservationDAO extends BaseDAO {
      */
     public void findByDates(LocalDate start, LocalDate end) throws SQLException {
         String query = "select * from reservation where end_date >= '" + start + "' and start_date <= '" + end + "'";
-        try{
-            showReservations(query);
-        } catch (SQLException e){
-            throw new SQLException("Non sono state trovate prenotazioni con i dati forniti");
+        if(!showReservations(query)){
+            throw new SQLException("Non sono state trovate prenotazioni comprese tra " + start + " e " + end);
         }
     }
 
     /**
      * Metodo che mostra a schermo tutte le prenotazioni registrate sul database
      */
-    public void findAll(){
+    public void findAll() throws SQLException {
         String query = "select * from reservation";
-        try{
-            showReservations(query);
-        } catch (SQLException e){
+        if(!showReservations(query)){
             System.err.println("Non ci sono prenotazioni attive");
         }
     }
@@ -139,7 +131,8 @@ public class ReservationDAO extends BaseDAO {
      * Metodo usato per mostrare a schermo una o più prenotazioni cercate nel database
      * @param query: query per selezionare una o più prenotazioni dal database
      */
-    private void showReservations(String query) throws SQLException {
+    private boolean showReservations(String query) throws SQLException {
+        boolean isFound = true;
         ArrayList<Reservation> rList = new ArrayList<>();
         try(Statement stmt = conn.createStatement()){
             ResultSet rs = stmt.executeQuery(query);
@@ -155,14 +148,15 @@ public class ReservationDAO extends BaseDAO {
             }
         }
         if(rList.isEmpty()){
-            throw new SQLException();
+            isFound = false;
         }
         for (Reservation r : rList){
             System.out.println(r);
         }
+        return isFound;
     }
 
-    /**TODO
+    /*TODO
      * Le operazioni di modifica passano sempre per una query e un fetch dei dati, però diventa ridondante
      * fare le stesse funzioni per mostrare i dati e per modificare i dati. Si potrebbe invece mettere come secondo parametro
      * delle funzioni di findBy un parametro che indica se deve essere utilizzata per recuperare dati per modificarli o solo
