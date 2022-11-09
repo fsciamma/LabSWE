@@ -35,7 +35,7 @@ public class InvoiceDAO extends BaseDAO{
             }
         }
         if(i.getInvoiceID() == 0) {
-            throw new SQLException();
+            throw new SQLException("Non è stata trovata la ricevuta cercata");
         }
         return i;
     }
@@ -43,8 +43,11 @@ public class InvoiceDAO extends BaseDAO{
     /**
      * Metodo per mostrare a scehrmo una o più righe del database
      * @param query: Query utilizzata per recuperare i dati
+     * @return true se è stata trovata almeno una Invoice che rispetti la query effettuata, false altrimenti
+     * @throws SQLException
      */
-    private void showInvoices(String query) throws SQLException{
+    private boolean showInvoices(String query) throws SQLException{
+        boolean isFound = true;
         ArrayList<Invoice> iList = new ArrayList<>();
         try(Statement stmt = conn.createStatement()){
             ResultSet rs = stmt.executeQuery(query);
@@ -58,11 +61,12 @@ public class InvoiceDAO extends BaseDAO{
             }
         }
         if(iList.isEmpty()){
-            throw new SQLException();
+            isFound = false;
         }
         for (Invoice i: iList) {
             System.out.println(i);
         }
+        return isFound;
     }
 
     /**
@@ -91,9 +95,8 @@ public class InvoiceDAO extends BaseDAO{
 
     /**
      * Metodo che mostra a schermo l'Invoice che ha l'ID richiesto
-     *
      * @param id: ID dell'Invoice da cercare
-     * @return
+     * @return L'oggetto Invoice cercato
      */
     public Invoice findByInvoiceID(int id) throws SQLException{
         String query = "select * from customerinvoice where invoiceid = " + id;
@@ -106,9 +109,7 @@ public class InvoiceDAO extends BaseDAO{
      */
     public void findByCustomerID(int id) throws SQLException{
         String query = "select * from customerinvoice where customerid = " + id;
-        try{
-            showInvoices(query);
-        } catch(SQLException s){
+        if(!showInvoices(query)){
             throw new SQLException("La ricevuta del cliente " + id + " non è stata trovata");
         }
     }
@@ -119,9 +120,7 @@ public class InvoiceDAO extends BaseDAO{
      */
     public void findByPaymentStatus(boolean status) throws SQLException {
         String query = "select * from customerinvoice where is_paid = " + status;
-        try{
-            showInvoices(query);
-        } catch(SQLException s){
+        if(!showInvoices(query)){
             throw new SQLException("Non sono state trovate ricevute con questo stato");
         }
     }
