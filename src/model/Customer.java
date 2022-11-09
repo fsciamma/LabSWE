@@ -30,8 +30,12 @@ public class Customer {
         c.set_last_name();
         boolean mailIsValid = false;
         while(!mailIsValid) {
-            c.set_email();
-            mailIsValid = true;
+            try {
+                c.set_email();
+                mailIsValid = true;
+            } catch(IllegalArgumentException i){
+                System.err.println(i.getMessage());
+            }
         }
         return c;
     }
