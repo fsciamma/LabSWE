@@ -232,46 +232,43 @@ public abstract class BusinessLogic {
      * Metodo che permette di modificare i campi di un oggetto Customer c che è stato trovato nel database attraverso i metodi CustomerDAO.findById() o CustomerDAO.findByInfo()
      * @param c è il Customer di cui si vuole modificare le informazioni e che viene poi restituito
      */
-    //TODO [PROBABILMENTE SI PUO' USARE CUSTOMERDAO.FINDHOMONYM()] aggiungere il codice che spiega che, nel caso in cui il Customer c appena modificato sia identico ad uno già presente nel database, la modifica dei dati del suddetto c non è possibile e quindi verranno mantenuti i dati precedenti
     private static void modifyClientInfo(Customer c) {
-        System.out.println("Vuoi eseguire delle modifiche al cliente #" + c.get_customerID() + "? (Y/N)");
-        Scanner input = new Scanner(System.in);
-        String line = input.nextLine();
-        if ("Y".equals(line) || "y".equals(line)) {  // Se viene inserito qualsiasi altro carattere esce dal metodo, terminando la modifica
-            boolean modifying = true;
-            while (modifying) {
-                System.out.println("Cosa vuoi modificare?");
-                System.out.println("\t 1 - Nome");
-                System.out.println("\t 2 - Cognome");
-                System.out.println("\t 3 - Indirizzo e-mail");
-                System.out.println("\t 4 - Termina modifiche");
-                input = new Scanner(System.in);
-                int choice;
-                try{
-                    choice = input.nextInt();
-                } catch(InputMismatchException i){
-                    choice = 0;
-                }
-                switch (choice) {
-                    case 1 -> c.set_first_name();
-                    case 2 -> c.set_last_name();
-                    case 3 -> {
-                        boolean mailIsValid = false;
-                        while (!mailIsValid) {
-                            try {
-                                c.set_email();
-                                mailIsValid = true;
-                            } catch (IllegalArgumentException e) {
-                                System.err.println(e.getMessage());
-                            }
+        boolean modifying = true;
+        Customer updatedC = new Customer(c);
+        while (modifying) {
+            System.out.println("Cosa vuoi modificare?");
+            System.out.println("\t 1 - Nome");
+            System.out.println("\t 2 - Cognome");
+            System.out.println("\t 3 - Indirizzo e-mail");
+            System.out.println("\t 4 - Termina modifiche");
+            Scanner input = new Scanner(System.in);
+            int choice;
+            try{
+                choice = input.nextInt();
+            } catch(InputMismatchException i){
+                choice = 0;
+            }
+            switch (choice) {
+                case 1 -> updatedC.set_first_name();
+                case 2 -> updatedC.set_last_name();
+                case 3 -> {
+                    boolean mailIsValid = false;
+                    while (!mailIsValid) {
+                        try {
+                            updatedC.set_email();
+                            mailIsValid = true;
+                        } catch (IllegalArgumentException e) {
+                            System.err.println(e.getMessage());
                         }
                     }
-                    case 4 -> {
-                        modifying = false;
-                        CustomerDAO.getINSTANCE().updateInfo(c); //Termina le modifiche sul Customer e fa l'update
-                    }
-                    default -> System.err.println("Opzione non valida...");
                 }
+                case 4 -> {
+                    modifying = false;
+                    if(CustomerDAO.getINSTANCE().updateInfo(updatedC)) { //Termina le modifiche sul Customer e fa l'update
+                        c.copy(updatedC);
+                    }
+                }
+                default -> System.err.println("Opzione non valida...");
             }
         }
     }
