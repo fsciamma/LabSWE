@@ -53,7 +53,7 @@ public class CustomerDAO extends BaseDAO {
     }
 
     /**
-     * Metodo per cercare nel database clienti con la stessa tripla univoca del cliente che si prova ad inserire; se trova un cliente già registrato con le stesse credenziali lancia un'eccezione
+     * Metodo per cercare nel database clienti con la stessa tripla univoca del cliente che si prova a inserire; se trova un cliente già registrato con le stesse credenziali lancia un'eccezione
      * @param newC oggetto Customer di cui si cerca un omonimo
      */
     private void findHomonym(Customer newC) throws RuntimeException {
@@ -109,13 +109,13 @@ public class CustomerDAO extends BaseDAO {
             }
         }
         if(c.get_customerID() == 0){
-            throw new SQLException("Il cliente non è stato trovato");
+            throw new SQLException("Il cliente non è stato trovato...");
         }
         return c;
     }
 
     /**
-     * Printa a schermo la prima riga di una tabella dove verranno poi mostrati tutti i clienti. Chiama showCustomers() che scrive poi i clienti completi di informazioni
+     * Printa a schermo la prima riga di una tabella dove verranno poi mostrati tutti i clienti. Chiama showCustomers() che scrive poi i clienti completi d'informazioni
      */
     public void findAll(){
         String query = "select * from customer";
@@ -124,7 +124,7 @@ public class CustomerDAO extends BaseDAO {
         try{
             showCustomers(query);
         } catch (SQLException e) {
-            System.err.println("Non sono stati trovati clienti");
+            System.err.println(e.getMessage()+".");
         }
     }
 
@@ -174,7 +174,7 @@ public class CustomerDAO extends BaseDAO {
         try{
             showCustomers(query);
         } catch(SQLException e){
-            System.err.println("\nNon sono stati trovati clienti con i dati forniti");
+            System.err.println(e.getMessage() + " con i dati forniti.");
             //TODO valutare se aggiungere una wait per far printare l'errore subito sotto alla tabella
         }
     }
@@ -197,7 +197,7 @@ public class CustomerDAO extends BaseDAO {
             }
         }
         if(cList.isEmpty()){
-            throw new SQLException();
+            throw new SQLException("Non sono stati trovati clienti");
         }
         for (Customer c: cList) {
             System.out.println(c.tabulated());
