@@ -57,9 +57,27 @@ public class UmbrellaDAO extends BaseDAO{
      * @param typeId: numero che codifica una tipologia di ombrellone da cercare
      */
     public void findByType(int typeId) throws SQLException {
-        Umbrella u = new Umbrella();
         String query = "select * from ombrellone where tipo_ombrellone = " + typeId;
-        getUmbrella(query); //TODO produci una funzione per mostrare più ombrelloni (una show per intendersi)
+        showUmbrella(query);
+    }
+
+    private void showUmbrella(String query) throws SQLException {
+        ArrayList<Umbrella> uList = new ArrayList<>();
+        try(Statement stmt = conn.createStatement()){
+            ResultSet rs = stmt.executeQuery(query);
+            while(rs.next()){
+                Umbrella u = new Umbrella();
+                u.setUmbrellaId(rs.getInt("ombrelloneid"));
+                u.setValues(rs.getInt("tipo_ombrellone"));
+                uList.add(u);
+            }
+        }
+        if(uList.isEmpty()){
+            throw new SQLException("Non sono stati trovati ombrelloni del tipo selezionato");
+        }
+        for(Umbrella u: uList){
+            System.out.println(u);
+        }
     }
 
     /**
