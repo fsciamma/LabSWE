@@ -156,10 +156,13 @@ public class ReservationDAO extends BaseDAO {
         return isFound;
     }
 
-    /*TODO
-     * Le operazioni di modifica passano sempre per una query e un fetch dei dati, però diventa ridondante
-     * fare le stesse funzioni per mostrare i dati e per modificare i dati. Si potrebbe invece mettere come secondo parametro
-     * delle funzioni di findBy un parametro che indica se deve essere utilizzata per recuperare dati per modificarli o solo
-     * per mostrarli. Le funzioni sopra sono per ora accorpate allo standard scritto in InvoiceDAO
-     */
+    public void deleteReservation(int resCode) {
+        String query = "delete from reservation where reservationid = " + resCode;
+        try(Statement stmt = conn.createStatement()){
+            stmt.execute(query);
+            System.out.println("La prenotazione è stata cancellata!");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
