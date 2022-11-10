@@ -50,6 +50,10 @@ public class Reservation {
         this.ombrelloneId = ombrelloneId;
     }
 
+    public LocalDate getStart_date() {
+        return start_date;
+    }
+
     /**
      * Modifica la Reservation che prende in ingresso aggiungendo dei valori ai campi ombrelloneid e total_price se è presente un ombrellone disponibile per le date richieste
      * @param res La Reservation da modificare
