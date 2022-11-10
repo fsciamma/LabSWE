@@ -190,8 +190,9 @@ public abstract class BusinessLogic {
             System.out.println(c);
             System.out.println("Selezionare un'opzione:");
             System.out.println("\t1 - Aggiungi prenotazione"); //TODO aggiungere possibilità di modificare una prenotazione o cancellarla(volendo anche entro una certa data)
-            System.out.println("\t2 - Modifica dati cliente");
-            System.out.println("\t3 - Torna indietro");
+            System.out.println("\t2 - Vedi prenotazioni");
+            System.out.println("\t3 - Modifica dati cliente");
+            System.out.println("\t4 - Torna indietro");
             Scanner findC_menu_input = new Scanner(System.in);
             int customer_choice;
             try {
@@ -201,13 +202,27 @@ public abstract class BusinessLogic {
             }
             switch (customer_choice) {
                 case 1 -> addNewReservation(c.get_customerID());
-                case 2 -> modifyClientInfo(c);
-                case 3 -> {
+                case 2 -> showReservations(c.get_customerID());
+                case 3 -> modifyClientInfo(c);
+                case 4 -> {
                     System.out.println("Torna a pagina precedente...");
                     customer_menu = false;
                 }
                 default -> System.out.println("Opzione non valida...");
             }
+            System.out.println();
+        }
+    }
+
+    /**
+     * Chiama findByCustomerId di ReservationDAO
+     * @param customerID L'identificativo del Customer di cui si vogliono vedere le Reservation effettuate
+     */
+    private static void showReservations(int customerID){
+        try {
+            ReservationDAO.getInstance().findByCustomerId(customerID);
+        } catch (SQLException s){
+            System.err.println(s.getMessage());
         }
     }
 
@@ -220,7 +235,6 @@ public abstract class BusinessLogic {
             Reservation newRes = Reservation.createNewReservation(customerId);
             ReservationDAO rd = ReservationDAO.getInstance();
             rd.addNewReservation(newRes);
-            //TODO aggiungere controllo sulla corretta registrazione o meno della prenotazione
             System.out.println("Prenotazione effettuata!");
             //TODO aggiungere un metodo per poter aggiungere già ora degli extras
         } catch (RuntimeException r){
@@ -398,7 +412,7 @@ public abstract class BusinessLogic {
         while(search){
             System.out.println("Ricerca per: ");
             System.out.println("\t 1 - ID ombrellone");
-            System.out.println("\t 2 - Tipo ombrellone"); //TODO da rivedere la logica: printa solo l'ultimo ombrellone del gruppo; inoltre, accetta anche numeri che non indicano tipi
+            System.out.println("\t 2 - Tipo ombrellone");
             System.out.println("\t 3 - Torna indietro");
             Scanner option = new Scanner(System.in);
             try{
@@ -423,7 +437,11 @@ public abstract class BusinessLogic {
                     System.out.println("Inserire codice tipo ombrellone: ");
                     umbrellaData = new Scanner(System.in);
                     try {
-                        ud.findByType(umbrellaData.nextInt());
+                        int favoriteType = umbrellaData.nextInt();
+                        System.out.println("E' stato selezionato il tipo " + UmbrellaType.getInstance().getUTypeMap().get(favoriteType).getTypeName());
+                        ud.findByType(favoriteType); //Se il tipo indicato non è presente in UmbrellaType, tira una nullPointerException; NB non è gestito il caso in cui 0 indica "nessun tipo preferito"
+                    } catch(NullPointerException n){
+                        System.err.println("Il codice inserito non identifica nessun tipo di ombrellone");
                     } catch (InputMismatchException i){
                         System.err.println("Codice ombrellone non valido...");
                     } catch (SQLException s){
@@ -451,7 +469,7 @@ public abstract class BusinessLogic {
             System.out.println("\t 3 - Id ombrellone");
             System.out.println("\t 4 - Data");
             System.out.println("\t 5 - Mostra tutte");
-            System.out.println("\t 6 - Torna inidietro");
+            System.out.println("\t 6 - Torna indietro");
             Scanner option = new Scanner(System.in);
             try{
                 choice = option.nextInt();
