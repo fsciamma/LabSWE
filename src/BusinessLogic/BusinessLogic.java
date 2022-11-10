@@ -9,6 +9,8 @@ import java.time.LocalDate;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
+import static java.time.temporal.ChronoUnit.DAYS;
+
 public abstract class BusinessLogic {
     /**
      * Metodo che mostra il menù principale del programma, permette di accedere ai metodi per eseguire operazioni su clienti o prenotazioni o chiudere il programma
@@ -221,6 +223,70 @@ public abstract class BusinessLogic {
     private static void showReservations(int customerID){
         try {
             ReservationDAO.getInstance().findByCustomerId(customerID);
+            reservationOptionMenu(customerID);
+        } catch (SQLException s){
+            System.err.println(s.getMessage());
+        }
+    }
+
+    /**
+     * Metodo che permette di scegliere quale operazione compiere su una delle Reservations legate al Customer
+     * @param customerID Identificativo del Customer di cui sono state cercate le prenotazioni: viene usato per controllare che non venga modificata o cancellata una prenotazione che non gli appartiene
+     */
+    private static void reservationOptionMenu(int customerID) {
+        boolean running = true;
+        while(running) {
+            System.out.println("Selezionare l'operazione che si vuole eseguire:");
+            System.out.println("\t1 - Modifica una prenotazione");
+            System.out.println("\t2 - Cancella una prenotazione");
+            System.out.println("\t3 - Torna indietro");
+            Scanner input = new Scanner(System.in);
+            int choice = 0;
+            try {
+                choice = input.nextInt();
+            } catch (InputMismatchException i) {
+                System.err.println("Inserire un valore numerico");
+            }
+            switch (choice) {
+                case 1 -> modifyReservation(customerID);
+                case 2 -> deleteReservation(customerID);
+                case 3 -> {
+                    System.out.println("Torna a pagina precedente");
+                    running = false;
+                }
+                default -> System.err.println("Opzione non valida...");
+            }
+        }
+    }
+
+    private static void modifyReservation(int customerID) {
+
+    }
+
+    /**
+     * Permette di cancellare una Reservation attraverso l'invocazione del metodo ReservationDAO.deleteReservation se il periodo di annullamento di questa non è scaduto
+     * @param customerID Viene usato per impedire che venga cancellata una prenotazione non appartenente al Customer che identifica
+     */
+    private static void deleteReservation(int customerID) {
+        System.out.println("Inserire il codice della prenotazione da cancellare:");
+        int resCode = 0;
+        boolean notValidCode = true;
+        while(notValidCode) {
+            try {
+                resCode = new Scanner(System.in).nextInt();
+                notValidCode = false;
+            } catch (InputMismatchException i) {
+                System.err.println("Inserire un codice prenotazione...");
+            }
+        }
+        try {
+            Reservation res = ReservationDAO.getInstance().findById(resCode);
+            //Controlla che il Customer che richiede la cancellazione sia anche lo stesso che possiede la prenotazione e che manchino almeno 7 giorni alla data d'inizio della prenotazione
+            if(res.getCustomerId() == customerID && DAYS.between(LocalDate.now(), res.getStart_date()) >= 7) {
+                ReservationDAO.getInstance().deleteReservation(resCode);
+            } else {
+                System.out.println("Non puoi cancellare questa prenotazione! Il periodo per annullare la prenotazione è scaduto!");
+            }
         } catch (SQLException s){
             System.err.println(s.getMessage());
         }
