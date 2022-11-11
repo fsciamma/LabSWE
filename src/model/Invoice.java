@@ -10,9 +10,10 @@ public class Invoice {
 
     public Invoice(){}
 
-    public Invoice(int invoiceID, int customerID) {
+    public Invoice(int invoiceID, int customerID, BigDecimal amount){
         this.invoiceID = invoiceID;
         this.customerID = customerID;
+        this.invoice_amount = amount;
     }
 
     public int getInvoiceID() {

@@ -81,6 +81,7 @@ public class InvoiceDAO extends BaseDAO{
 
             rs.moveToInsertRow();
 
+            rs.updateInt("invoiceid", i.getInvoiceID());
             rs.updateInt("customerid", i.getCustomerID());
             rs.updateBigDecimal("invoice_amount", i.getInvoice_amount()/*new BigDecimal(Float.toString(i.getInvoice_amount()))*/); //TODO capire se conviene più usare BigDecimal o float
             rs.updateBoolean("is_paid", i.isPaid());
@@ -90,6 +91,7 @@ public class InvoiceDAO extends BaseDAO{
 
         } catch(SQLException e){
             System.err.println(e.getMessage());
+            throw new RuntimeException("Non è stata aggiunta la nuova ricevuta al database...");
         }
     }
 
@@ -122,6 +124,20 @@ public class InvoiceDAO extends BaseDAO{
         String query = "select * from customerinvoice where is_paid = " + status;
         if(!showInvoices(query)){
             throw new SQLException("Non sono state trovate ricevute con questo stato");
+        }
+    }
+
+    /**
+     * Metodo che permette di eliminare una riga dalla tabella customerinvoice
+     * @param invCode: identificativo della ricevuta da cancellare
+     */
+    public void deleteInvoice(int invCode) {
+        String query = "delete from customerinvoice where invoiceid = " + invCode;
+        try(Statement stmt = conn.createStatement()){
+            stmt.execute(query);
+            System.out.println("La ricevuta è stata cancellata!");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 }

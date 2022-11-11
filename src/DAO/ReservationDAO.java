@@ -59,6 +59,18 @@ public class ReservationDAO extends BaseDAO {
     }
 
     /**
+     * (Nome provvisorio) metodo che fetcha un'unica prenotazione dal Database con id ombrellone e data d'inizio
+     * inseriti
+     * @param umbrellaId: id dell'ombrellone relativo alla prenotazione ricercata
+     * @param start_date: data d'inizio della prenotazione ricercata
+     * @return Reservation : istanza della prenotazione con i parametri richiesti presente sul Database
+     */
+    public Reservation findUnique(int umbrellaId, LocalDate start_date) throws SQLException{
+        String query = "select * from reservation where ombrelloneid = " + umbrellaId + " and start_date = '" + start_date + "'";
+        return  getReservation(query);
+    }
+
+    /**
      * Metodo che mostra a schermo le prenotazioni che matchano l'ID del cliente inserito
      * @param id: id del cliente relativo alle prenotazioni cercate
      */
@@ -156,6 +168,10 @@ public class ReservationDAO extends BaseDAO {
         return isFound;
     }
 
+    /**
+     * Metodo che permette di cancellare una riga dalla tabella reservation
+     * @param resCode: identificativo della prenotazione da cancellare
+     */
     public void deleteReservation(int resCode) {
         String query = "delete from reservation where reservationid = " + resCode;
         try(Statement stmt = conn.createStatement()){

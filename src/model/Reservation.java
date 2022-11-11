@@ -74,7 +74,6 @@ public class Reservation {
         }
         res.setOmbrelloneId(u.getUmbrellaId());
         res.setTotal_price(BigDecimal.valueOf(u.getDaily_price() * (DAYS.between(res.start_date, res.end_date) + 1)));
-
     }
 
     /**

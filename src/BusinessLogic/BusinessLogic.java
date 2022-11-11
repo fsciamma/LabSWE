@@ -283,6 +283,7 @@ public abstract class BusinessLogic {
             Reservation res = ReservationDAO.getInstance().findById(resCode);
             //Controlla che il Customer che richiede la cancellazione sia anche lo stesso che possiede la prenotazione e che manchino almeno 7 giorni alla data d'inizio della prenotazione
             if(res.getCustomerId() == customerID && DAYS.between(LocalDate.now(), res.getStart_date()) >= 7) {
+                InvoiceDAO.getINSTANCE().deleteInvoice(resCode);
                 ReservationDAO.getInstance().deleteReservation(resCode);
             } else {
                 System.out.println("Non puoi cancellare questa prenotazione! Il periodo per annullare la prenotazione è scaduto!");
@@ -293,19 +294,38 @@ public abstract class BusinessLogic {
     }
 
     /**
-     * Metodo che permette di aggiungere una Reservation a nome di un cliente appena aggiunto al database oppure che è stato appena cercato
+     * Metodo che permette di aggiungere una Reservation a nome di un cliente appena aggiunto al database oppure che è
+     * stato appena cercato
      * @param customerId ID del cliente che richiede una nuova prenotazione
      */
     private static void addNewReservation(int customerId){
-        try {
+        try{
             Reservation newRes = Reservation.createNewReservation(customerId);
             ReservationDAO rd = ReservationDAO.getInstance();
             rd.addNewReservation(newRes);
             System.out.println("Prenotazione effettuata!");
-            //TODO aggiungere un metodo per poter aggiungere già ora degli extras
-        } catch (RuntimeException r){
-            System.out.println(r.getMessage());
+           try{
+               newRes = rd.findUnique(newRes.getOmbrelloneId(), newRes.getStart_date());
+               addNewInvoice(newRes);
+           } catch (SQLException s) {
+               System.err.println("La prenotazione non è stata salvata corettamente...\n Annullamento operazione...");
+           } catch (RuntimeException r){
+               System.err.println(r.getMessage());
+               rd.deleteReservation(newRes.getReservationId());
+           }
+        } catch(RuntimeException r){
+            System.err.println(r.getMessage());
         }
+    }
+
+    /**
+     * Metodo che permette di aggiungere una Invoice relativa a una prenotazione
+     * @param res: Prenotazione di cui voglio creare una ricevuta
+     */
+    private static void addNewInvoice(Reservation res) throws RuntimeException{
+        Invoice newInv = new Invoice(res.getReservationId(), res.getCustomerId(), res.getTotal_price()); //TODO wrapper del costruttore?
+        InvoiceDAO id = InvoiceDAO.getINSTANCE();
+        id.addNewInvoice(newInv);
     }
 
     /**
