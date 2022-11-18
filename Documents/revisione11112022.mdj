@@ -16265,9 +16265,9 @@
 									},
 									"lineColor": "#ff0000",
 									"font": "Arial;20;1",
-									"left": 344,
+									"left": 320,
 									"top": 381,
-									"width": 216.708984375,
+									"width": 250.048828125,
 									"height": 20,
 									"text": "Reservation"
 								},
@@ -16292,9 +16292,9 @@
 											},
 											"lineColor": "#ff0000",
 											"font": "Arial;20;0",
-											"left": 349,
+											"left": 325,
 											"top": 411,
-											"width": 206.708984375,
+											"width": 240.048828125,
 											"height": 20
 										},
 										{
@@ -16308,25 +16308,25 @@
 											},
 											"lineColor": "#ff0000",
 											"font": "Arial;20;0",
-											"left": 349,
+											"left": 325,
 											"top": 433,
-											"width": 206.708984375,
+											"width": 240.048828125,
 											"height": 20
 										}
 									],
 									"lineColor": "#ff0000",
 									"font": "Arial;20;0",
-									"left": 344,
+									"left": 320,
 									"top": 406,
-									"width": 216.708984375,
+									"width": 250.048828125,
 									"height": 52
 								}
 							],
 							"lineColor": "#ff0000",
 							"font": "Arial;20;0",
-							"left": 344,
+							"left": 320,
 							"top": 376,
-							"width": 216.708984375,
+							"width": 250.048828125,
 							"height": 82,
 							"nameLabel": {
 								"$ref": "AAAAAAGEdprfW8nvqso="
@@ -16739,7 +16739,7 @@
 									},
 									"visible": false,
 									"font": "Arial;13;0",
-									"left": 608,
+									"left": 612,
 									"top": 395,
 									"height": 13,
 									"alpha": 1.5707963267948966,
@@ -16756,7 +16756,7 @@
 										"$ref": "AAAAAAGEdqJ+FsqqwaQ="
 									},
 									"font": "Arial;13;0",
-									"left": 585,
+									"left": 594,
 									"top": 395,
 									"height": 13,
 									"alpha": 0.5235987755982988,
@@ -16791,7 +16791,7 @@
 								"$ref": "AAAAAAGEdprfW8nuh8I="
 							},
 							"lineStyle": 2,
-							"points": "560:416;656:416",
+							"points": "569:416;656:416",
 							"nameLabel": {
 								"$ref": "AAAAAAGEdqJ+Fsqrp90="
 							},
@@ -17854,7 +17854,7 @@
 								"$ref": "AAAAAAGEdprfWsnsNbU="
 							},
 							"name": "CustomerID",
-							"type": "int",
+							"type": "String",
 							"length": 0,
 							"foreignKey": true
 						}
