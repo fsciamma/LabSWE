@@ -18010,7 +18010,7 @@
 								"$ref": "AAAAAAGEdp7Rb8pB5MM="
 							},
 							"name": "AddOnType",
-							"type": "String",
+							"type": "int",
 							"length": 0,
 							"foreignKey": true
 						}
