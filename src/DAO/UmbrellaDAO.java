@@ -33,7 +33,6 @@ public class UmbrellaDAO extends BaseDAO{
             ResultSet rs = stmt.executeQuery(query);
             while(rs.next()){
                 u.setUmbrellaId(rs.getInt("ombrelloneid"));
-                u.setValues(rs.getInt("tipo_ombrellone"));
             }
         }
         if(u.getUmbrellaId() == 0){
@@ -68,7 +67,6 @@ public class UmbrellaDAO extends BaseDAO{
             while(rs.next()){
                 Umbrella u = new Umbrella();
                 u.setUmbrellaId(rs.getInt("ombrelloneid"));
-                u.setValues(rs.getInt("tipo_ombrellone"));
                 uList.add(u);
             }
         }

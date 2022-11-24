@@ -34,11 +34,7 @@ public class ReservationDAO extends BaseDAO {
             rs = stmt.executeQuery(query);
 
             rs.moveToInsertRow();
-
-            rs.updateInt("customerid", newR.getCustomerId());
-            rs.updateInt("ombrelloneid", newR.getOmbrelloneId());
-            rs.updateDate("start_date", newR.getSQLStart_date());
-            rs.updateDate("end_date", newR.getSQLEnd_date());
+            //TODO manca il corpo
             rs.updateBigDecimal("total_price", newR.getTotal_price());
 
             rs.insertRow();
@@ -126,10 +122,7 @@ public class ReservationDAO extends BaseDAO {
             ResultSet rs = stmt.executeQuery(query);
             while(rs.next()){
                 r.setReservationId(rs.getInt("reservationid"));
-                r.setCustomerId(rs.getInt("customerid"));
-                r.setOmbrelloneId(rs.getInt("ombrelloneid"));
-                r.setStart_date(rs.getDate("start_date").toLocalDate());
-                r.setEnd_date(rs.getDate("end_date").toLocalDate());
+                //TODO manca il corpo
                 r.setTotal_price(rs.getBigDecimal("total_price"));
             }
         }
@@ -151,10 +144,7 @@ public class ReservationDAO extends BaseDAO {
             while(rs.next()){
                 Reservation r = new Reservation();
                 r.setReservationId(rs.getInt("reservationid"));
-                r.setCustomerId(rs.getInt("customerid"));
-                r.setOmbrelloneId(rs.getInt("ombrelloneid"));
-                r.setStart_date(rs.getDate("start_date").toLocalDate());
-                r.setEnd_date(rs.getDate("end_date").toLocalDate());
+                //TODO manca il corpo
                 r.setTotal_price(rs.getBigDecimal("total_price"));
                 rList.add(r);
             }

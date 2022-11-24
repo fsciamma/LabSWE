@@ -15,66 +15,49 @@ import java.util.Scanner;
 import static java.time.temporal.ChronoUnit.DAYS;
 
 public class Reservation {
-    private int reservationId;
-    private int customerId;
-    private int ombrelloneId;
-    private LocalDate start_date;
-    private LocalDate end_date;
-    private BigDecimal total_price;
-    private float discount_percent = 0;
+    private int reservationID;
+    private String customer;
+    private ArrayList<Integer> reserved_assets;
+    private int invoiceID;
+    private BigDecimal price;
 
     public Reservation(){
-
     }
 
     /**
      * Ritorna una Reservation in cui sono stati inseriti il codice cliente del Customer che l'ha richiesta e le date di inizio e fine prenotazione. L'ombrellone viene inserito successivamente nella BusinessLogic
-     * @param customerId il codice del Customer che ha richiesto la Reservation
-     * @return Reservation in cui sono inizializzati i parametri customerId, start_date e end_date
+     *
+     * @param customerEmail@return Reservation in cui sono inizializzati i parametri customerId, start_date e end_date
      */
-    public static Reservation createNewReservation(int customerId){
+    public static Reservation createNewReservation(String customerEmail){
         Reservation res = new Reservation();
-        res.setCustomerId(customerId);
-        res.setStart_date();
-        res.setEnd_date();
+        res.setCustomer(customerEmail);
 
-        completeMissingAttributes(res); //TODO gestire il caso in cui non c'è un ombrellone disponibile per le date selezionate
+        //completeMissingAttributes(res); //TODO gestire il caso in cui non c'è un ombrellone disponibile per le date selezionate
         return res;
     }
 
-    public void setCustomerId(int customerId) {
-        this.customerId = customerId;
-    }
 
-    public void setOmbrelloneId(int ombrelloneId) {
-        this.ombrelloneId = ombrelloneId;
-    }
-
-    public LocalDate getStart_date() {
-        return start_date;
-    }
-
-    /**
-     * Modifica la Reservation che prende in ingresso aggiungendo dei valori ai campi ombrelloneid e total_price se è presente un ombrellone disponibile per le date richieste
-     * @param res La Reservation da modificare
-     */
-    public static void completeMissingAttributes(Reservation res){
-        Umbrella u = new Umbrella();
-        int favoriteType;
-        boolean available = false;
-
-        while(!available) {
-            if(UmbrellaDAO.getINSTANCE().showAvailableUmbrellas(res.start_date, res.end_date)){ //NB se la view availableUmbrellas è vuota, non esegue il corpo
-                favoriteType = getFavoriteType();
-                u = getAvailableUmbrella(favoriteType);
-                available = true;
-            } else {
-                throw new RuntimeException("Spiacente! Non ci sono ombrelloni disponibili per le date selezionate!");
-            }
-        }
-        res.setOmbrelloneId(u.getUmbrellaId());
-        res.setTotal_price(BigDecimal.valueOf(u.getDaily_price() * (DAYS.between(res.start_date, res.end_date) + 1)));
-    }
+    ///**
+    // * Modifica la Reservation che prende in ingresso aggiungendo dei valori ai campi ombrelloneid e total_price se è presente un ombrellone disponibile per le date richieste
+    // * @param res La Reservation da modificare
+    // */
+    //public static void completeMissingAttributes(Reservation res){
+    //    Umbrella u = new Umbrella();
+    //    int favoriteType;
+    //    boolean available = false;
+    //    while(!available) {
+    //        if(UmbrellaDAO.getINSTANCE().showAvailableUmbrellas(res.start_date, res.end_date)){ //NB se la view availableUmbrellas è vuota, non esegue il corpo
+    //            favoriteType = getFavoriteType();
+    //            u = getAvailableUmbrella(favoriteType);
+    //            available = true;
+    //        } else {
+    //            throw new RuntimeException("Spiacente! Non ci sono ombrelloni disponibili per le date selezionate!");
+    //        }
+    //    }
+    //    res.setOmbrelloneId(u.getUmbrellaId());
+    //    res.setTotal_price(BigDecimal.valueOf(u.getDaily_price() * (DAYS.between(res.start_date, res.end_date) + 1)));
+    //}
 
     /**
      * Metodo che utilizza il relativo metodo di UmbrellaDAO per selezionare un ombrellone da inserire nella prenotazione,
@@ -127,118 +110,30 @@ public class Reservation {
     }
 
     public void setTotal_price(BigDecimal total_price) {
-        this.total_price = total_price;
-    }
-
-    public void setReservationId(int reservationId) {
-        this.reservationId = reservationId;
-    }
-
-    public void setStart_date(LocalDate start_date) {
-        this.start_date = start_date;
-    }
-
-    public void setEnd_date(LocalDate end_date) {
-        this.end_date = end_date;
-    }
-
-    public int getCustomerId() {
-        return customerId;
-    }
-
-    public int getOmbrelloneId() {
-        return ombrelloneId;
+        this.price = total_price;
     }
 
     public BigDecimal getTotal_price() {
-        return total_price;
+        return price;
+    }
+
+    public void setReservationId(int reservationId) {
+        this.reservationID = reservationId;
     }
 
     public int getReservationId() {
-        return reservationId;
+        return reservationID;
     }
 
-    public Date getSQLStart_date() {
-        return Date.valueOf(start_date);
-    }
+    public void setCustomer(String email) {this.customer = email;}
 
-    public Date getSQLEnd_date() {
-        return Date.valueOf(end_date);
-    }
-
-    /**
-     * Metodo usato per settare una data d'inizio per la prenotazione, modifica una data in formato gg-mm-aa presa in input
-     * da Scanner in un formato utilizzabile per SQL
-     */
-    private void setStart_date(){
-        boolean validStartDate = false;
-        while(!validStartDate) {
-            System.out.println("Inserire data di inizio: (dd-mm-yyyy)");
-            try {
-                LocalDate tmp = set_date();
-                if (tmp.compareTo(LocalDate.now()) >= 0) {
-                    this.start_date = tmp;
-                    validStartDate = true;
-                } else {
-                    System.err.println("La data inserita è precedente alla giornata odierna...");
-                }
-            } catch (NumberFormatException | DateTimeException | ArrayIndexOutOfBoundsException e){
-                System.err.println(e.getMessage());
-            }
-        }
-    }
-
-    /**
-     * Metodo usato per settare una data di fine per la prenotazione, modifica una data in formato gg-mm-aa presa in input
-     * da Scanner in un formato utilizzabile per SQL
-     */
-    private void setEnd_date(){
-        boolean validEndDate = false;
-        while(!validEndDate) {
-            System.out.println("Inserire data di fine: (dd-mm-yyyy)");
-            try {
-                LocalDate tmp = set_date();
-                if (tmp.compareTo(this.start_date) >= 0) {
-                    this.end_date = tmp;
-                    validEndDate = true;
-                } else {
-                    System.err.println("La data inserita è precedente alla data di inizio prenotazione...");
-                }
-            } catch (NumberFormatException | DateTimeException | ArrayIndexOutOfBoundsException e) {
-                System.err.println(e.getMessage());
-            }
-        }
-    }
-
-    /**
-     * Metodo per cambiare il formato di una data da gg-mm-aa a aa-mm-gg
-     * @return LocalDate: data nel formato corretto
-     */
-    private LocalDate set_date() {
-        Scanner mySc = new Scanner(System.in);
-        String date = mySc.nextLine();
-        String[] fullDate = date.split("-");
-        LocalDate localDate;
-
-        try {
-            int dayOfMonth = Integer.parseInt(fullDate[0]);
-            int month = Integer.parseInt(fullDate[1]);
-            int year = Integer.parseInt(fullDate[2]);
-            localDate = LocalDate.of(year, month, dayOfMonth);
-        } catch (NumberFormatException n) {
-            throw new NumberFormatException("Inserire valori numerici...");
-        } catch (DateTimeException d) {
-            throw new DateTimeException("La data " + date + " non è valida...");
-        } catch (ArrayIndexOutOfBoundsException a){
-            throw new ArrayIndexOutOfBoundsException("Inserire tutti i parametri nel formato dd-mm-yyyy...");
-        }
-        return localDate;
+    public String getCustomer() {
+        return customer;
     }
 
     @Override
     public String toString() {
-        return "Prenotazione #" + this.reservationId + " del cliente #" + this.customerId + ".\nPrenotato l'ombrellone " +
-                "#" + this.ombrelloneId + " nelle date dal " + this.start_date + " al " + this.end_date + ". Prezzo totale: " +
-                this.total_price + "€.";
+        return "Prenotazione #" + this.reservationID + " del cliente #" + this.customer + ".\nPrezzo totale: " +
+                this.price + "€.";
     }
 }
