@@ -12,7 +12,9 @@ CREATE TABLE "laZattera".add_on
 (
     "add_onID" integer NOT NULL,
     add_on_type integer NOT NULL,
+    "sub_classID" integer NOT NULL,
     CONSTRAINT add_on_pkey PRIMARY KEY ("add_onID"),
+    CONSTRAINT doppioni_addon UNIQUE (add_on_type, "sub_classID"),
     CONSTRAINT add_on_add_on_type_fkey FOREIGN KEY (add_on_type)
         REFERENCES "laZattera".add_on_type ("typeID") MATCH SIMPLE
         ON UPDATE NO ACTION
@@ -55,7 +57,9 @@ CREATE TABLE "laZattera".reservable_asset
     purchase_date date,
     last_revision date,
     history text COLLATE pg_catalog."default",
+    "sub_classID" integer NOT NULL,
     CONSTRAINT reservable_asset_pkey PRIMARY KEY ("assetID"),
+    CONSTRAINT doppioni UNIQUE (asset_type, "sub_classID"),
     CONSTRAINT asset_type FOREIGN KEY (asset_type)
         REFERENCES "laZattera".reservable_type ("typeID") MATCH SIMPLE
         ON UPDATE NO ACTION
