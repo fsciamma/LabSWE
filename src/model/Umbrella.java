@@ -1,11 +1,21 @@
 package model;
 
-public class Umbrella {
+import java.math.BigDecimal;
+import java.util.ArrayList;
+
+public class Umbrella extends ReservableAsset{
 
     private int umbrellaId;
-    private String umbrellaType;
-    private float daily_price;
 
+    private ArrayList<Integer> add_ons;
+    private BigDecimal daily_price;
+    public Umbrella() {
+    }
+
+    public Umbrella(int umbrellaId, BigDecimal daily_price) {
+        this.umbrellaId = umbrellaId;
+        this.daily_price = daily_price;
+    }
 
     public int getUmbrellaId() {
         return umbrellaId;
@@ -14,17 +24,13 @@ public class Umbrella {
         this.umbrellaId = umbrellaId;
     }
 
-    public void setValues(int tipoOmbrellone){
-        this.umbrellaType = UmbrellaType.getInstance().getUTypeMap().get(tipoOmbrellone).getTypeName();
-        this.daily_price = UmbrellaType.getInstance().getUTypeMap().get(tipoOmbrellone).getTypePrice();
-    }
-
-    public float getDaily_price() {
+    @Override
+    public BigDecimal getPrice() {
         return daily_price;
     }
 
     @Override
     public String toString(){
-        return "Ombrellone #" + this.umbrellaId + ": " + this.umbrellaType + ", prezzo per giornata: " + this.daily_price + ".";
+        return "Ombrellone #" + this.umbrellaId + ", prezzo per giornata: " + this.daily_price + ".";
     }
 }
