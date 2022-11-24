@@ -25,8 +25,7 @@ public class CustomerDAO extends BaseDAO {
      * Permette di aggiungere un nuovo cliente al database
      * @param newC Il Customer da inserire nel database
      */
-    //TODO rielaborare le funzioni secondo nuovo schema
-    public void addNewCustomer(Customer newC){ //TODO decidere se questo metodo sta in questa classe o va inserita una classe SystemDAO che crea nuovi oggetti da inserire nel db
+    public void addNewCustomer(Customer newC){
         try {
             findHomonym(newC);
             //prosegue se non ha trovato un customer con gli stessi dati
@@ -37,8 +36,8 @@ public class CustomerDAO extends BaseDAO {
 
                 rs.moveToInsertRow();
 
-                rs.updateString("first_name", newC.get_first_name());
-                rs.updateString("last_name", newC.get_last_name());
+                rs.updateString("name", newC.get_first_name());
+                rs.updateString("surname", newC.get_last_name());
                 rs.updateString("email", newC.get_email());
 
                 rs.insertRow();
@@ -56,8 +55,9 @@ public class CustomerDAO extends BaseDAO {
      * Metodo per cercare nel database clienti con la stessa tripla univoca del cliente che si prova a inserire; se trova un cliente già registrato con le stesse credenziali lancia un'eccezione
      * @param newC oggetto Customer di cui si cerca un omonimo
      */
+    //TODO da rivedere, potrebbe non servire più o comunque potrebbe ridursi a un check sulla email
     private void findHomonym(Customer newC) throws RuntimeException {
-        String query = "select * from customer where first_name = '" + newC.get_first_name() + "' and last_name = '" + newC.get_last_name() + "' and email = '" + newC.get_email() + "'";
+        String query = "select * from customer where name = '" + newC.get_first_name() + "' and surname = '" + newC.get_last_name() + "' and email = '" + newC.get_email() + "'";
         try {
             getCustomer(query);
             throw new RuntimeException("Cliente con stesse credenziali già registrato..."); //Viene lanciata solo se getCustomer non lancia la sua
@@ -67,13 +67,13 @@ public class CustomerDAO extends BaseDAO {
     }
 
     /**
-     * Permette la ricerca di un cliente nel database usando la chiave primaria CodiceCliente
+     * Metodo che restituisce un cliente (chiave primaria) data la sua email
      *
-     * @param id Prende la chiave primaria CodiceCliente
-     * @return Customer c: oggetto Customer che presenta le informazioni ottenute dal DB usando la chiave CodiceCliente
+     * @param em: mail del cliente da cercare
+     * @return Customer: istanza del cliente cercato con le informazioni trovate nel DB usando la chiave primaria
      */
-    public Customer findById(int id) throws SQLException{
-        String query = "select * from customer where customerid = " + id;
+    public Customer findByEMail(String em) throws SQLException {
+        String query = "select * from customer where email = '" + em + "'";
         return getCustomer(query);
     }
 
@@ -86,7 +86,7 @@ public class CustomerDAO extends BaseDAO {
      */
     public Customer findByInfo(String fn, String em) throws SQLException{
         String[] fullName = fn.split(" "); //dà per assunto che n sia composto di un nome e un cognome
-        String query = "select * from customer where first_name = '" + fullName[0] + "' and last_name = '" + fullName[1] + "' and email = '" + em + "'";
+        String query = "select * from customer where name = '" + fullName[0] + "' and surname = '" + fullName[1] + "' and email = '" + em + "'";
         return getCustomer(query);
     }
 
@@ -102,13 +102,12 @@ public class CustomerDAO extends BaseDAO {
         try(Statement stmt = conn.createStatement()){
             ResultSet rs = stmt.executeQuery(query);
             while(rs.next()){
-                c.set_customerID(rs.getInt("customerid"));
-                c.set_first_name(rs.getString("first_name"));
-                c.set_last_name(rs.getString("last_name"));
+                c.set_first_name(rs.getString("name"));
+                c.set_last_name(rs.getString("surname"));
                 c.set_email(rs.getString("email"));
             }
         }
-        if(c.get_customerID() == 0){
+        if(c.get_email() == null){
             throw new SQLException("Il cliente non è stato trovato...");
         }
         return c;
@@ -133,7 +132,7 @@ public class CustomerDAO extends BaseDAO {
      * @param ln: nome dei clienti da cercare
      */
     public void findByFirstName(String ln){ //TODO possibile renderlo case insensitive
-        String query = "select * from customer where first_name = '" + ln +"'";
+        String query = "select * from customer where name = '" + ln +"'";
         tabulateFindBy(query);
     }
 
@@ -142,25 +141,17 @@ public class CustomerDAO extends BaseDAO {
      * @param ln: cognome dei clienti da cercare
      */
     public void findByLastName(String ln){
-        String query = "select * from customer where last_name = '" + ln +"'";
+        String query = "select * from customer where surname = '" + ln +"'";
         tabulateFindBy(query);
     }
 
-    /**
-     * Metodo che printa a schermo in una tabella tutti i clienti che matchano la mail inserita
-     * @param em: mail dei clienti da cercare
-     */
-    public void findByEMail(String em){
-        String query = "select * from customer where email = '" + em + "'";
-        tabulateFindBy(query);
-    }
 
     /**
      * Metodo che printa a schermo in una tabella tutti i clienti che matchano nome e cognome inseriti
      * @param full_name: nome e cognome dei clienti da cercare
      */
     public void findByFullName(String[] full_name){
-        String query = "select * from customer where first_name = '" + full_name[0] + "' and last_name = '" + full_name[1] + "'";
+        String query = "select * from customer where name = '" + full_name[0] + "' and surname = '" + full_name[1] + "'";
         tabulateFindBy(query);
     }
 
@@ -189,9 +180,8 @@ public class CustomerDAO extends BaseDAO {
             ResultSet rs = stmt.executeQuery(query);
             while(rs.next()){
                 Customer c = new Customer();
-                c.set_customerID(rs.getInt("customerid"));
-                c.set_first_name(rs.getString("first_name"));
-                c.set_last_name(rs.getString("last_name"));
+                c.set_first_name(rs.getString("name"));
+                c.set_last_name(rs.getString("surname"));
                 c.set_email(rs.getString("email"));
                 cList.add(c);
             }
@@ -212,12 +202,12 @@ public class CustomerDAO extends BaseDAO {
     public boolean updateInfo(Customer c){ //TODO valutare se può essere un metodo comune a tutti gli ObjectDAO, nel caso, ognuno esegue un proprio override
         try {
             findHomonym(c);
-            String query = "select * from customer where customerid = " + c.get_customerID();
+            String query = "select * from customer where email = " + c.get_email();
             try(Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE)){
                 ResultSet rs = stmt.executeQuery(query);
                 while(rs.next()) {
-                    rs.updateString("first_name", c.get_first_name());
-                    rs.updateString("last_name", c.get_last_name());
+                    rs.updateString("name", c.get_first_name());
+                    rs.updateString("surname", c.get_last_name());
                     rs.updateString("email", c.get_email());
                     rs.updateRow();
                 }

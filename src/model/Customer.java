@@ -8,10 +8,9 @@ public class Customer {
 
     private static final String EMAIL_REGEX_PATTERN = "^(.+)@(.+).(.+)$";
 
-    private int _customerID;
+    private String _email;
     private String _first_name;
     private String _last_name;
-    private String _email;
 
     /**
      * Costruttore di default
@@ -33,10 +32,9 @@ public class Customer {
      * @param c Il Customer di cui copiare i valori
      */
     public void copy(Customer c){
-        this._customerID = c._customerID;
+        this._email = c._email;
         this._first_name = c._first_name;
         this._last_name = c._last_name;
-        this._email = c._email;
     }
 
     /**
@@ -57,14 +55,6 @@ public class Customer {
             }
         }
         return c;
-    }
-
-    public int get_customerID() {
-        return _customerID;
-    }
-
-    public void set_customerID(int _customerID) {
-        this._customerID = _customerID;
     }
 
     public String get_first_name() {
@@ -158,7 +148,7 @@ public class Customer {
 
     @Override
     public String toString(){
-        return "Cliente #" + this._customerID + ": " + this._first_name + " " + this._last_name + ", e-mail: " + this._email;
+        return "Cliente: " + this._first_name + " " + this._last_name + ", e-mail: " + this._email;
     }
 
     /**
@@ -166,10 +156,9 @@ public class Customer {
      * @return String: Informazioni del cliente nel formato della tabella
      */
     public String tabulated(){
-        String new_code = String.format("%-5s", this._customerID);
         String new_name = String.format("%-15s", this._first_name);
         String new_surname = String.format("%-15s", this._last_name);
         String new_email = String.format("%-40s", this._email);
-        return new_code + "|" + new_name + "|" + new_surname + "|" + new_email;
+        return new_name + "|" + new_surname + "|" + new_email;
     }
 }
