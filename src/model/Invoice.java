@@ -4,15 +4,15 @@ import java.math.BigDecimal;
 
 public class Invoice {
     private int invoiceID;
-    private int customerID;
-    private BigDecimal invoice_amount; //corrisponde a total_price * (100 - discount_percentage) indicati nella Reservation corrispondente
+    private BigDecimal invoice_amount;
     private boolean paid = false;
+
+    //TODO aggiungere le righe d'ordine e relativo metodo per visualizzare?
 
     public Invoice(){}
 
-    public Invoice(int invoiceID, int customerID, BigDecimal amount){
+    public Invoice(int invoiceID, BigDecimal amount){
         this.invoiceID = invoiceID;
-        this.customerID = customerID;
         this.invoice_amount = amount;
     }
 
@@ -22,14 +22,6 @@ public class Invoice {
 
     public void setInvoiceID(int invoiceID) {
         this.invoiceID = invoiceID;
-    }
-
-    public int getCustomerID() {
-        return customerID;
-    }
-
-    public void setCustomerID(int customerID) {
-        this.customerID = customerID;
     }
 
     public BigDecimal getInvoice_amount() {
@@ -50,6 +42,6 @@ public class Invoice {
 
     @Override
     public String toString() {
-        return "Ricevuta dell'ordine #" + this.invoiceID + ": cliente #" + this.customerID + ", quota da pagare " + this.invoice_amount + "€, stato pagamento " + this.paid;
+        return "Ricevuta dell'ordine #" + this.invoiceID + ": quota da pagare " + this.invoice_amount + "€, stato pagamento " + this.paid;
     }
 }
