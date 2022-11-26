@@ -81,7 +81,7 @@ public abstract class BusinessLogic {
      * Metodo che invoca i metodi di Customer e CustomerDAO per aggiungere un nuovo cliente al database
      */
     private static void addNewCustomer(){
-        CustomerDAO cd = CustomerDAO.getINSTANCE(); //TODO qui va la factory
+        CustomerDAO cd = CustomerDAO.getINSTANCE(); //TODO qui andrebbe la factory
         Customer newC = Customer.createNewCustomer();
         cd.addNewCustomer(newC);
         System.out.println("Vuoi effettuare una prenotazione? (Y/N)");
@@ -93,7 +93,7 @@ public abstract class BusinessLogic {
             } catch (SQLException s){
                 System.err.println("A quanto pare il cliente non è stato salvato...");
             }
-            addNewReservation(newC.get_customerID());
+            addNewReservation(newC.get_email());
         } else {
             System.out.println("Non è stata aggiunta nessuna prenotazione.");
         }
@@ -108,7 +108,7 @@ public abstract class BusinessLogic {
         Customer c = new Customer();
         while(findCRunning) {
             System.out.println("\t Cercare per:");
-            System.out.println("\t 1 - Codice cliente");
+            System.out.println("\t 1 - Email");
             System.out.println("\t 2 - Dati cliente");
             System.out.println("\t 3 - Torna indietro");
             Scanner findC_input = new Scanner(System.in);
@@ -122,20 +122,23 @@ public abstract class BusinessLogic {
             }
             switch (choice) {
                 case 1 -> {
-                    boolean notACNumber = true;
-                    int choiceId;
-                    while(notACNumber){
-                        System.out.println("Inserire codice cliente:");
+                    boolean emailNotValid = true;
+                    String email = "";
+                    while(emailNotValid){
+                        System.out.println("Inserire dati cliente (e-mail):");
                         customerData = new Scanner(System.in);
-                        try{
-                            choiceId = customerData.nextInt();
-                            notACNumber = false;
-                            c = cd.findById(choiceId);
-                        } catch(InputMismatchException i){
-                            System.err.println("Inserire un codice cliente valido...");
-                        } catch (SQLException s){
-                            System.err.println(s.getMessage());
+                        email = customerData.nextLine();
+                        if(email.matches("^(.+)@(.+).(.+)$")){
+                            emailNotValid = false;
                         }
+                        else{
+                            System.err.println("Indirizzo e-mail non valido...");
+                        }
+                    }
+                    try{
+                        cd.findByEMail(email);
+                    } catch (SQLException e) {
+                        System.err.println("Cliente non trovato: i dati inseriti non risultano nel database");
                     }
                 }
                 case 2 -> {
@@ -176,7 +179,7 @@ public abstract class BusinessLogic {
                 }
                 default -> System.err.println("Opzione non valida...");
             }
-            if(c.get_customerID() != 0){
+            if(c.get_email() != null){
                 customerMenu(c);
             }
         }
@@ -296,26 +299,134 @@ public abstract class BusinessLogic {
     /**
      * Metodo che permette di aggiungere una Reservation a nome di un cliente appena aggiunto al database oppure che è
      * stato appena cercato
-     * @param customerId ID del cliente che richiede una nuova prenotazione
+     * @param customerEmail Email del cliente che richiede una nuova prenotazione
      */
-    private static void addNewReservation(int customerId){
+    private static void addNewReservation(String customerEmail){
         try{
-            Reservation newRes = Reservation.createNewReservation(customerId);
+            Reservation newRes = Reservation.createNewReservation(customerEmail);
+
+            /*Nuova porzione di codice (tentativo)
+            per come impostato nel sequence diagram, le date vengono salvate prima nella Business Logic insieme al tipo
+            del reservable asset per poi completare la reservation.
+             */
+            LocalDate start_date = setStart_date();
+            LocalDate end_date = setEnd_date(start_date);
+
+            ReservableAsset the_chosen_one = chooseReservableAsset(start_date, end_date);
+
+            System.out.println("Prenotazione effettuata!");
+            try{
+                newRes = rd.findUnique(newRes.getOmbrelloneId(), newRes.getStart_date());
+                addNewInvoice(newRes);
+            } catch (SQLException s) {
+                System.err.println("La prenotazione non è stata salvata corettamente...\n Annullamento operazione...");
+            } catch (RuntimeException r){
+                System.err.println(r.getMessage());
+                rd.deleteReservation(newRes.getReservationId());
+            }
             ReservationDAO rd = ReservationDAO.getInstance();
             rd.addNewReservation(newRes);
-            System.out.println("Prenotazione effettuata!");
-           try{
-               newRes = rd.findUnique(newRes.getOmbrelloneId(), newRes.getStart_date());
-               addNewInvoice(newRes);
-           } catch (SQLException s) {
-               System.err.println("La prenotazione non è stata salvata corettamente...\n Annullamento operazione...");
-           } catch (RuntimeException r){
-               System.err.println(r.getMessage());
-               rd.deleteReservation(newRes.getReservationId());
-           }
         } catch(RuntimeException r){
             System.err.println(r.getMessage());
         }
+    }
+
+    private static ReservableAsset chooseReservableAsset(LocalDate start_date, LocalDate end_date) throws RuntimeException {
+        ReservableAssetDAO rad = ReservableAssetDAO.getINSTANCE();
+        System.out.println("Seleziona il tipo di Prenotabile preferito:");
+        int chosen_type = chooseType();
+        rad.checkAvailability(start_date, end_date);
+        rad.
+    }
+
+
+    private static int chooseType() {
+        int fav_type = 0;
+        try{
+            System.out.println("Inserire il numero del tipo selezionato: \n");
+            ReservableAssetDAO rad = ReservableAssetDAO.getINSTANCE();
+            System.out.println("\t0 - Nessuna preferenza");
+            rad.showTypeTable();
+            fav_type = new Scanner(System.in).nextInt();
+            System.out.println("E' stato richiesto un ombrellone del tipo: " + rad.fecthType(fav_type));
+        } catch (SQLException s){
+            System.err.println("Errore nella lettura della tabella");
+        } catch (InputMismatchException i){
+            System.out.println("Nessun tipo specifico richiesto");
+        }
+        return fav_type;
+    }
+
+    /**
+     * Metodo usato per settare una data d'inizio per la prenotazione, modifica una data in formato gg-mm-aa presa in input
+     * da Scanner in un formato utilizzabile per SQL
+     */
+    private static LocalDate setStart_date(){
+        boolean validStartDate = false;
+        LocalDate start_date = LocalDate.now();
+        while(!validStartDate) {
+            System.out.println("Inserire data di inizio: (dd-mm-yyyy)");
+            try {
+                LocalDate tmp = set_date();
+                if (tmp.compareTo(LocalDate.now()) >= 0) {
+                    start_date = tmp;
+                    validStartDate = true;
+                } else {
+                    System.err.println("La data inserita è precedente alla giornata odierna...");
+                }
+            } catch (NumberFormatException | DateTimeException | ArrayIndexOutOfBoundsException e){
+                System.err.println(e.getMessage());
+            }
+        }
+        return start_date;
+    }
+
+    /**
+     * Metodo usato per settare una data di fine per la prenotazione, modifica una data in formato gg-mm-aa presa in input
+     * da Scanner in un formato utilizzabile per SQL
+     */
+    private static LocalDate setEnd_date(LocalDate start_date){
+        boolean validEndDate = false;
+        LocalDate end_date = LocalDate.now();
+        while(!validEndDate) {
+            System.out.println("Inserire data di fine: (dd-mm-yyyy)");
+            try {
+                LocalDate tmp = set_date();
+                if (tmp.compareTo(start_date) >= 0) {
+                    end_date = tmp;
+                    validEndDate = true;
+                } else {
+                    System.err.println("La data inserita è precedente alla data di inizio prenotazione...");
+                }
+            } catch (NumberFormatException | DateTimeException | ArrayIndexOutOfBoundsException e) {
+                System.err.println(e.getMessage());
+            }
+        }
+        return end_date;
+    }
+
+    /**
+     * Metodo per cambiare il formato di una data da gg-mm-aa a aa-mm-gg
+     * @return LocalDate: data nel formato corretto
+     */
+    private static LocalDate set_date() {
+        Scanner mySc = new Scanner(System.in);
+        String date = mySc.nextLine();
+        String[] fullDate = date.split("-");
+        LocalDate localDate;
+        try {
+            int dayOfMonth = Integer.parseInt(fullDate[0]);
+            int month = Integer.parseInt(fullDate[1]);
+            int year = Integer.parseInt(fullDate[2]);
+            localDate = LocalDate.of(year, month, dayOfMonth);
+        } catch (NumberFormatException n) {
+            throw new NumberFormatException("Inserire valori numerici...");
+        } catch (DateTimeException d) {
+            throw new DateTimeException("La data " + date + " non è valida...");
+        } catch (ArrayIndexOutOfBoundsException a){
+            throw new ArrayIndexOutOfBoundsException("Inserire tutti i parametri nel formato dd-mm-yyyy...");
+        }
+        return localDate;
     }
 
     /**
@@ -323,7 +434,7 @@ public abstract class BusinessLogic {
      * @param res: Prenotazione di cui voglio creare una ricevuta
      */
     private static void addNewInvoice(Reservation res) throws RuntimeException{
-        Invoice newInv = new Invoice(res.getReservationId(), res.getCustomerId(), res.getTotal_price()); //TODO wrapper del costruttore?
+        Invoice newInv = new Invoice(res.getReservationId(), res.getTotal_price()); //TODO wrapper del costruttore?
         InvoiceDAO id = InvoiceDAO.getINSTANCE();
         id.addNewInvoice(newInv);
     }
@@ -413,13 +524,12 @@ public abstract class BusinessLogic {
         int choice;
         while(search){
             System.out.println("Ricerca per: ");
-            System.out.println("\t 1 - ID cliente");
+            System.out.println("\t 1 - Email");
             System.out.println("\t 2 - Nome e Cognome");
             System.out.println("\t 3 - Nome");
             System.out.println("\t 4 - Cognome");
-            System.out.println("\t 5 - Email");
-            System.out.println("\t 6 - Mostra tutti");
-            System.out.println("\t 7 - Torna indietro");
+            System.out.println("\t 5 - Mostra tutti");
+            System.out.println("\t 6 - Torna indietro");
             Scanner option = new Scanner(System.in);
             try{
                 choice = option.nextInt();
@@ -429,15 +539,25 @@ public abstract class BusinessLogic {
             Scanner customerData;
             switch(choice){
                 case 1 -> {
-                    System.out.println("Inserire codice cliente:");
-                    customerData = new Scanner(System.in);
+                    boolean emailNotValid = true;
+                    String email = "";
+                    while(emailNotValid){
+                        System.out.println("Inserire email cliente:");
+                        customerData = new Scanner(System.in);
+                        email = customerData.nextLine();
+                        if(email.matches("^(.+)@(.+).(.+)$")){
+                            emailNotValid = false;
+                        } else {
+                            System.err.println("Indirizzo e-mail non valido...");
+                        }
                     try{
-                        System.out.println(cd.findById(customerData.nextInt()));
+                        System.out.println(cd.findByEMail(email));
                     } catch(InputMismatchException i){
-                        System.err.println("Inserire un codice cliente...");
+                        System.err.println("Inserire una email cliente...");
                     } catch(SQLException s){
                         System.err.println(s.getMessage());
                     }
+                }
                 }
                 case 2 -> {
                     System.out.println("Inserire nome e cognome del cliente da cercare (formato: Nome Cognome):");
@@ -470,18 +590,8 @@ public abstract class BusinessLogic {
                         System.err.println("Formato cognome non valido...");
                     }
                 }
-                case 5 -> {
-                    System.out.println("Inserire e-mail del cliente: ");
-                    customerData = new Scanner(System.in);
-                    String email = customerData.nextLine();
-                    if(email.matches("^(.+)@(.+).(.+)$")){
-                        cd.findByEMail(email);
-                    } else {
-                        System.err.println("Formato indirizzo e-mail non valido...");
-                    }
-                }
-                case 6 -> cd.findAll();
-                case 7 -> search = false;
+                case 5 -> cd.findAll();
+                case 6 -> search = false;
                 default -> System.err.println("Opzione non valida...");
             }
             System.out.println("\n");

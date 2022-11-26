@@ -117,45 +117,45 @@ public class UmbrellaDAO extends BaseDAO{
         return availableUmbrellas;
     }
 
-    /**
-     * Si interfaccia col database, fornendo informazioni sulle disponibilità singole dei tipi di ombrelloni
-     * @param req_start_date La LocalDate d'inizio prenotazione
-     * @param req_end_date La LocalDate di fine prenotazione
-     * @return Ritorna TRUE se c'è almeno un ombrellone di qualsiasi tipo disponibile
-     */
-    public boolean showAvailableUmbrellas(LocalDate req_start_date, LocalDate req_end_date) {
-        String queryView = "create or replace view availableUmbrellas as" +
-                " select ombrelloneid" +
-                " from ombrellone" +
-                " except select ombrelloneid" +
-                " from reservation" +
-                " where start_date <= '" + req_end_date + "' and end_date >= '" + req_start_date + "'";
+    ///**
+    // * Si interfaccia col database, fornendo informazioni sulle disponibilità singole dei tipi di ombrelloni
+    // * @param req_start_date La LocalDate d'inizio prenotazione
+    // * @param req_end_date La LocalDate di fine prenotazione
+    // * @return Ritorna TRUE se c'è almeno un ombrellone di qualsiasi tipo disponibile
+    // */
+    //public boolean showAvailableUmbrellas(LocalDate req_start_date, LocalDate req_end_date) {
+    //    String queryView = "create or replace view availableUmbrellas as" +
+    //            " select ombrelloneid" +
+    //            " from ombrellone" +
+    //            " except select ombrelloneid" +
+    //            " from reservation" +
+    //            " where start_date <= '" + req_end_date + "' and end_date >= '" + req_start_date + "'";
 
-        String queryTable = "select count(availableUmbrellas.ombrelloneid), tipoombrellone.type_name" +
-                " from availableUmbrellas" +
-                " right join ombrellone on availableUmbrellas.ombrelloneid = ombrellone.ombrelloneid" +
-                " join tipoombrellone on tipoombrellone.typeid = ombrellone.tipo_ombrellone" +
-                " group by tipoombrellone.typeid" +
-                " order by tipoombrellone.typeid";
+    //    String queryTable = "select count(availableUmbrellas.ombrelloneid), tipoombrellone.type_name" +
+    //            " from availableUmbrellas" +
+    //            " right join ombrellone on availableUmbrellas.ombrelloneid = ombrellone.ombrelloneid" +
+    //            " join tipoombrellone on tipoombrellone.typeid = ombrellone.tipo_ombrellone" +
+    //            " group by tipoombrellone.typeid" +
+    //            " order by tipoombrellone.typeid";
 
-        try(Statement stmt = conn.createStatement()) {
-            stmt.execute(queryView); //crea una view contenente gli ombrelloni disponibili nelle date selezionate
+    //    try(Statement stmt = conn.createStatement()) {
+    //        stmt.execute(queryView); //crea una view contenente gli ombrelloni disponibili nelle date selezionate
 
-            if(!stmt.executeQuery("select * from availableUmbrellas").next()){ //controlla se la view è vuota
-                return false;
-            }
+    //        if(!stmt.executeQuery("select * from availableUmbrellas").next()){ //controlla se la view è vuota
+    //            return false;
+    //        }
 
-            ResultSet rs = stmt.executeQuery(queryTable);
-            System.out.println("Seleziona il tipo di ombrellone:");
-            System.out.println("\t0 - Nessuna preferenza");
-            int i = 1;
-            while(rs.next()){
-                System.out.println("\t" + i + " - " + rs.getString("type_name") + ": " + rs.getInt("count"));
-                i++;
-            }
-        } catch (SQLException s){
-            throw new RuntimeException("Problemi a stabilire la connessione");
-        }
-        return true;
-    }
+    //        ResultSet rs = stmt.executeQuery(queryTable);
+    //        System.out.println("Seleziona il tipo di ombrellone:");
+    //        System.out.println("\t0 - Nessuna preferenza");
+    //        int i = 1;
+    //        while(rs.next()){
+    //            System.out.println("\t" + i + " - " + rs.getString("type_name") + ": " + rs.getInt("count"));
+    //            i++;
+    //        }
+    //    } catch (SQLException s){
+    //        throw new RuntimeException("Problemi a stabilire la connessione");
+    //    }
+    //    return true;
+    //}
 }
