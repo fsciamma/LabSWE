@@ -6,6 +6,7 @@ import model.*;
 import java.sql.SQLException;
 import java.time.DateTimeException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -305,7 +306,7 @@ public abstract class BusinessLogic {
         try{
             Reservation newRes = Reservation.createNewReservation(customerEmail);
 
-            /*Nuova porzione di codice (tentativo)
+            /* Nuova porzione di codice (tentativo)
             per come impostato nel sequence diagram, le date vengono salvate prima nella Business Logic insieme al tipo
             del reservable asset per poi completare la reservation.
              */
@@ -331,30 +332,52 @@ public abstract class BusinessLogic {
         }
     }
 
-    private static ReservableAsset chooseReservableAsset(LocalDate start_date, LocalDate end_date) throws RuntimeException {
+    private static ReservableAsset chooseReservableAsset(LocalDate start_date, LocalDate end_date) throws RuntimeException, SQLException {
         ReservableAssetDAO rad = ReservableAssetDAO.getINSTANCE();
-        System.out.println("Seleziona il tipo di Prenotabile preferito:");
+        System.out.println("Seleziona il tipo di Prenotabile preferito: ");
         int chosen_type = chooseType();
-        rad.checkAvailability(start_date, end_date);
-        rad.
+        ArrayList<Integer> av = rad.checkAvailability(start_date, end_date, chosen_type);
+        int number =  chooseAssetNumber(av);
+        return rad.findByID(number);
     }
 
 
     private static int chooseType() {
         int fav_type = 0;
         try{
-            System.out.println("Inserire il numero del tipo selezionato: \n");
+            System.out.println("Inserire il numero del tipo selezionato: ");
             ReservableAssetDAO rad = ReservableAssetDAO.getINSTANCE();
             System.out.println("\t0 - Nessuna preferenza");
             rad.showTypeTable();
-            fav_type = new Scanner(System.in).nextInt();
+            fav_type = new Scanner(System.in).nextInt(); //Todo type check before assignment
             System.out.println("E' stato richiesto un ombrellone del tipo: " + rad.fecthType(fav_type));
         } catch (SQLException s){
             System.err.println("Errore nella lettura della tabella");
+            fav_type = 0;
         } catch (InputMismatchException i){
             System.out.println("Nessun tipo specifico richiesto");
+            fav_type = 0;
         }
         return fav_type;
+    }
+
+    private static int chooseAssetNumber(ArrayList<Integer> av) {
+        boolean valid_number = false;
+        int choice = 0;
+        while(!valid_number){
+            try{
+                System.out.println("Inserire il numero dell'asset selezionato: ");
+                choice = new Scanner(System.in).nextInt();
+                if(av.contains(choice)){
+                    valid_number = true;
+                } else {
+                    System.out.println("Asset selezionato non disponibile");
+                }
+            } catch (InputMismatchException i){
+                System.err.println("Seleziona uno degli asset disponibili");
+            }
+        }
+        return choice;
     }
 
     /**
