@@ -29,7 +29,6 @@ public class InvoiceDAO extends BaseDAO{
             ResultSet rs = stmt.executeQuery(query);
             while(rs.next()){
                 i.setInvoiceID(rs.getInt("invoiceid"));
-                i.setCustomerID(rs.getInt("customerid"));
                 i.setInvoice_amount(rs.getBigDecimal("invoice_amount"));
                 i.setPaid(rs.getBoolean("is_paid"));
             }
@@ -54,7 +53,6 @@ public class InvoiceDAO extends BaseDAO{
             while(rs.next()){
                 Invoice i = new Invoice();
                 i.setInvoiceID(rs.getInt("invoiceid"));
-                i.setCustomerID(rs.getInt("customerid"));
                 i.setInvoice_amount(rs.getBigDecimal("invoice_amount"));
                 i.setPaid(rs.getBoolean("is_paid"));
                 iList.add(i);
@@ -82,7 +80,6 @@ public class InvoiceDAO extends BaseDAO{
             rs.moveToInsertRow();
 
             rs.updateInt("invoiceid", i.getInvoiceID());
-            rs.updateInt("customerid", i.getCustomerID());
             rs.updateBigDecimal("invoice_amount", i.getInvoice_amount()/*new BigDecimal(Float.toString(i.getInvoice_amount()))*/); //TODO capire se conviene più usare BigDecimal o float
             rs.updateBoolean("is_paid", i.isPaid());
 

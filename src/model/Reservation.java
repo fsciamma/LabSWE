@@ -3,21 +3,16 @@ package model;
 import DAO.UmbrellaDAO;
 
 import java.math.BigDecimal;
-import java.sql.Date;
 import java.sql.SQLException;
-import java.time.DateTimeException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 
 import java.util.Scanner;
 
-import static java.time.temporal.ChronoUnit.DAYS;
-
 public class Reservation {
     private int reservationID;
     private String customer;
-    private ArrayList<Integer> reserved_assets;
+    private ArrayList<ReservableAsset> reserved_assets;
     private int invoiceID;
     private BigDecimal price;
 
@@ -129,6 +124,15 @@ public class Reservation {
 
     public String getCustomer() {
         return customer;
+    }
+
+    public void updateReservation(ReservableAsset r, int days){
+        this.reserved_assets.add(r);
+        setTotal_price(getTotal_price().add(r.getPrice().multiply(BigDecimal.valueOf(days))));
+    }
+
+    public ArrayList<ReservableAsset> getReserved_assets(){
+        return reserved_assets;
     }
 
     @Override

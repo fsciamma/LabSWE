@@ -1,10 +1,9 @@
 package DAO;
 
+import model.ReservableAsset;
 import model.Reservation;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
@@ -24,24 +23,82 @@ public class ReservationDAO extends BaseDAO {
     }
 
     /**
-     * Permette di aggiungere una nuova Reservation al database
-     * @param newR La Reservation che deve essere inserita nel database
+     * Aggiunge una reservation al database aggiornando tutte le tabelle influenzate
+     * @param r : reservation, date
      */
-    public void addNewReservation(Reservation newR){
-        String query = "select * from reservation";
+    public int updateReservationTables(Reservation r, LocalDate sd, LocalDate ed){
+        // Aggiornamento tabella reservation
+        int id = addNewReservation(r);
+        for (ReservableAsset ra : r.getReserved_assets()) {
+            // Aggiornamento tabella reserved_assets
+            int asset_id = addNewReserved_asset(ra, id, sd, ed);
+            //TODO ciclo for per gli addon di ciascun reservable asset
+        }
+        return id;
+    }
+
+    /**
+     * Aggiorna la tabella reservation
+     * @param newR La Reservation che deve essere inserita nel database
+     * @return id della prenotazione da passare alla tabella reserved_assets
+     */
+    public int addNewReservation(Reservation newR){
+        String insertStatement = "INSERT INTO reservation (customerID) values('?') " +
+                "RETURNING reservationID";
+        int id = 0;
         ResultSet rs;
-        try(Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE)){
-            rs = stmt.executeQuery(query);
+        try(PreparedStatement stmt = conn.prepareStatement(insertStatement)){
+            stmt.setString(1, newR.getCustomer());
+            stmt.execute();
 
-            rs.moveToInsertRow();
-            //TODO manca il corpo
-            rs.updateBigDecimal("total_price", newR.getTotal_price());
+            rs = stmt.getResultSet();
+            rs.next();
+            id = rs.getInt("reservationID");
+            //rs = stmt.executeQuery(query);
 
-            rs.insertRow();
-            rs.beforeFirst();
+            //rs.moveToInsertRow();
+
+            //rs.updateString("customerID", newR.getCustomer());
+
+            //rs.insertRow();
+            //rs.beforeFirst();
         } catch(SQLException e){
             System.err.println(e.getMessage());
         }
+        //TODO inserire un eccezione se id risulta essere ancora 0
+        return id;
+    }
+
+    /**
+     * Aggiorna la tabella resesrved_assets
+     * @param r: asset inserito nella prenotazione
+     * @param id: id della prenotazione a cui è stato assegnato l'asset
+     * @param sd: data di inizio della prenotazione
+     * @param ed: data di fine della prenotazione
+     * @return : id dell'assegnazione da passare alla tabella reserved_add_on
+     */
+    public int addNewReserved_asset(ReservableAsset r, int id, LocalDate sd, LocalDate ed){
+        String insertStatement = "INSERT INTO reserved_assets (reservationID, assetID, start_date, end_date) " +
+                "values('?', '?', '?', '?') " +
+                "RETURNING reservedID";
+        int new_id = 0;
+        ResultSet rs;
+        try(PreparedStatement stmt = conn.prepareStatement(insertStatement)){
+            stmt.setInt(1, id);
+            stmt.setInt(2, r.getResId());
+            stmt.setDate(3, Date.valueOf(sd));
+            stmt.setDate(4, Date.valueOf(ed));
+            
+            stmt.execute();
+
+            rs = stmt.getResultSet();
+            rs.next();
+            new_id = rs.getInt("reservedID");
+        } catch(SQLException e){
+            System.err.println(e.getMessage());
+        }
+        //TODO inserire un eccezione se id risulta essere ancora 0
+        return new_id;
     }
 
     /**
@@ -61,19 +118,20 @@ public class ReservationDAO extends BaseDAO {
      * @param start_date: data d'inizio della prenotazione ricercata
      * @return Reservation : istanza della prenotazione con i parametri richiesti presente sul Database
      */
-    public Reservation findUnique(int umbrellaId, LocalDate start_date) throws SQLException{
-        String query = "select * from reservation where ombrelloneid = " + umbrellaId + " and start_date = '" + start_date + "'";
-        return  getReservation(query);
-    }
+    //public Reservation findUnique(int umbrellaId, LocalDate start_date) throws SQLException{
+    //    String query = "select * from reservation where ombrelloneid = " + umbrellaId + " and start_date = '" + start_date + "'";
+    //    return  getReservation(query);
+    //}
 
     /**
-     * Metodo che mostra a schermo le prenotazioni che matchano l'ID del cliente inserito
-     * @param id: id del cliente relativo alle prenotazioni cercate
+     * Metodo che mostra a schermo le prenotazioni che matchano l'email del cliente inserito
+     * @param email: email del cliente relativo alle prenotazioni cercate
      */
-    public void findByCustomerId(int id) throws SQLException {
-        String query = "select * from reservation where customerid = " + id;
+    public void findByCustomerId(String email) throws SQLException {
+        String query = "select * from reservation a join reserved_assets b on a.reservationID = b.reservationID" +
+                " where a.customerID = " + email;
         if(!showReservations(query)){
-            throw new SQLException("Non sono state trovate prenotazioni per il cliente #" + id);
+            throw new SQLException("Non sono state trovate prenotazioni per il cliente " + email);
         }
     }
 

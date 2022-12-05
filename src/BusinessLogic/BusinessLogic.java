@@ -8,6 +8,7 @@ import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
+import java.util.Objects;
 import java.util.Scanner;
 
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -207,8 +208,8 @@ public abstract class BusinessLogic {
                 customer_choice = 0;
             }
             switch (customer_choice) {
-                case 1 -> addNewReservation(c.get_customerID());
-                case 2 -> showReservations(c.get_customerID());
+                case 1 -> addNewReservation(c.get_email());
+                case 2 -> showReservations(c.get_email());
                 case 3 -> modifyClientInfo(c);
                 case 4 -> {
                     System.out.println("Torna a pagina precedente...");
@@ -222,12 +223,12 @@ public abstract class BusinessLogic {
 
     /**
      * Chiama findByCustomerId di ReservationDAO
-     * @param customerID L'identificativo del Customer di cui si vogliono vedere le Reservation effettuate
+     * @param email L'identificativo del Customer di cui si vogliono vedere le Reservation effettuate
      */
-    private static void showReservations(int customerID){
+    private static void showReservations(String email){
         try {
-            ReservationDAO.getInstance().findByCustomerId(customerID);
-            reservationOptionMenu(customerID);
+            ReservationDAO.getInstance().findByCustomerId(email);
+            reservationOptionMenu(email);
         } catch (SQLException s){
             System.err.println(s.getMessage());
         }
@@ -235,9 +236,10 @@ public abstract class BusinessLogic {
 
     /**
      * Metodo che permette di scegliere quale operazione compiere su una delle Reservations legate al Customer
-     * @param customerID Identificativo del Customer di cui sono state cercate le prenotazioni: viene usato per controllare che non venga modificata o cancellata una prenotazione che non gli appartiene
+     * @param email Identificativo del Customer di cui sono state cercate le prenotazioni: viene usato per controllare
+     *              che non venga modificata o cancellata una prenotazione che non gli appartiene
      */
-    private static void reservationOptionMenu(int customerID) {
+    private static void reservationOptionMenu(String email) {
         boolean running = true;
         while(running) {
             System.out.println("Selezionare l'operazione che si vuole eseguire:");
@@ -252,8 +254,8 @@ public abstract class BusinessLogic {
                 System.err.println("Inserire un valore numerico");
             }
             switch (choice) {
-                case 1 -> modifyReservation(customerID);
-                case 2 -> deleteReservation(customerID);
+                case 1 -> modifyReservation(email);
+                case 2 -> deleteReservation(email);
                 case 3 -> {
                     System.out.println("Torna a pagina precedente");
                     running = false;
@@ -263,15 +265,15 @@ public abstract class BusinessLogic {
         }
     }
 
-    private static void modifyReservation(int customerID) {
+    private static void modifyReservation(String email) {
 
     }
 
     /**
      * Permette di cancellare una Reservation attraverso l'invocazione del metodo ReservationDAO.deleteReservation se il periodo di annullamento di questa non è scaduto
-     * @param customerID Viene usato per impedire che venga cancellata una prenotazione non appartenente al Customer che identifica
+     * @param email Viene usato per impedire che venga cancellata una prenotazione non appartenente al Customer che identifica
      */
-    private static void deleteReservation(int customerID) {
+    private static void deleteReservation(String email) {
         System.out.println("Inserire il codice della prenotazione da cancellare:");
         int resCode = 0;
         boolean notValidCode = true;
@@ -286,7 +288,7 @@ public abstract class BusinessLogic {
         try {
             Reservation res = ReservationDAO.getInstance().findById(resCode);
             //Controlla che il Customer che richiede la cancellazione sia anche lo stesso che possiede la prenotazione e che manchino almeno 7 giorni alla data d'inizio della prenotazione
-            if(res.getCustomerId() == customerID && DAYS.between(LocalDate.now(), res.getStart_date()) >= 7) {
+            if(Objects.equals(res.getCustomer(), email) /*&& DAYS.between(LocalDate.now(), res.getStart_date()) >= 7*/) { //TODO da trovare un modo per recuperare la data
                 InvoiceDAO.getINSTANCE().deleteInvoice(resCode);
                 ReservationDAO.getInstance().deleteReservation(resCode);
             } else {
@@ -304,35 +306,38 @@ public abstract class BusinessLogic {
      */
     private static void addNewReservation(String customerEmail){
         try{
+            //TODO rivedere un po' tutte le eccezioni in questo pezzo di codice
             Reservation newRes = Reservation.createNewReservation(customerEmail);
+            //TODO incapsulare in un ciclo
 
-            /* Nuova porzione di codice (tentativo)
-            per come impostato nel sequence diagram, le date vengono salvate prima nella Business Logic insieme al tipo
-            del reservable asset per poi completare la reservation.
-             */
+            // Inizio chiedendo al cliente di inserire le date
             LocalDate start_date = setStart_date();
             LocalDate end_date = setEnd_date(start_date);
 
+            // Faccio scegliere al cliente il reservable asset che si vuole prenotare e lo aggiungo alla prenotazione
             ReservableAsset the_chosen_one = chooseReservableAsset(start_date, end_date);
+            // Calcolo del prezzo
+            int d = (int) DAYS.between(end_date, start_date);
+            //TODO aggiungere successivamente la scelta degli addon
+            newRes.updateReservation(the_chosen_one, d);
 
-            System.out.println("Prenotazione effettuata!");
+            // Aggiungo la reservation al DB per poter generare l'ID e creare l'Invoice
+            ReservationDAO rd = ReservationDAO.getInstance();
+            int id = rd.updateReservationTables(newRes,start_date, end_date);
+
             try{
-                newRes = rd.findUnique(newRes.getOmbrelloneId(), newRes.getStart_date());
-                addNewInvoice(newRes);
-            } catch (SQLException s) {
-                System.err.println("La prenotazione non è stata salvata corettamente...\n Annullamento operazione...");
+                addNewInvoice(newRes, id);
             } catch (RuntimeException r){
                 System.err.println(r.getMessage());
                 rd.deleteReservation(newRes.getReservationId());
             }
-            ReservationDAO rd = ReservationDAO.getInstance();
-            rd.addNewReservation(newRes);
-        } catch(RuntimeException r){
+            System.out.println("Prenotazione effettuata!");
+        } catch(RuntimeException | SQLException r){
             System.err.println(r.getMessage());
         }
     }
 
-    private static ReservableAsset chooseReservableAsset(LocalDate start_date, LocalDate end_date) throws RuntimeException, SQLException {
+    private static ReservableAsset chooseReservableAsset(LocalDate start_date, LocalDate end_date) throws SQLException {
         ReservableAssetDAO rad = ReservableAssetDAO.getINSTANCE();
         System.out.println("Seleziona il tipo di Prenotabile preferito: ");
         int chosen_type = chooseType();
@@ -456,10 +461,10 @@ public abstract class BusinessLogic {
      * Metodo che permette di aggiungere una Invoice relativa a una prenotazione
      * @param res: Prenotazione di cui voglio creare una ricevuta
      */
-    private static void addNewInvoice(Reservation res) throws RuntimeException{
-        Invoice newInv = new Invoice(res.getReservationId(), res.getTotal_price()); //TODO wrapper del costruttore?
-        InvoiceDAO id = InvoiceDAO.getINSTANCE();
-        id.addNewInvoice(newInv);
+    private static void addNewInvoice(Reservation res, int id) throws RuntimeException{
+        Invoice newInv = new Invoice(id, res.getTotal_price()); //TODO wrapper del costruttore?
+        InvoiceDAO iDAO = InvoiceDAO.getINSTANCE();
+        iDAO.addNewInvoice(newInv);
     }
 
     /**
@@ -712,7 +717,7 @@ public abstract class BusinessLogic {
                     System.out.println("Inserisci codice cliente: ");
                     reservationData = new Scanner(System.in);
                     try {
-                        rd.findByCustomerId(reservationData.nextInt());
+                        rd.findByCustomerId(reservationData.nextLine());
                     } catch (InputMismatchException i){
                         System.err.println("Inserire un codice numerico...");
                     } catch(SQLException s ){
