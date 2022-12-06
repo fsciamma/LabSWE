@@ -8,6 +8,15 @@ drop table if exists reservation cascade;
 drop table if exists reserved_add_on;
 drop table if exists reserved_assets cascade;
 
+CREATE TABLE "laZattera".add_on_type
+(
+    "typeID" integer NOT NULL,
+    type_name character varying COLLATE pg_catalog."default" NOT NULL,
+    price numeric(10,2) NOT NULL,
+    CONSTRAINT add_on_type_pkey PRIMARY KEY ("typeID"),
+    CONSTRAINT type UNIQUE (type_name)
+);
+
 CREATE TABLE "laZattera".add_on
 (
     "add_onID" integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
@@ -21,21 +30,23 @@ CREATE TABLE "laZattera".add_on
         ON DELETE NO ACTION
 );
 
-CREATE TABLE "laZattera".add_on_type
-(
-    "typeID" integer NOT NULL,
-    type_name character varying COLLATE pg_catalog."default" NOT NULL,
-    price numeric(10,2) NOT NULL,
-    CONSTRAINT add_on_type_pkey PRIMARY KEY ("typeID"),
-    CONSTRAINT type UNIQUE (type_name)
-);
-
 CREATE TABLE "laZattera".customer
 (
     email character varying COLLATE pg_catalog."default" NOT NULL,
     name character varying COLLATE pg_catalog."default" NOT NULL,
     surname character varying COLLATE pg_catalog."default" NOT NULL,
     CONSTRAINT customer_pkey PRIMARY KEY (email)
+);
+
+CREATE TABLE "laZattera".reservation
+(
+    "reservationID" integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
+    "customerID" character varying COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT reservation_pkey PRIMARY KEY ("reservationID"),
+    CONSTRAINT customer FOREIGN KEY ("customerID")
+        REFERENCES "laZattera".customer (email) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
 );
 
 CREATE TABLE "laZattera".invoice
@@ -48,6 +59,15 @@ CREATE TABLE "laZattera".invoice
         REFERENCES "laZattera".reservation ("reservationID") MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
+);
+
+CREATE TABLE "laZattera".reservable_type
+(
+    "typeID" integer NOT NULL,
+    type_name character varying(64) COLLATE pg_catalog."default" NOT NULL,
+    price numeric(10,2) NOT NULL,
+    CONSTRAINT reservable_table_pkey PRIMARY KEY ("typeID"),
+    CONSTRAINT "non ci sono " UNIQUE (type_name)
 );
 
 CREATE TABLE "laZattera".reservable_asset
@@ -67,44 +87,6 @@ CREATE TABLE "laZattera".reservable_asset
     CONSTRAINT revisione CHECK (last_revision >= purchase_date)
 );
 
-CREATE TABLE "laZattera".reservable_type
-(
-    "typeID" integer NOT NULL,
-    type_name character varying(64) COLLATE pg_catalog."default" NOT NULL,
-    price numeric(10,2) NOT NULL,
-    CONSTRAINT reservable_table_pkey PRIMARY KEY ("typeID"),
-    CONSTRAINT "non ci sono " UNIQUE (type_name)
-);
-
-CREATE TABLE "laZattera".reservation
-(
-    "reservationID" integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
-    "customerID" character varying COLLATE pg_catalog."default" NOT NULL,
-    CONSTRAINT reservation_pkey PRIMARY KEY ("reservationID"),
-    CONSTRAINT customer FOREIGN KEY ("customerID")
-        REFERENCES "laZattera".customer (email) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION
-);
-
-CREATE TABLE "laZattera".reserved_add_on
-(
-    "reserved_assetsID" integer NOT NULL,
-    "add_onID" integer NOT NULL,
-    start_date date NOT NULL,
-    end_date date NOT NULL,
-    CONSTRAINT "una prenotazione addon" UNIQUE ("add_onID", start_date),
-    CONSTRAINT addons FOREIGN KEY ("add_onID")
-        REFERENCES "laZattera".add_on ("add_onID") MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION,
-    CONSTRAINT "reservation reference" FOREIGN KEY ("reserved_assetsID")
-        REFERENCES "laZattera".reserved_assets ("reservedID") MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION,
-    CONSTRAINT "validità date" CHECK (start_date <= end_date)
-);
-
 CREATE TABLE "laZattera".reserved_assets
 (
     "reservedID" integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
@@ -120,6 +102,24 @@ CREATE TABLE "laZattera".reserved_assets
         ON DELETE NO ACTION,
     CONSTRAINT reservation FOREIGN KEY ("reservationID")
         REFERENCES "laZattera".reservation ("reservationID") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT "validità date" CHECK (start_date <= end_date)
+);
+
+CREATE TABLE "laZattera".reserved_add_on
+(
+    "reserved_assetsID" integer NOT NULL,
+    "add_onID" integer NOT NULL,
+    start_date date NOT NULL,
+    end_date date NOT NULL,
+    CONSTRAINT "una prenotazione addon" UNIQUE ("add_onID", start_date),
+    CONSTRAINT addons FOREIGN KEY ("add_onID")
+        REFERENCES "laZattera".add_on ("add_onID") MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT "reservation reference" FOREIGN KEY ("reserved_assetsID")
+        REFERENCES "laZattera".reserved_assets ("reservedID") MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION,
     CONSTRAINT "validità date" CHECK (start_date <= end_date)
