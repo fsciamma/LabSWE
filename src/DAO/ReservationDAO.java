@@ -43,8 +43,8 @@ public class ReservationDAO extends BaseDAO {
      * @return id della prenotazione da passare alla tabella reserved_assets
      */
     public int addNewReservation(Reservation newR){
-        String insertStatement = "INSERT INTO reservation (customerID) values('?') " +
-                "RETURNING reservationID";
+        String insertStatement = "INSERT INTO \"laZattera\".reservation (\"customerID\") values('?') " +
+                "RETURNING \"reservationID\"";
         int id = 0;
         ResultSet rs;
         try(PreparedStatement stmt = conn.prepareStatement(insertStatement)){
@@ -53,15 +53,8 @@ public class ReservationDAO extends BaseDAO {
 
             rs = stmt.getResultSet();
             rs.next();
-            id = rs.getInt("reservationID");
-            //rs = stmt.executeQuery(query);
+            id = rs.getInt("\"reservationID\"");
 
-            //rs.moveToInsertRow();
-
-            //rs.updateString("customerID", newR.getCustomer());
-
-            //rs.insertRow();
-            //rs.beforeFirst();
         } catch(SQLException e){
             System.err.println(e.getMessage());
         }
@@ -78,9 +71,9 @@ public class ReservationDAO extends BaseDAO {
      * @return : id dell'assegnazione da passare alla tabella reserved_add_on
      */
     public int addNewReserved_asset(ReservableAsset r, int id, LocalDate sd, LocalDate ed){
-        String insertStatement = "INSERT INTO reserved_assets (reservationID, assetID, start_date, end_date) " +
+        String insertStatement = "INSERT INTO \"laZattera\".reserved_assets (\"reservationID\", \"assetID\", start_date, end_date) " +
                 "values('?', '?', '?', '?') " +
-                "RETURNING reservedID";
+                "RETURNING \"reservedID\"";
         int new_id = 0;
         ResultSet rs;
         try(PreparedStatement stmt = conn.prepareStatement(insertStatement)){
@@ -93,7 +86,7 @@ public class ReservationDAO extends BaseDAO {
 
             rs = stmt.getResultSet();
             rs.next();
-            new_id = rs.getInt("reservedID");
+            new_id = rs.getInt("\"reservedID\"");
         } catch(SQLException e){
             System.err.println(e.getMessage());
         }
@@ -107,7 +100,7 @@ public class ReservationDAO extends BaseDAO {
      * @return Reservation r: istanza della prenotazione presente sul Database
      */
     public Reservation findById(int id) throws SQLException {
-        String query = "select * from reservation where reservationid = " + id;
+        String query = "select * from \"laZattera\".reservation where \"reservationID\" = " + id;
         return getReservation(query);
     }
 
@@ -128,8 +121,9 @@ public class ReservationDAO extends BaseDAO {
      * @param email: email del cliente relativo alle prenotazioni cercate
      */
     public void findByCustomerId(String email) throws SQLException {
-        String query = "select * from reservation a join reserved_assets b on a.reservationID = b.reservationID" +
-                " where a.customerID = " + email;
+        String query = "select * from \"laZattera\".reservation a join \"laZattera\".reserved_assets b on a.\"reservationID\"" +
+                " = b.\"reservationID\"" +
+                " where a.\"customerID\" = '" + email + "'";
         if(!showReservations(query)){
             throw new SQLException("Non sono state trovate prenotazioni per il cliente " + email);
         }
@@ -139,8 +133,9 @@ public class ReservationDAO extends BaseDAO {
      * Metodo che mostra a schermo le prenotazioni che matchano l'ID dell'ombrellone inserito
      * @param id: id dell'ombrellone relativo alle prenotazioni cercate
      */
+    //TODO da rivedere
     public void findByUmbrellaId(int id) throws SQLException {
-        String query = "select * from reservation where ombrelloneid = " + id;
+        String query = "select * from \"laZattera\".reservation where ombrelloneid = " + id;
         if(!showReservations(query)){
             throw new SQLException("Non sono state trovate prenotazioni per l'ombrellone #" + id);
         }
@@ -152,8 +147,9 @@ public class ReservationDAO extends BaseDAO {
      * @param start: data d'inizio dell'intervallo di ricerca
      * @param end: data di fine dell'intervallo di ricerca
      */
+    //TODO da modificare secondo nuovo schema
     public void findByDates(LocalDate start, LocalDate end) throws SQLException {
-        String query = "select * from reservation where end_date >= '" + start + "' and start_date <= '" + end + "'";
+        String query = "select * from \"laZattera\".reservation where end_date >= '" + start + "' and start_date <= '" + end + "'";
         if(!showReservations(query)){
             throw new SQLException("Non sono state trovate prenotazioni comprese tra " + start + " e " + end);
         }
@@ -163,7 +159,7 @@ public class ReservationDAO extends BaseDAO {
      * Metodo che mostra a schermo tutte le prenotazioni registrate sul database
      */
     public void findAll() throws SQLException {
-        String query = "select * from reservation";
+        String query = "select * from \"laZattera\".reservation";
         if(!showReservations(query)){
             System.err.println("Non ci sono prenotazioni attive");
         }
@@ -179,9 +175,9 @@ public class ReservationDAO extends BaseDAO {
         try(Statement stmt = conn.createStatement()){
             ResultSet rs = stmt.executeQuery(query);
             while(rs.next()){
-                r.setReservationId(rs.getInt("reservationid"));
+                r.setReservationId(rs.getInt("\"reservationID\""));
                 //TODO manca il corpo
-                r.setTotal_price(rs.getBigDecimal("total_price"));
+                //r.setTotal_price(rs.getBigDecimal("total_price"));
             }
         }
         if(r.getReservationId() == 0){
@@ -201,9 +197,9 @@ public class ReservationDAO extends BaseDAO {
             ResultSet rs = stmt.executeQuery(query);
             while(rs.next()){
                 Reservation r = new Reservation();
-                r.setReservationId(rs.getInt("reservationid"));
+                r.setReservationId(rs.getInt("\"reservationid\""));
                 //TODO manca il corpo
-                r.setTotal_price(rs.getBigDecimal("total_price"));
+                //r.setTotal_price(rs.getBigDecimal("total_price"));
                 rList.add(r);
             }
         }
@@ -221,7 +217,7 @@ public class ReservationDAO extends BaseDAO {
      * @param resCode: identificativo della prenotazione da cancellare
      */
     public void deleteReservation(int resCode) {
-        String query = "delete from reservation where reservationid = " + resCode;
+        String query = "delete from \"laZattera\".reservation where \"reservationID\" = " + resCode;
         try(Statement stmt = conn.createStatement()){
             stmt.execute(query);
             System.out.println("La prenotazione è stata cancellata!");

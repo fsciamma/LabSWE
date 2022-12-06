@@ -27,8 +27,6 @@ public class Reservation {
     public static Reservation createNewReservation(String customerEmail){
         Reservation res = new Reservation();
         res.setCustomer(customerEmail);
-
-        //completeMissingAttributes(res); //TODO gestire il caso in cui non c'è un ombrellone disponibile per le date selezionate
         return res;
     }
 

@@ -28,9 +28,9 @@ public class InvoiceDAO extends BaseDAO{
         try(Statement stmt = conn.createStatement()) {
             ResultSet rs = stmt.executeQuery(query);
             while(rs.next()){
-                i.setInvoiceID(rs.getInt("invoiceid"));
-                i.setInvoice_amount(rs.getBigDecimal("invoice_amount"));
-                i.setPaid(rs.getBoolean("is_paid"));
+                i.setInvoiceID(rs.getInt("\"reservationID\""));
+                i.setInvoice_amount(rs.getBigDecimal("total"));
+                i.setPaid(rs.getBoolean("paid"));
             }
         }
         if(i.getInvoiceID() == 0) {
@@ -52,9 +52,9 @@ public class InvoiceDAO extends BaseDAO{
             ResultSet rs = stmt.executeQuery(query);
             while(rs.next()){
                 Invoice i = new Invoice();
-                i.setInvoiceID(rs.getInt("invoiceid"));
-                i.setInvoice_amount(rs.getBigDecimal("invoice_amount"));
-                i.setPaid(rs.getBoolean("is_paid"));
+                i.setInvoiceID(rs.getInt("\"reservationID\""));
+                i.setInvoice_amount(rs.getBigDecimal("total"));
+                i.setPaid(rs.getBoolean("paid"));
                 iList.add(i);
             }
         }
@@ -72,16 +72,16 @@ public class InvoiceDAO extends BaseDAO{
      * @param i: Invoice da aggiungere al database
      */
     public void addNewInvoice(Invoice i){
-        String query = "select * from customerinvoice";
+        String query = "select * from \"laZattera\".invoice";
         ResultSet rs;
         try(Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE)){
             rs = stmt.executeQuery(query);
 
             rs.moveToInsertRow();
 
-            rs.updateInt("invoiceid", i.getInvoiceID());
-            rs.updateBigDecimal("invoice_amount", i.getInvoice_amount()/*new BigDecimal(Float.toString(i.getInvoice_amount()))*/); //TODO capire se conviene più usare BigDecimal o float
-            rs.updateBoolean("is_paid", i.isPaid());
+            rs.updateInt("\"reservationID\"", i.getInvoiceID());
+            rs.updateBigDecimal("total", i.getInvoice_amount());
+            rs.updateBoolean("paid", i.isPaid());
 
             rs.insertRow();
             rs.beforeFirst();
@@ -98,18 +98,19 @@ public class InvoiceDAO extends BaseDAO{
      * @return L'oggetto Invoice cercato
      */
     public Invoice findByInvoiceID(int id) throws SQLException{
-        String query = "select * from customerinvoice where invoiceid = " + id;
+        String query = "select * from \"laZattera\".invoice where \"reservationID\" = " + id;
         return getInvoice(query);
     }
 
     /**
      * Metodo che mostra a schermo le Invoice relative al Customer con l'ID richiesto
-     * @param id: ID del Customer relativo alle Invoice che voglio cercare
+     * @param email: ID del Customer relativo alle Invoice che voglio cercare
      */
-    public void findByCustomerID(int id) throws SQLException{
-        String query = "select * from customerinvoice where customerid = " + id;
+    //TODO può essere utile mantenere questo metodo?
+    public void findByCustomerID(String email) throws SQLException{
+        String query = "select * from \"laZattera\".invoice where customerid = '" + email + "'";
         if(!showInvoices(query)){
-            throw new SQLException("La ricevuta del cliente " + id + " non è stata trovata");
+            throw new SQLException("La ricevuta del cliente " + email + " non è stata trovata");
         }
     }
 
@@ -118,7 +119,7 @@ public class InvoiceDAO extends BaseDAO{
      * @param status: Variabile booleana che indica se cercare le Invoice pagate o quelle non pagate
      */
     public void findByPaymentStatus(boolean status) throws SQLException {
-        String query = "select * from customerinvoice where is_paid = " + status;
+        String query = "select * from \"laZattera\".invoice where paid = " + status;
         if(!showInvoices(query)){
             throw new SQLException("Non sono state trovate ricevute con questo stato");
         }
@@ -129,7 +130,7 @@ public class InvoiceDAO extends BaseDAO{
      * @param invCode: identificativo della ricevuta da cancellare
      */
     public void deleteInvoice(int invCode) {
-        String query = "delete from customerinvoice where invoiceid = " + invCode;
+        String query = "delete from \"laZattera\".invoice where \"reservationID\" = " + invCode;
         try(Statement stmt = conn.createStatement()){
             stmt.execute(query);
             System.out.println("La ricevuta è stata cancellata!");

@@ -38,7 +38,7 @@ public abstract class BusinessLogic {
                 case 1 -> customerOptions();
                 case 2 -> {
                     System.out.println("-- PRENOTAZIONE --");
-                    System.out.println("IN COSTRUZIONE...");
+
                 }
                 case 3 -> resortOptions();
                 case 4 -> {
@@ -138,11 +138,12 @@ public abstract class BusinessLogic {
                         }
                     }
                     try{
-                        cd.findByEMail(email);
+                        c = cd.findByEMail(email);
                     } catch (SQLException e) {
                         System.err.println("Cliente non trovato: i dati inseriti non risultano nel database");
                     }
                 }
+                //TODO cancellare findByName e metodi associati
                 case 2 -> {
                     boolean nameNotValid = true;
                     String fullName = "";
@@ -323,7 +324,7 @@ public abstract class BusinessLogic {
 
             // Aggiungo la reservation al DB per poter generare l'ID e creare l'Invoice
             ReservationDAO rd = ReservationDAO.getInstance();
-            int id = rd.updateReservationTables(newRes,start_date, end_date);
+            int id = rd.updateReservationTables(newRes, start_date, end_date);
 
             try{
                 addNewInvoice(newRes, id);
@@ -354,7 +355,7 @@ public abstract class BusinessLogic {
             ReservableAssetDAO rad = ReservableAssetDAO.getINSTANCE();
             System.out.println("\t0 - Nessuna preferenza");
             rad.showTypeTable();
-            fav_type = new Scanner(System.in).nextInt(); //Todo type check before assignment
+            fav_type = new Scanner(System.in).nextInt();
             System.out.println("E' stato richiesto un ombrellone del tipo: " + rad.fecthType(fav_type));
         } catch (SQLException s){
             System.err.println("Errore nella lettura della tabella");
@@ -843,7 +844,7 @@ public abstract class BusinessLogic {
                     System.out.println("Inserire codice cliente: ");
                     input = new Scanner(System.in);
                     try{
-                        id.findByCustomerID(input.nextInt());
+                        id.findByCustomerID(input.nextLine());
                     } catch (InputMismatchException i){
                         System.err.println("Inserire un codice numerico...");
                     } catch(SQLException s){
