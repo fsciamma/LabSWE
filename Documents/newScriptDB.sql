@@ -10,7 +10,7 @@ drop table if exists reserved_assets cascade;
 
 CREATE TABLE "laZattera".add_on
 (
-    "add_onID" integer NOT NULL,
+    "add_onID" integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
     add_on_type integer NOT NULL,
     "sub_classID" integer NOT NULL,
     CONSTRAINT add_on_pkey PRIMARY KEY ("add_onID"),
@@ -52,7 +52,7 @@ CREATE TABLE "laZattera".invoice
 
 CREATE TABLE "laZattera".reservable_asset
 (
-    "assetID" integer NOT NULL,
+    "assetID" integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
     asset_type integer NOT NULL,
     purchase_date date,
     last_revision date,
