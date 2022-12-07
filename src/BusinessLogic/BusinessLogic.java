@@ -36,10 +36,7 @@ public abstract class BusinessLogic {
             }
             switch (choice) {
                 case 1 -> customerOptions();
-                case 2 -> {
-                    System.out.println("-- PRENOTAZIONE --");
-
-                }
+                case 2 -> System.out.println("-- PRENOTAZIONE --"); //TODO
                 case 3 -> resortOptions();
                 case 4 -> {
                     System.out.println("-- CHIUSURA PROGRAMMA --");
@@ -54,8 +51,8 @@ public abstract class BusinessLogic {
      * Metodo che mostra un sotto-menù con le operazioni eseguibili riguardo a un cliente
      */
     private static void customerOptions(){
-        boolean cRunning = true;
-        while(cRunning) {
+        boolean running = true;
+        while(running) {
             Scanner cInput = new Scanner(System.in);
             System.out.println("\t-- CLIENTE --");
             System.out.println("\t 1 - Aggiungi nuovo cliente");
@@ -72,7 +69,7 @@ public abstract class BusinessLogic {
                 case 2 -> findCustomer();
                 case 3 -> {
                     System.out.println("Torna a pagina precedente...");
-                    cRunning = false;
+                    running = false;
                 }
                 default -> System.err.println("Opzione non valida...");
             }
@@ -85,106 +82,43 @@ public abstract class BusinessLogic {
     private static void addNewCustomer(){
         CustomerDAO cd = CustomerDAO.getINSTANCE(); //TODO qui andrebbe la factory
         Customer newC = Customer.createNewCustomer();
-        cd.addNewCustomer(newC);
-        System.out.println("Vuoi effettuare una prenotazione? (Y/N)");
-        Scanner input = new Scanner(System.in);
-        String line = input.nextLine();
-        if ("Y".equals(line) || "y".equals(line)) { // Se viene inserito qualsiasi altro carattere esce dall'if
-            try{
-                newC = cd.findByInfo(newC.get_first_name() + " " + newC.get_last_name(), newC.get_email());
-            } catch (SQLException s){
-                System.err.println("A quanto pare il cliente non è stato salvato...");
+        try {
+            cd.addNewCustomer(newC);
+            System.out.println("Vuoi effettuare una prenotazione? (Y/N)");
+            Scanner input = new Scanner(System.in);
+            String line = input.nextLine();
+            if ("Y".equals(line) || "y".equals(line)) { // Se viene inserito qualsiasi altro carattere esce dall'if
+                addNewReservation(newC.get_email());
+            } else {
+                System.out.println("Non è stata aggiunta nessuna prenotazione.");
             }
-            addNewReservation(newC.get_email());
-        } else {
-            System.out.println("Non è stata aggiunta nessuna prenotazione.");
+        } catch (SQLException s){
+            System.err.println(s.getMessage());
         }
-
     }
 
     /**
      * Metodo che permette di scegliere come eseguire la ricerca di un cliente nel database; se il cliente è presente nel database, invoca anche il metodo che permette di modificarne i campi
      */
     private static void findCustomer() {
-        boolean findCRunning = true;
-        Customer c = new Customer();
-        while(findCRunning) {
-            System.out.println("\t Cercare per:");
-            System.out.println("\t 1 - Email");
-            System.out.println("\t 2 - Dati cliente");
-            System.out.println("\t 3 - Torna indietro");
-            Scanner findC_input = new Scanner(System.in);
-            Scanner customerData;
-            CustomerDAO cd = CustomerDAO.getINSTANCE();
-            int choice;
-            try{
-                choice = findC_input.nextInt();
-            } catch(InputMismatchException i){
-                choice = 0;
+        CustomerDAO cd = CustomerDAO.getINSTANCE();
+        String email = "";
+        boolean emailNotValid = true;
+        while(emailNotValid){
+            System.out.println("Inserire e-mail cliente:");
+            email = new Scanner(System.in).nextLine();
+            if(email.matches("^(.+)@(.+).(.+)$")){
+                emailNotValid = false;
             }
-            switch (choice) {
-                case 1 -> {
-                    boolean emailNotValid = true;
-                    String email = "";
-                    while(emailNotValid){
-                        System.out.println("Inserire dati cliente (e-mail):");
-                        customerData = new Scanner(System.in);
-                        email = customerData.nextLine();
-                        if(email.matches("^(.+)@(.+).(.+)$")){
-                            emailNotValid = false;
-                        }
-                        else{
-                            System.err.println("Indirizzo e-mail non valido...");
-                        }
-                    }
-                    try{
-                        c = cd.findByEMail(email);
-                    } catch (SQLException e) {
-                        System.err.println("Cliente non trovato: i dati inseriti non risultano nel database");
-                    }
-                }
-                //TODO cancellare findByName e metodi associati
-                case 2 -> {
-                    boolean nameNotValid = true;
-                    String fullName = "";
-                    while(nameNotValid){
-                        System.out.println("Inserire dati cliente (formato: Nome Cognome):");
-                        customerData = new Scanner(System.in);
-                        fullName = customerData.nextLine();
-                        if(fullName.matches("^([A-ZÀ-Ü^×]){1}([a-zà-ü^÷])*+\\s([A-ZÀ-Ü^×]){1}([a-zà-ü^÷])*+$")){ //controlla che le credenziali vengano passate nel formato corretto; NB non sono accettati nomi o cognomi composti da una sola lettera
-                            nameNotValid = false;
-                        } else {
-                            System.err.println("Formato nome non valido...");
-                        }
-                    }
-                    boolean emailNotValid = true;
-                    String email = "";
-                    while(emailNotValid){
-                        System.out.println("Inserire dati cliente (e-mail):");
-                        customerData = new Scanner(System.in);
-                        email = customerData.nextLine();
-                        if(email.matches("^(.+)@(.+).(.+)$")){
-                            emailNotValid = false;
-                        }
-                        else{
-                            System.err.println("Indirizzo e-mail non valido...");
-                        }
-                    }
-                    try{
-                        c = cd.findByInfo(fullName, email);
-                    } catch (SQLException e){
-                        System.err.println("Cliente non trovato: i dati inseriti non risultano nel database");
-                    }
-                }
-                case 3 -> {
-                    System.out.println("Torna a pagina precedente...");
-                    findCRunning = false;
-                }
-                default -> System.err.println("Opzione non valida...");
+            else{
+                System.err.println("Indirizzo e-mail non valido...");
             }
-            if(c.get_email() != null){
-                customerMenu(c);
-            }
+        }
+        try{
+            Customer c = cd.findByEMail(email);
+            customerMenu(c);
+        } catch (SQLException s) {
+            System.err.println(s.getMessage());
         }
     }
 
@@ -349,7 +283,7 @@ public abstract class BusinessLogic {
 
 
     private static int chooseType() {
-        int fav_type = 0;
+        int fav_type;
         try{
             System.out.println("Inserire il numero del tipo selezionato: ");
             ReservableAssetDAO rad = ReservableAssetDAO.getINSTANCE();
@@ -569,7 +503,7 @@ public abstract class BusinessLogic {
             switch(choice){
                 case 1 -> {
                     boolean emailNotValid = true;
-                    String email = "";
+                    String email;
                     while(emailNotValid){
                         System.out.println("Inserire email cliente:");
                         customerData = new Scanner(System.in);
