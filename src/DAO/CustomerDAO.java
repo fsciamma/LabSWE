@@ -24,10 +24,11 @@ public class CustomerDAO extends BaseDAO {
     /**
      * Permette di aggiungere un nuovo cliente al database
      * @param newC Il Customer da inserire nel database
+     * @throws SQLException lancia un'eccezione se nel database esiste già un cliente registrato con la stessa e-mail
      */
-    public void addNewCustomer(Customer newC){
-        try {
-            findHomonym(newC);
+    public void addNewCustomer(Customer newC) throws SQLException{
+        try { //TODO probabilmente si può togliere questo try catch perché la runtime exception era lanciata da findHomonym()
+            //findHomonym(newC);
             //prosegue se non ha trovato un customer con gli stessi dati
             String query = "select * from \"laZattera\".customer";
             ResultSet rs;
@@ -43,8 +44,6 @@ public class CustomerDAO extends BaseDAO {
                 rs.insertRow();
                 rs.beforeFirst();
 
-            } catch(SQLException e){
-                System.err.println(e.getMessage());
             }
         } catch (RuntimeException e) {
             System.err.println(e.getMessage());
