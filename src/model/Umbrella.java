@@ -12,7 +12,8 @@ public class Umbrella extends ReservableAsset{
     public Umbrella() {
     }
 
-    public Umbrella(int umbrellaId, BigDecimal daily_price) {
+    public Umbrella(int resId, int umbrellaId, BigDecimal daily_price) {
+        setResId(resId);
         this.umbrellaId = umbrellaId;
         this.daily_price = daily_price;
     }

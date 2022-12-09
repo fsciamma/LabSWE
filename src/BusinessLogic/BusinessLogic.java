@@ -252,7 +252,7 @@ public abstract class BusinessLogic {
             // Faccio scegliere al cliente il reservable asset che si vuole prenotare e lo aggiungo alla prenotazione
             ReservableAsset the_chosen_one = chooseReservableAsset(start_date, end_date);
             // Calcolo del prezzo
-            int d = (int) DAYS.between(end_date, start_date);
+            int d = (int) DAYS.between(start_date, end_date);
             //TODO aggiungere successivamente la scelta degli addon
             newRes.updateReservation(the_chosen_one, d);
 
@@ -264,7 +264,7 @@ public abstract class BusinessLogic {
                 addNewInvoice(newRes, id);
             } catch (RuntimeException r){
                 System.err.println(r.getMessage());
-                rd.deleteReservation(newRes.getReservationId());
+                rd.deleteReservation(id);
             }
             System.out.println("Prenotazione effettuata!");
         } catch(RuntimeException | SQLException r){

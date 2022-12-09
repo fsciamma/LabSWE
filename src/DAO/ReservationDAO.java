@@ -43,7 +43,7 @@ public class ReservationDAO extends BaseDAO {
      * @return id della prenotazione da passare alla tabella reserved_assets
      */
     public int addNewReservation(Reservation newR){
-        String insertStatement = "INSERT INTO \"laZattera\".reservation (\"customerID\") values('?') " +
+        String insertStatement = "INSERT INTO \"laZattera\".reservation (\"customerID\") values (?) " +
                 "RETURNING \"reservationID\"";
         int id = 0;
         ResultSet rs;
@@ -53,7 +53,7 @@ public class ReservationDAO extends BaseDAO {
 
             rs = stmt.getResultSet();
             rs.next();
-            id = rs.getInt("\"reservationID\"");
+            id = rs.getInt("reservationID");
 
         } catch(SQLException e){
             System.err.println(e.getMessage());
@@ -72,7 +72,7 @@ public class ReservationDAO extends BaseDAO {
      */
     public int addNewReserved_asset(ReservableAsset r, int id, LocalDate sd, LocalDate ed){
         String insertStatement = "INSERT INTO \"laZattera\".reserved_assets (\"reservationID\", \"assetID\", start_date, end_date) " +
-                "values('?', '?', '?', '?') " +
+                "values(?, ?, ?, ?) " +
                 "RETURNING \"reservedID\"";
         int new_id = 0;
         ResultSet rs;
@@ -86,7 +86,7 @@ public class ReservationDAO extends BaseDAO {
 
             rs = stmt.getResultSet();
             rs.next();
-            new_id = rs.getInt("\"reservedID\"");
+            new_id = rs.getInt("reservedID");
         } catch(SQLException e){
             System.err.println(e.getMessage());
         }
@@ -175,7 +175,7 @@ public class ReservationDAO extends BaseDAO {
         try(Statement stmt = conn.createStatement()){
             ResultSet rs = stmt.executeQuery(query);
             while(rs.next()){
-                r.setReservationId(rs.getInt("\"reservationID\""));
+                r.setReservationId(rs.getInt("reservationID"));
                 //TODO manca il corpo
                 //r.setTotal_price(rs.getBigDecimal("total_price"));
             }
@@ -197,7 +197,7 @@ public class ReservationDAO extends BaseDAO {
             ResultSet rs = stmt.executeQuery(query);
             while(rs.next()){
                 Reservation r = new Reservation();
-                r.setReservationId(rs.getInt("\"reservationid\""));
+                r.setReservationId(rs.getInt("reservationID"));
                 //TODO manca il corpo
                 //r.setTotal_price(rs.getBigDecimal("total_price"));
                 rList.add(r);

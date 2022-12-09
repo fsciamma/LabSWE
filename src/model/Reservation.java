@@ -14,9 +14,10 @@ public class Reservation {
     private String customer;
     private ArrayList<ReservableAsset> reserved_assets;
     private int invoiceID;
-    private BigDecimal price;
+    private BigDecimal price = BigDecimal.ZERO;
 
     public Reservation(){
+        this.reserved_assets = new ArrayList<>();
     }
 
     /**

@@ -28,7 +28,7 @@ public class InvoiceDAO extends BaseDAO{
         try(Statement stmt = conn.createStatement()) {
             ResultSet rs = stmt.executeQuery(query);
             while(rs.next()){
-                i.setInvoiceID(rs.getInt("\"reservationID\""));
+                i.setInvoiceID(rs.getInt("reservationID"));
                 i.setInvoice_amount(rs.getBigDecimal("total"));
                 i.setPaid(rs.getBoolean("paid"));
             }
@@ -52,7 +52,7 @@ public class InvoiceDAO extends BaseDAO{
             ResultSet rs = stmt.executeQuery(query);
             while(rs.next()){
                 Invoice i = new Invoice();
-                i.setInvoiceID(rs.getInt("\"reservationID\""));
+                i.setInvoiceID(rs.getInt("reservationID"));
                 i.setInvoice_amount(rs.getBigDecimal("total"));
                 i.setPaid(rs.getBoolean("paid"));
                 iList.add(i);
@@ -79,7 +79,7 @@ public class InvoiceDAO extends BaseDAO{
 
             rs.moveToInsertRow();
 
-            rs.updateInt("\"reservationID\"", i.getInvoiceID());
+            rs.updateInt("reservationID", i.getInvoiceID());
             rs.updateBigDecimal("total", i.getInvoice_amount());
             rs.updateBoolean("paid", i.isPaid());
 
