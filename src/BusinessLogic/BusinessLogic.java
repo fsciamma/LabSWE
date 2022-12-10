@@ -243,22 +243,39 @@ public abstract class BusinessLogic {
         try{
             //TODO rivedere un po' tutte le eccezioni in questo pezzo di codice
             Reservation newRes = Reservation.createNewReservation(customerEmail);
-            //TODO incapsulare in un ciclo
 
-            // Inizio chiedendo al cliente di inserire le date
-            LocalDate start_date = setStart_date();
-            LocalDate end_date = setEnd_date(start_date);
+            //ArrayList<LocalDate[]> dates = new ArrayList<>();
+            ArrayList<Integer> added = new ArrayList<>();
+            ReservationDAO rd = ReservationDAO.getInstance();
+            boolean selecting = true;
 
-            // Faccio scegliere al cliente il reservable asset che si vuole prenotare e lo aggiungo alla prenotazione
-            ReservableAsset the_chosen_one = chooseReservableAsset(start_date, end_date);
-            // Calcolo del prezzo
-            int d = (int) DAYS.between(start_date, end_date);
-            //TODO aggiungere successivamente la scelta degli addon
-            newRes.updateReservation(the_chosen_one, d);
+            do {
+                // Inizio chiedendo al cliente di inserire le date
+                //LocalDate[] a = new LocalDate[2];
+                LocalDate start_date = setStart_date();
+                LocalDate end_date = setEnd_date(start_date);
+
+                // Faccio scegliere al cliente il reservable asset che si vuole prenotare e lo aggiungo alla prenotazione
+                // inoltre aggiungo il reserved asset alla lista, tenendo traccia di tutti i reserved aggiunti
+                ReservableAsset the_chosen_one = chooseReservableAsset(start_date, end_date); //Se fallsice deve uscire
+                added.add(rd.addNewReserved_asset(the_chosen_one, start_date, end_date));
+
+                // Calcolo del prezzo
+                int d = (int) DAYS.between(start_date, end_date);
+                //TODO aggiungere successivamente la scelta degli addon
+                newRes.updateReservation(the_chosen_one, d);
+
+                System.out.println("Vuoi aggiungere altro? (Y/N)");
+                Scanner input = new Scanner(System.in);
+                String line = input.nextLine();
+                if ("N".equals(line) || "n".equals(line)) { // Se viene inserito qualsiasi altro carattere esce dall'if
+                    selecting = false;
+                }
+            } while(selecting);
+
 
             // Aggiungo la reservation al DB per poter generare l'ID e creare l'Invoice
-            ReservationDAO rd = ReservationDAO.getInstance();
-            int id = rd.updateReservationTables(newRes, start_date, end_date);
+            int id = rd.updateReservationTables(newRes, added);
 
             try{
                 addNewInvoice(newRes, id);
