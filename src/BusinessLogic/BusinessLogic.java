@@ -244,26 +244,35 @@ public abstract class BusinessLogic {
             //TODO rivedere un po' tutte le eccezioni in questo pezzo di codice
             Reservation newRes = Reservation.createNewReservation(customerEmail);
 
-            //ArrayList<LocalDate[]> dates = new ArrayList<>();
             ArrayList<Integer> added = new ArrayList<>();
             ReservationDAO rd = ReservationDAO.getInstance();
             boolean selecting = true;
 
             do {
                 // Inizio chiedendo al cliente di inserire le date
-                //LocalDate[] a = new LocalDate[2];
                 LocalDate start_date = setStart_date();
                 LocalDate end_date = setEnd_date(start_date);
 
                 // Faccio scegliere al cliente il reservable asset che si vuole prenotare e lo aggiungo alla prenotazione
                 // inoltre aggiungo il reserved asset alla lista, tenendo traccia di tutti i reserved aggiunti
-                ReservableAsset the_chosen_one = chooseReservableAsset(start_date, end_date); //Se fallsice deve uscire
-                added.add(rd.addNewReserved_asset(the_chosen_one, start_date, end_date));
+                try {
+                    ReservableAsset the_chosen_one = chooseReservableAsset(start_date, end_date);
+                    added.add(rd.addNewReserved_asset(the_chosen_one, start_date, end_date));
 
-                // Calcolo del prezzo
-                int d = (int) DAYS.between(start_date, end_date);
-                //TODO aggiungere successivamente la scelta degli addon
-                newRes.updateReservation(the_chosen_one, d);
+                    // Calcolo del prezzo
+                    int d = ((int) DAYS.between(start_date, end_date)) + 1;
+                    //TODO aggiungere successivamente la scelta degli addon
+                    newRes.updateReservation(the_chosen_one, d);
+
+                } catch (SQLException s) {
+                    //Rollback: siccome ho già inserito su DB i reservable asset scelti, se la procedura fallisce devo
+                    //cancellare ciò che ho aggiunto fino ad ora
+                    System.err.println(s.getMessage());
+                    for(Integer i: added){
+                        rd.deleteReservedAsset(i);
+                    }
+                    throw new RuntimeException("Errore nell'aggiunta degli asset; annullamento operazione");
+                }
 
                 System.out.println("Vuoi aggiungere altro? (Y/N)");
                 Scanner input = new Scanner(System.in);
@@ -273,18 +282,24 @@ public abstract class BusinessLogic {
                 }
             } while(selecting);
 
-
             // Aggiungo la reservation al DB per poter generare l'ID e creare l'Invoice
             int id = rd.updateReservationTables(newRes, added);
 
             try{
                 addNewInvoice(newRes, id);
             } catch (RuntimeException r){
+                //Rollback: devo cancellare tutto a partire dagli add on fino all'invoice
                 System.err.println(r.getMessage());
+                // Cancello tutti i reservable asset associati
+                for(Integer i: added){
+                    rd.deleteReservedAsset(i);
+                }
+                // Cancello la prenotazione effettuata
                 rd.deleteReservation(id);
+                throw new RuntimeException("Errore nell'aggiunta della ricevuta; annullamento operazione");
             }
             System.out.println("Prenotazione effettuata!");
-        } catch(RuntimeException | SQLException r){
+        } catch(RuntimeException r){
             System.err.println(r.getMessage());
         }
     }

@@ -27,16 +27,22 @@ public class ReservationDAO extends BaseDAO {
      * Aggiunge una reservation al database aggiornando tutte le tabelle influenzate
      * @param r : reservation, date
      */
-    public int updateReservationTables(Reservation r, ArrayList<Integer> reserved_assets){
-        // Aggiornamento tabella reservation
-        int id = addNewReservation(r);
-        ArrayList<ReservableAsset> ra = r.getReserved_assets();
-        for (Integer i: reserved_assets) {
-            // Aggiornamento tabella reserved_assets
-            updateReservedAssetReservationIDValue(i, id);
-            //TODO ciclo for per gli addon di ciascun reservable asset
+    public int updateReservationTables(Reservation r, ArrayList<Integer> reserved_assets) {
+        int id = 0;
+        try{
+            // Aggiornamento tabella reservation
+            id = addNewReservation(r);
+            for (Integer i: reserved_assets) {
+                // Aggiornamento tabella reserved_assets
+                updateReservedAssetReservationIDValue(i, id);
+                //TODO ciclo for per gli addon di ciascun reservable asset
+            }
+            return id;
+        } catch (SQLException s) {
+            if(id > 0)
+                deleteReservation(id);
+            throw new RuntimeException("Errore nell'aggiornamento delle tabelle; annulamento operazione");
         }
-        return id;
     }
 
     /**
@@ -44,7 +50,7 @@ public class ReservationDAO extends BaseDAO {
      * @param newR La Reservation che deve essere inserita nel database
      * @return id della prenotazione da passare alla tabella reserved_assets
      */
-    public int addNewReservation(Reservation newR){
+    public int addNewReservation(Reservation newR) throws SQLException{
         String insertStatement = "INSERT INTO \"laZattera\".reservation (\"customerID\") values (?) " +
                 "RETURNING \"reservationID\"";
         int id = 0;
@@ -57,8 +63,6 @@ public class ReservationDAO extends BaseDAO {
             rs.next();
             id = rs.getInt("reservationID");
 
-        } catch(SQLException e){
-            System.err.println(e.getMessage());
         }
         //TODO inserire un eccezione se id risulta essere ancora 0
         return id;
@@ -71,7 +75,7 @@ public class ReservationDAO extends BaseDAO {
      * @param ed: data di fine della prenotazione
      * @return : id dell'assegnazione
      */
-    public int addNewReserved_asset(ReservableAsset r, LocalDate sd, LocalDate ed){
+    public int addNewReserved_asset(ReservableAsset r, LocalDate sd, LocalDate ed) throws SQLException{
         String insertStatement = "INSERT INTO \"laZattera\".reserved_assets (\"assetID\", start_date, end_date) " +
                 "values(?, ?, ?) " +
                 "RETURNING \"reservedID\"";
@@ -87,8 +91,6 @@ public class ReservationDAO extends BaseDAO {
             rs = stmt.getResultSet();
             rs.next();
             new_id = rs.getInt("reservedID");
-        } catch(SQLException e){
-            System.err.println(e.getMessage());
         }
         //TODO inserire un eccezione se id risulta essere ancora 0
         return new_id;
@@ -207,7 +209,7 @@ public class ReservationDAO extends BaseDAO {
      * @param reservedCode
      * @param reservationCode
      */
-    public void updateReservedAssetReservationIDValue(int reservedCode, int reservationCode){
+    public void updateReservedAssetReservationIDValue(int reservedCode, int reservationCode) throws SQLException {
         String query = "select * from \"laZattera\".reserved_assets where \"reservedID\" = " + reservedCode;
         try(Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE)){
             ResultSet rs = stmt.executeQuery(query);
@@ -215,8 +217,6 @@ public class ReservationDAO extends BaseDAO {
                 rs.updateInt("reservationID", reservationCode);
                 rs.updateRow();
             }
-        } catch (SQLException s){
-            System.err.println(s.getMessage());
         }
     }
 
@@ -235,9 +235,8 @@ public class ReservationDAO extends BaseDAO {
         }
     }
 
-    public void deleteReservedAsset(int resCode, int assetCode, LocalDate start) {
-        String query = "delete from \"laZattera\".reserved_assets where \"reservationID\" = " + resCode + " and " +
-                "\"assetID\" = " + assetCode + " and start_date = '" + start + "'";
+    public void deleteReservedAsset(int resCode) {
+        String query = "delete from \"laZattera\".reserved_assets where \"reservedID\" = " + resCode;
         try(Statement stmt = conn.createStatement()){
             stmt.executeQuery(query);
             System.out.println("L'asset è stato cancellato correttamente");
