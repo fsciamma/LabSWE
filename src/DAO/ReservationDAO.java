@@ -39,6 +39,9 @@ public class ReservationDAO extends BaseDAO {
             }
             return id;
         } catch (SQLException s) {
+            for(Integer i: reserved_assets){
+                deleteReservedAsset(i);
+            }
             if(id > 0)
                 deleteReservation(id);
             throw new RuntimeException("Errore nell'aggiornamento delle tabelle; annulamento operazione");

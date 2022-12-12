@@ -99,33 +99,6 @@ public class AssetDAO extends  BaseDAO{
             }
         }
     }
-    //public ArrayList<Integer> getAvailableAssets(int type){
-    //    ArrayList<Integer> availableUmbrellas;
-//
-    //    String query = "select *" +
-    //            " from reservable_asset join availableUmbrellas on ombrellone.ombrelloneid = availableUmbrellas.ombrelloneid";
-    //    if(type != 0){
-    //        query = query + " where ombrellone.tipo_ombrellone = " + type;
-    //    }
-    //    query = query + " order by ombrellone.ombrelloneid asc";
-    //    availableUmbrellas = printAvailableAssets(query);
-    //    return availableUmbrellas;
-    //}
-//
-    //private ArrayList<Integer> printAvailableAssets(String query){
-    //    ArrayList<Integer> availableAssets = new ArrayList<>();
-    //    try(Statement stmt = conn.createStatement()){
-    //        ResultSet rs = stmt.executeQuery(query);
-    //        while(rs.next()){
-    //            availableUmbrellas.add(rs.getInt("ombrelloneid"));
-    //            System.out.println(rs.getInt("ombrelloneid"));
-    //        }
-    //    } catch (SQLException e) {
-    //        throw new RuntimeException(e);
-    //    }
-    //    return availableUmbrellas;
-    //}
-//
 
     public void showTypeTable() throws SQLException {
         String query = "select * from \"laZattera\".reservable_type";
