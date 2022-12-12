@@ -243,31 +243,63 @@ public abstract class BusinessLogic {
         try{
             //TODO rivedere un po' tutte le eccezioni in questo pezzo di codice
             Reservation newRes = Reservation.createNewReservation(customerEmail);
-            //TODO incapsulare in un ciclo
 
-            // Inizio chiedendo al cliente di inserire le date
-            LocalDate start_date = setStart_date();
-            LocalDate end_date = setEnd_date(start_date);
+            ArrayList<Integer> added = new ArrayList<>();
+            ReservationDAO rd = ReservationDAO.getInstance();
+            boolean selecting = true;
 
-            // Faccio scegliere al cliente il reservable asset che si vuole prenotare e lo aggiungo alla prenotazione
-            Asset the_chosen_one = chooseReservableAsset(start_date, end_date);
-            // Calcolo del prezzo
-            int d = (int) DAYS.between(end_date, start_date);
-            //TODO aggiungere successivamente la scelta degli addon
-            newRes.updateReservation(the_chosen_one, d);
+            do {
+                // Inizio chiedendo al cliente di inserire le date
+                LocalDate start_date = setStart_date();
+                LocalDate end_date = setEnd_date(start_date);
+
+                // Faccio scegliere al cliente il reservable asset che si vuole prenotare e lo aggiungo alla prenotazione
+                // inoltre aggiungo il reserved asset alla lista, tenendo traccia di tutti i reserved aggiunti
+                try {
+                    Asset the_chosen_one = chooseReservableAsset(start_date, end_date);
+                    added.add(rd.addNewReserved_asset(the_chosen_one, start_date, end_date));
+
+                    // Calcolo del prezzo
+                    int d = ((int) DAYS.between(start_date, end_date)) + 1;
+                    //TODO aggiungere successivamente la scelta degli addon
+                    newRes.updateReservation(the_chosen_one, d);
+
+                } catch (SQLException s) {
+                    //Rollback: siccome ho già inserito su DB i reservable asset scelti, se la procedura fallisce devo
+                    //cancellare ciò che ho aggiunto fino ad ora
+                    System.err.println(s.getMessage());
+                    for(Integer i: added){
+                        rd.deleteReservedAsset(i);
+                    }
+                    throw new RuntimeException("Errore nell'aggiunta degli asset; annullamento operazione");
+                }
+
+                System.out.println("Vuoi aggiungere altro? (Y/N)");
+                Scanner input = new Scanner(System.in);
+                String line = input.nextLine();
+                if ("N".equals(line) || "n".equals(line)) { // Se viene inserito qualsiasi altro carattere esce dall'if
+                    selecting = false;
+                }
+            } while(selecting);
 
             // Aggiungo la reservation al DB per poter generare l'ID e creare l'Invoice
-            ReservationDAO rd = ReservationDAO.getInstance();
-            int id = rd.updateReservationTables(newRes, start_date, end_date);
+            int id = rd.updateReservationTables(newRes, added);
 
             try{
                 addNewInvoice(newRes, id);
             } catch (RuntimeException r){
+                //Rollback: devo cancellare tutto a partire dagli add on fino all'invoice
                 System.err.println(r.getMessage());
-                rd.deleteReservation(newRes.getReservationId());
+                // Cancello tutti i reservable asset associati
+                for(Integer i: added){
+                    rd.deleteReservedAsset(i);
+                }
+                // Cancello la prenotazione effettuata
+                rd.deleteReservation(id);
+                throw new RuntimeException("Errore nell'aggiunta della ricevuta; annullamento operazione");
             }
             System.out.println("Prenotazione effettuata!");
-        } catch(RuntimeException | SQLException r){
+        } catch(RuntimeException r){
             System.err.println(r.getMessage());
         }
     }

@@ -14,7 +14,8 @@ public class Gazebo extends Asset {
     public Gazebo(){
     }
 
-    public Gazebo(int gazeboId, BigDecimal daily_price) {
+    public Gazebo(int resId, int gazeboId, BigDecimal daily_price) {
+        setResId(resId);
         this.gazeboId = gazeboId;
         this.daily_price = daily_price;
     }

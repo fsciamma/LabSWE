@@ -55,30 +55,31 @@ public class AssetDAO extends  BaseDAO{
      * @return RA: Istanza del RA cercato dalla query nel Database
      */
     public Asset getRA(String query) throws SQLException {
-        int type = 0, sub_classID = 0;
+        int type = 0, resID = 0, sub_classID = 0;
         BigDecimal price = BigDecimal.ZERO;
         try(Statement stmt = conn.createStatement()){
             ResultSet rs = stmt.executeQuery(query);
             while(rs.next()){ //TODO nb: la query passata deve essere un join tra ReservableAsset e ReservableType
+                resID = rs.getInt("assetID");
                 type = rs.getInt("asset_type");
-                sub_classID = rs.getInt("\"sub_classID\"");
+                sub_classID = rs.getInt("sub_classID");
                 price = rs.getBigDecimal("price");
             }
         }
 
         switch (type){
             case 1 -> {
-                return new Umbrella(sub_classID, price);
+                return new Umbrella(resID, sub_classID, price);
             }
             case 2 -> {
-                return new Gazebo(sub_classID, price);
+                return new Gazebo(resID, sub_classID, price);
             }
             default -> throw new SQLException("L'asset cercato non è stato trovato");
         }
     }
 
     public Asset findByID(int ID) throws SQLException {
-        String query = "select * from \"laZattera\".reservable_asset a join reservable_type b on a.asset_type = b.\"typeID\"" +
+        String query = "select * from \"laZattera\".reservable_asset a join \"laZattera\".reservable_type b on a.asset_type = b.\"typeID\"" +
                 " where \"assetID\" = " + ID;
         return getRA(query);
     }
@@ -90,6 +91,7 @@ public class AssetDAO extends  BaseDAO{
         try(Statement stmt = conn.createStatement()){
             ResultSet rs = stmt.executeQuery(query);
             if(rs.isBeforeFirst()){
+                rs.next();
                 return rs.getString("type_name");
             }
             else {
@@ -139,17 +141,17 @@ public class AssetDAO extends  BaseDAO{
     }
 
     public ArrayList<Integer> checkAvailability(LocalDate start_date, LocalDate end_date, int fav_type) {
-        String view_query = "create or replace view availableAssets as select assetID from \"laZattera\".reservable_asset " +
+        String view_query = "create or replace view \"laZattera\".availableAssets as select \"assetID\" from \"laZattera\".reservable_asset " +
                 "except " +
-                "select assetID from \"laZattera\".reserved_assets where start_date <= '" + end_date + "' and end_date >= '" + start_date + "'";
+                "select \"assetID\" from \"laZattera\".reserved_assets where start_date <= '" + end_date + "' and end_date >= '" + start_date + "'";
 
-        String query = "select \"assetID\", asset_type, type_name, \"sub_classID\", price from \"laZattera\".availableAssets a " +
-                " right join \"laZattera\".reservable_asset b on a.\"assetID\" = b.\"assetID\"" +
+        String query = "select a.\"assetID\", asset_type, type_name, \"sub_classID\", price from \"laZattera\".availableAssets a " +
+                " left join \"laZattera\".reservable_asset b on a.\"assetID\" = b.\"assetID\"" +
                 " join \"laZattera\".reservable_type c on b.asset_type = c.\"typeID\"";
         if(fav_type > 0){
             query = query + " where b.asset_type = " + fav_type;
         }
-
+        query = query + "order by \"assetID\"";
         ArrayList <Integer> available = new ArrayList<>();
 
         try(Statement stmt = conn.createStatement()){
@@ -159,9 +161,9 @@ public class AssetDAO extends  BaseDAO{
             }
             ResultSet rs = stmt.executeQuery(query);
             while(rs.next()){
-                int ID = rs.getInt("\"assetID\"");
+                int ID = rs.getInt("assetID");
                 String name = rs.getString("type_name");
-                int sub = rs.getInt("\"sub_classID\"");
+                int sub = rs.getInt("sub_classID");
                 BigDecimal price = rs.getBigDecimal("price");
                 System.out.println("Seleziona " + ID + " per: " + name + " - N°" + sub + " - " + price + "€ al giorno");
                 available.add(ID);
