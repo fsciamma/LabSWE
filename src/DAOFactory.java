@@ -19,9 +19,6 @@ public class DAOFactory {
         return ReservationDAO.getInstance();
     }
 
-    public UmbrellaTypeDAO createUtypeDAO(){
-        return UmbrellaTypeDAO.getInstance();
-    }
 
     public InvoiceDAO createInvoiceDAO(){
         return InvoiceDAO.getINSTANCE();
