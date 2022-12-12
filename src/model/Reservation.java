@@ -12,8 +12,7 @@ import java.util.Scanner;
 public class Reservation {
     private int reservationID;
     private String customer;
-    private ArrayList<ReservableAsset> reserved_assets;
-    private int invoiceID;
+    private ArrayList<Asset> reserved_assets;
     private BigDecimal price;
 
     public Reservation(){
@@ -124,12 +123,12 @@ public class Reservation {
         return customer;
     }
 
-    public void updateReservation(ReservableAsset r, int days){
+    public void updateReservation(Asset r, int days){
         this.reserved_assets.add(r);
         setTotal_price(getTotal_price().add(r.getPrice().multiply(BigDecimal.valueOf(days))));
     }
 
-    public ArrayList<ReservableAsset> getReserved_assets(){
+    public ArrayList<Asset> getReserved_assets(){
         return reserved_assets;
     }
 

@@ -2,7 +2,7 @@ package model;
 
 import java.math.BigDecimal;
 
-public class ReservableAsset {
+public class Asset {
     private int resId;
 
     public int getResId() {

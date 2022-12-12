@@ -3,7 +3,7 @@ package model;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 
-public class Gazebo extends ReservableAsset{
+public class Gazebo extends Asset {
 
     private int gazeboId;
 

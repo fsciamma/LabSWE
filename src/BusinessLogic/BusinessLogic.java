@@ -250,7 +250,7 @@ public abstract class BusinessLogic {
             LocalDate end_date = setEnd_date(start_date);
 
             // Faccio scegliere al cliente il reservable asset che si vuole prenotare e lo aggiungo alla prenotazione
-            ReservableAsset the_chosen_one = chooseReservableAsset(start_date, end_date);
+            Asset the_chosen_one = chooseReservableAsset(start_date, end_date);
             // Calcolo del prezzo
             int d = (int) DAYS.between(end_date, start_date);
             //TODO aggiungere successivamente la scelta degli addon
@@ -272,8 +272,8 @@ public abstract class BusinessLogic {
         }
     }
 
-    private static ReservableAsset chooseReservableAsset(LocalDate start_date, LocalDate end_date) throws SQLException {
-        ReservableAssetDAO rad = ReservableAssetDAO.getINSTANCE();
+    private static Asset chooseReservableAsset(LocalDate start_date, LocalDate end_date) throws SQLException {
+        AssetDAO rad = AssetDAO.getINSTANCE();
         System.out.println("Seleziona il tipo di Prenotabile preferito: ");
         int chosen_type = chooseType();
         ArrayList<Integer> av = rad.checkAvailability(start_date, end_date, chosen_type);
@@ -286,7 +286,7 @@ public abstract class BusinessLogic {
         int fav_type;
         try{
             System.out.println("Inserire il numero del tipo selezionato: ");
-            ReservableAssetDAO rad = ReservableAssetDAO.getINSTANCE();
+            AssetDAO rad = AssetDAO.getINSTANCE();
             System.out.println("\t0 - Nessuna preferenza");
             rad.showTypeTable();
             fav_type = new Scanner(System.in).nextInt();

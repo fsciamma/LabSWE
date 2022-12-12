@@ -3,7 +3,7 @@ package model;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 
-public class Umbrella extends ReservableAsset{
+public class Umbrella extends Asset {
 
     private int umbrellaId;
 

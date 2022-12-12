@@ -1,11 +1,10 @@
 package DAO;
 
-import model.ReservableAsset;
+import model.Asset;
 import model.Reservation;
 
 import java.sql.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
 
 public class ReservationDAO extends BaseDAO {
 
@@ -29,7 +28,7 @@ public class ReservationDAO extends BaseDAO {
     public int updateReservationTables(Reservation r, LocalDate sd, LocalDate ed){
         // Aggiornamento tabella reservation
         int id = addNewReservation(r);
-        for (ReservableAsset ra : r.getReserved_assets()) {
+        for (Asset ra : r.getReserved_assets()) {
             // Aggiornamento tabella reserved_assets
             int asset_id = addNewReserved_asset(ra, id, sd, ed);
             //TODO ciclo for per gli addon di ciascun reservable asset
@@ -56,6 +55,7 @@ public class ReservationDAO extends BaseDAO {
             id = rs.getInt("\"reservationID\"");
 
         } catch(SQLException e){
+            //TODO forse deve lanciare una runtimeException
             System.err.println(e.getMessage());
         }
         //TODO inserire un eccezione se id risulta essere ancora 0
@@ -70,7 +70,7 @@ public class ReservationDAO extends BaseDAO {
      * @param ed: data di fine della prenotazione
      * @return : id dell'assegnazione da passare alla tabella reserved_add_on
      */
-    public int addNewReserved_asset(ReservableAsset r, int id, LocalDate sd, LocalDate ed){
+    public int addNewReserved_asset(Asset r, int id, LocalDate sd, LocalDate ed){
         String insertStatement = "INSERT INTO \"laZattera\".reserved_assets (\"reservationID\", \"assetID\", start_date, end_date) " +
                 "values('?', '?', '?', '?') " +
                 "RETURNING \"reservedID\"";
@@ -121,9 +121,8 @@ public class ReservationDAO extends BaseDAO {
      * @param email: email del cliente relativo alle prenotazioni cercate
      */
     public void findByCustomerId(String email) throws SQLException {
-        String query = "select * from \"laZattera\".reservation a join \"laZattera\".reserved_assets b on a.\"reservationID\"" +
-                " = b.\"reservationID\"" +
-                " where a.\"customerID\" = '" + email + "'";
+        String query = "select * from \"laZattera\".reservation" +
+                " where \"customerID\" = '" + email + "'"; //TODO prob andrà fatto un altro join per visualizzare anche gli addOn
         if(!showReservations(query)){
             throw new SQLException("Non sono state trovate prenotazioni per il cliente " + email);
         }
@@ -191,23 +190,23 @@ public class ReservationDAO extends BaseDAO {
      * @param query: query per selezionare una o più prenotazioni dal database
      */
     private boolean showReservations(String query) throws SQLException {
-        boolean isFound = true;
-        ArrayList<Reservation> rList = new ArrayList<>();
+        boolean isFound = false;
         try(Statement stmt = conn.createStatement()){
             ResultSet rs = stmt.executeQuery(query);
+            String s = "";
             while(rs.next()){
-                Reservation r = new Reservation();
-                r.setReservationId(rs.getInt("\"reservationid\""));
-                //TODO manca il corpo
+                if(!isFound){ //è falso solo la prima volta che esegue rs.next
+                    s = "Cliente: " + rs.getString("customerID");
+                }
+                int resID = rs.getInt("reservationID");
+                s = s + "\n * Codice prenotazione: " + resID + "\n" + AssetDAO.showReservedAssets(resID);
+                //TODO manca il corpo: id cliente che ha prenotato, i reservable asset prenotati e per ciascuno le date di prenotazione e i reservable addOn prenotati e le loro date di prenotazione, infine il prezzo totale della prenotazione
                 //r.setTotal_price(rs.getBigDecimal("total_price"));
-                rList.add(r);
+                isFound = true;
             }
-        }
-        if(rList.isEmpty()){
-            isFound = false;
-        }
-        for (Reservation r : rList){
-            System.out.println(r);
+            if(isFound){
+                System.out.println(s);
+            }
         }
         return isFound;
     }

@@ -1,7 +1,7 @@
 package DAO;
 
 import model.Gazebo;
-import model.ReservableAsset;
+import model.Asset;
 import model.Umbrella;
 
 import java.math.BigDecimal;
@@ -11,28 +11,50 @@ import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
-import java.util.NoSuchElementException;
 
-public class ReservableAssetDAO extends  BaseDAO{
-    private static ReservableAssetDAO INSTANCE;
+public class AssetDAO extends  BaseDAO{
+    private static AssetDAO INSTANCE;
 
-    private ReservableAssetDAO(){
+    private AssetDAO(){
         super();
     }
 
-    public static ReservableAssetDAO getINSTANCE(){
+    public static AssetDAO getINSTANCE(){
         if(INSTANCE == null){
-            INSTANCE = new ReservableAssetDAO();
+            INSTANCE = new AssetDAO();
         }
         return INSTANCE;
     }
+
+    public static String showReservedAssets(int resID) throws SQLException{
+        String query = "select * from \"laZattera\".reserved_assets join" +
+                " \"laZattera\".reservable_asset on reserved_assets.\"assetID\" = reservable_asset.\"assetID\" join" +
+                " \"laZattera\".reservable_type on reservable_asset.\"asset_type\" = reservable_type.\"typeID\"" +
+                " where \"reservationID\" = " + resID;
+        try(Statement stmt = conn.createStatement()){
+            ResultSet rs = stmt.executeQuery(query);
+            StringBuilder s = new StringBuilder("   Sono stati richiesti i seguenti asset:\n");
+            while(rs.next()){
+                s.append("\t- ")
+                        .append(rs.getString("type_name"))
+                        .append(" N°").append(rs.getString("sub_classID"))
+                        .append(", dal ").append(rs.getDate("start_date"))
+                        .append(" al ").append(rs.getDate("end_date"))
+                        .append(AddOnDAO.showAssociatedAddOns(rs.getInt("reservedID"))) //TODO forse va fatta una classe reservableAddOnDAO?
+                        .append("\n");
+            }
+            return s.toString();
+        }
+    }
+
+
 
     /**
      * Metodo che fetcha un RA dal database secondo la query immessa.
      * @param query: query per la ricerca del RA
      * @return RA: Istanza del RA cercato dalla query nel Database
      */
-    public ReservableAsset getRA(String query) throws SQLException {
+    public Asset getRA(String query) throws SQLException {
         int type = 0, sub_classID = 0;
         BigDecimal price = BigDecimal.ZERO;
         try(Statement stmt = conn.createStatement()){
@@ -55,7 +77,7 @@ public class ReservableAssetDAO extends  BaseDAO{
         }
     }
 
-    public ReservableAsset findByID(int ID) throws SQLException {
+    public Asset findByID(int ID) throws SQLException {
         String query = "select * from \"laZattera\".reservable_asset a join reservable_type b on a.asset_type = b.\"typeID\"" +
                 " where \"assetID\" = " + ID;
         return getRA(query);
@@ -108,7 +130,7 @@ public class ReservableAssetDAO extends  BaseDAO{
         try(Statement stmt = conn.createStatement()){
             ResultSet rs = stmt.executeQuery(query);
             while (rs.next()){
-                int ID = rs.getInt("\"typeID\"");
+                int ID = rs.getInt("typeID");
                 String name = rs.getString("type_name");
                 BigDecimal price = rs.getBigDecimal("price");
                 System.out.println("\t" + ID + " - " + name + ", prezzo a partire da " + price + "€");
