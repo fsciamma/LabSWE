@@ -1,12 +1,12 @@
-drop table if exists add_on cascade;
-drop table if exists add_on_type cascade;
-drop table if exists customer cascade;
-drop table if exists invoice;
-drop table if exists reservable_asset cascade;
-drop table if exists reservable_type cascade;
-drop table if exists reservation cascade;
-drop table if exists reserved_add_on;
-drop table if exists reserved_assets cascade;
+drop table if exists "laZattera".add_on cascade;
+drop table if exists "laZattera".add_on_type cascade;
+drop table if exists "laZattera".customer cascade;
+drop table if exists "laZattera".invoice;
+drop table if exists "laZattera".reservable_asset cascade;
+drop table if exists "laZattera".reservable_type cascade;
+drop table if exists "laZattera".reservation cascade;
+drop table if exists "laZattera".reserved_add_on;
+drop table if exists "laZattera".reserved_assets cascade;
 
 CREATE TABLE "laZattera".add_on_type
 (
@@ -90,7 +90,7 @@ CREATE TABLE "laZattera".reservable_asset
 CREATE TABLE "laZattera".reserved_assets
 (
     "reservedID" integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
-    "reservationID" integer NOT NULL,
+    "reservationID" integer,
     "assetID" integer NOT NULL,
     start_date date NOT NULL,
     end_date date NOT NULL,
@@ -124,3 +124,48 @@ CREATE TABLE "laZattera".reserved_add_on
         ON DELETE NO ACTION,
     CONSTRAINT "validità date" CHECK (start_date <= end_date)
 );
+
+insert into "laZattera".reservable_type values(1, 'Ombrellone', 15.00), (2, 'Gazebo', 45.00);
+
+insert into "laZattera".add_on_type values(1, 'Sedia', 3.00), (2, 'Lettino', 4.50), (3, 'Sdraio', 4.00), (4, 'Cabina', 5.00);
+
+insert into "laZattera".reservable_asset (asset_type, "sub_classID") values(1, 1),
+(1, 2),
+(1, 3),
+(1, 4),
+(1, 5),
+(1, 6),
+(1, 7),
+(1, 8),
+(1, 9),
+(1, 10),
+(1, 11),
+(1, 12),
+(1, 13),
+(1, 14),
+(1, 15),
+(1, 16),
+(1, 17),
+(1, 18),
+(1, 19),
+(1, 20),
+(2, 1),
+(2, 2),
+(2, 3),
+(2, 4),
+(2, 5),
+(2, 6),
+(2, 7),
+(2, 8),
+(2, 9),
+(2, 10),
+(2, 11),
+(2, 12),
+(2, 13),
+(2, 14),
+(2, 15),
+(2, 16),
+(2, 17),
+(2, 18),
+(2, 19),
+(2, 20)
