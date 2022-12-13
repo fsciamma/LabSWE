@@ -7,7 +7,7 @@ public class Gazebo extends Asset {
 
     private int gazeboId;
 
-    private ArrayList<Integer> add_ons;
+    private ArrayList<AddOn> add_ons;
 
     private BigDecimal daily_price;
 
@@ -18,6 +18,7 @@ public class Gazebo extends Asset {
         setResId(resId);
         this.gazeboId = gazeboId;
         this.daily_price = daily_price;
+        this.add_ons = new ArrayList<>();
     }
 
     public int getGazeboId() {
@@ -35,6 +36,6 @@ public class Gazebo extends Asset {
 
     @Override
     public String toString(){
-        return "Ombrellone #" + this.gazeboId + ", prezzo per giornata: " + this.daily_price + ".";
+        return "Gazebo N°" + this.gazeboId + ", prezzo per giornata: " + this.daily_price + ".";
     }
 }

@@ -244,6 +244,7 @@ public abstract class BusinessLogic {
             //TODO rivedere un po' tutte le eccezioni in questo pezzo di codice
             Reservation newRes = Reservation.createNewReservation(customerEmail);
 
+            //TODO valutare se trasferirlo in una funzione a parte
             ArrayList<Integer> added = new ArrayList<>();
             ReservationDAO rd = ReservationDAO.getInstance();
             boolean selecting = true;
@@ -257,11 +258,19 @@ public abstract class BusinessLogic {
                 // inoltre aggiungo il reserved asset alla lista, tenendo traccia di tutti i reserved aggiunti
                 try {
                     Asset the_chosen_one = chooseReservableAsset(start_date, end_date);
-                    added.add(rd.addNewReserved_asset(the_chosen_one, start_date, end_date));
+                    int reservedID = rd.addNewReserved_asset(the_chosen_one, start_date, end_date);
+                    added.add(reservedID);
+
+                    // funzione per la selezione degli add on per ciascun asset
+                    System.out.println("Vuoi aggiungere AddOn a questo asset? (Y/N)");
+                    Scanner input = new Scanner(System.in);
+                    String line = input.nextLine();
+                    if ("Y".equals(line) || "y".equals(line)) { // Se viene inserito qualsiasi altro carattere esce dall'if
+                        reserveAddOns(reservedID, start_date, end_date, newRes);
+                    }
 
                     // Calcolo del prezzo
                     int d = ((int) DAYS.between(start_date, end_date)) + 1;
-                    //TODO aggiungere successivamente la scelta degli addon
                     newRes.updateReservation(the_chosen_one, d);
 
                 } catch (SQLException s) {
@@ -309,7 +318,7 @@ public abstract class BusinessLogic {
         System.out.println("Seleziona il tipo di Prenotabile preferito: ");
         int chosen_type = chooseType();
         ArrayList<Integer> av = rad.checkAvailability(start_date, end_date, chosen_type);
-        int number =  chooseAssetNumber(av);
+        int number =  chooseNumber(av);
         return rad.findByID(number);
     }
 
@@ -333,7 +342,7 @@ public abstract class BusinessLogic {
         return fav_type;
     }
 
-    private static int chooseAssetNumber(ArrayList<Integer> av) {
+    private static int chooseNumber(ArrayList<Integer> av) {
         boolean valid_number = false;
         int choice = 0;
         while(!valid_number){
@@ -350,6 +359,118 @@ public abstract class BusinessLogic {
             }
         }
         return choice;
+    }
+
+    private static ArrayList<AddOn> reserveAddOns(int reservedID, LocalDate start_date, LocalDate end_date, Reservation r) {
+        ArrayList<AddOn> addOnList = new ArrayList<>();
+        ReservationDAO rd = ReservationDAO.getInstance();
+        boolean selecting = true;
+
+        do{
+            // Selezione date per l'addOn
+            LocalDate addOn_sd;
+            LocalDate addOn_ed;
+            System.out.println("Vuole prenotare l'asset per tutta la durata della prenotazione? (Y/N)");
+            Scanner input = new Scanner(System.in);
+            String line = input.nextLine();
+            if ("N".equals(line) || "n".equals(line)) {
+                // Personalizzo le date se non si vuole l'extra per tutta la durata
+                addOn_sd = set_addOn_start_date(start_date, end_date);
+                addOn_ed = set_addOn_end_date(addOn_sd, end_date);
+            }
+            else{
+                // altrimenti lascio le stesse della prenotazione
+                addOn_sd = start_date;
+                addOn_ed = end_date;
+            }
+
+            // Scelgo l'addon
+            AddOn chosen = chooseAddOn(addOn_sd, addOn_ed);
+            // Lo aggiungo ai prenotati e a una lista per completare l'Asset corrispondente
+            rd.addNewReservedAddOn(chosen, reservedID, addOn_sd, addOn_ed);
+            addOnList.add(chosen);
+            // Calcolo il prezzo da aggiungere alla prenotazione
+            int d = ((int) DAYS.between(start_date, end_date)) + 1;
+            r.updatePrice(chosen, d);
+
+            // Procedo all'aggiunta di un
+            System.out.println("Vuoi aggiungere altri AddOn a questo asset? (Y/N)");
+            String choice = new Scanner(System.in).nextLine();
+            if ("N".equals(line) || "n".equals(line)) { // Se viene inserito qualsiasi altro carattere esce dall'if
+                selecting = false;
+            }
+        }while(selecting);
+
+        return addOnList;
+    }
+
+    private static AddOn chooseAddOn(LocalDate start_date, LocalDate end_date) throws SQLException {
+        AddOnDAO aoDAO = AddOnDAO.getINSTANCE();
+        System.out.println("Seleziona il tipo di AddOn desiderato: ");
+        int chosen_type = chooseAddOnType();
+        ArrayList<Integer> av = aoDAO.checkAvailability(start_date, end_date, chosen_type);
+        int number =  chooseNumber(av);
+        return aoDAO.findByID(number);
+    }
+
+    private static int chooseAddOnType() {
+        int fav_type;
+        try{
+            System.out.println("Inserire il numero del tipo selezionato: ");
+            AddOnDAO aoDAO = AddOnDAO.getINSTANCE();
+            System.out.println("\t0 - Nessuna preferenza");
+            aoDAO.showTypeTable();
+            fav_type = new Scanner(System.in).nextInt();
+            System.out.println("E' stato richiesto un ombrellone del tipo: " + aoDAO.fecthType(fav_type));
+        } catch (SQLException s){
+            System.err.println("Errore nella lettura della tabella");
+            fav_type = 0;
+        } catch (InputMismatchException i){
+            System.out.println("Nessun tipo specifico richiesto");
+            fav_type = 0;
+        }
+        return fav_type;
+    }
+
+    private static LocalDate set_addOn_start_date(LocalDate asset_start_date, LocalDate asset_end_date) {
+        boolean validStartDate = false;
+        LocalDate start_date = asset_start_date;
+        while(!validStartDate) {
+            System.out.println("Inserire data di inizio: (dd-mm-yyyy)");
+            try {
+                LocalDate tmp = set_date();
+                if (!tmp.isBefore(asset_start_date) && !tmp.isAfter(asset_end_date)) {
+                    start_date = tmp;
+                    validStartDate = true;
+                } else {
+                    System.err.println("La data inserita è esterna all'intervallo di date dell'asset da prenotare");
+                }
+            } catch (NumberFormatException | DateTimeException | ArrayIndexOutOfBoundsException e){
+                System.err.println(e.getMessage());
+            }
+        }
+        return start_date;
+    }
+
+    private static LocalDate set_addOn_end_date(LocalDate addOn_start_date, LocalDate asset_end_date){
+        boolean validEndDate = false;
+        LocalDate end_date = LocalDate.now();
+        while(!validEndDate) {
+            System.out.println("Inserire data di fine: (dd-mm-yyyy)");
+            try {
+                LocalDate tmp = set_date();
+                if (!tmp.isBefore(addOn_start_date) && !tmp.isAfter(asset_end_date)) {
+                    end_date = tmp;
+                    validEndDate = true;
+                } else {
+                    System.err.println("La data inserita è precedente alla data di inizio prenotazione o al di fuori" +
+                            " dell'intervallo di date dell'asset da prenotare");
+                }
+            } catch (NumberFormatException | DateTimeException | ArrayIndexOutOfBoundsException e) {
+                System.err.println(e.getMessage());
+            }
+        }
+        return end_date;
     }
 
     /**

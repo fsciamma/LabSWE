@@ -139,4 +139,8 @@ public class Reservation {
         return "Prenotazione #" + this.reservationID + " del cliente #" + this.customer + ".\nPrezzo totale: " +
                 this.price + "€.";
     }
+
+    public void updatePrice(AddOn a, int days) {
+        setTotal_price(getTotal_price().add(a.getPrice().multiply(BigDecimal.valueOf(days))));
+    }
 }

@@ -1,5 +1,6 @@
 package DAO;
 
+import model.AddOn;
 import model.Asset;
 import model.Reservation;
 
@@ -97,6 +98,14 @@ public class ReservationDAO extends BaseDAO {
         }
         //TODO inserire un eccezione se id risulta essere ancora 0
         return new_id;
+    }
+
+    public void addNewReservedAddOn(AddOn chosen, int reservedID, LocalDate addOnSd, LocalDate addOnEd) throws SQLException {
+        String insertStatement = "INSERT INTO \"laZattera\".reserved_add_on (\"reserved_assetsID\", \"add_onID\", start_date, end_date) " +
+                "values("+ reservedID + ", " + chosen.getAdd_onId() + ", '" + addOnSd+ "', '" + addOnEd +"')";
+        try(Statement stmt = conn.createStatement()){
+            stmt.executeUpdate(insertStatement);
+        }
     }
 
     //FIND METHODS//
