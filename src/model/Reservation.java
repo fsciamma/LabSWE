@@ -134,6 +134,10 @@ public class Reservation {
         return reserved_assets;
     }
 
+    public void updatePrice(AddOn a, int days) {
+        setTotal_price(getTotal_price().add(a.getPrice().multiply(BigDecimal.valueOf(days))));
+    }
+
     @Override
     public String toString() {
         return "Prenotazione #" + this.reservationID + " del cliente #" + this.customer + ".\nPrezzo totale: " +

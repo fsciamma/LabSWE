@@ -7,7 +7,6 @@ public class Umbrella extends Asset {
 
     private int umbrellaId;
 
-    private ArrayList<Integer> add_ons;
     private BigDecimal daily_price;
     public Umbrella() {
     }
@@ -16,6 +15,7 @@ public class Umbrella extends Asset {
         setResId(resId);
         this.umbrellaId = umbrellaId;
         this.daily_price = daily_price;
+        this.add_ons = new ArrayList<>();
     }
 
     public int getUmbrellaId() {

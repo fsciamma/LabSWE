@@ -1,5 +1,6 @@
 package DAO;
 
+import model.AddOn;
 import model.Asset;
 import model.Reservation;
 
@@ -35,11 +36,12 @@ public class ReservationDAO extends BaseDAO {
             for (Integer i: reserved_assets) {
                 // Aggiornamento tabella reserved_assets
                 updateReservedAssetReservationIDValue(i, id);
-                //TODO ciclo for per gli addon di ciascun reservable asset
+                //TODO valutare se serve toccare gli addOn in questa tabella (a me non sembra)
             }
             return id;
         } catch (SQLException s) {
             for(Integer i: reserved_assets){
+                deleteReservedAddOn(i);
                 deleteReservedAsset(i);
             }
             if(id > 0)
@@ -67,7 +69,7 @@ public class ReservationDAO extends BaseDAO {
             id = rs.getInt("reservationID");
 
         }
-        //TODO inserire un eccezione se id risulta essere ancora 0
+        //TODO inserire un eccezione se id risulta essere ancora 0?
         return id;
     }
 
@@ -95,8 +97,16 @@ public class ReservationDAO extends BaseDAO {
             rs.next();
             new_id = rs.getInt("reservedID");
         }
-        //TODO inserire un eccezione se id risulta essere ancora 0
+        //TODO inserire un eccezione se id risulta essere ancora 0?
         return new_id;
+    }
+
+    public void addNewReservedAddOn(AddOn chosen, int reservedID, LocalDate addOnSd, LocalDate addOnEd) throws SQLException {
+        String insertStatement = "INSERT INTO \"laZattera\".reserved_add_on (\"reserved_assetsID\", \"add_onID\", start_date, end_date) " +
+                "values("+ reservedID + ", " + chosen.getAdd_onId() + ", '" + addOnSd+ "', '" + addOnEd +"')";
+        try(Statement stmt = conn.createStatement()){
+            stmt.executeUpdate(insertStatement);
+        }
     }
 
     //FIND METHODS//
@@ -230,7 +240,7 @@ public class ReservationDAO extends BaseDAO {
     public void deleteReservation(int resCode) {
         String query = "delete from \"laZattera\".reservation where \"reservationID\" = " + resCode;
         try(Statement stmt = conn.createStatement()){
-            stmt.execute(query);
+            stmt.executeUpdate(query);
             System.out.println("La prenotazione è stata cancellata!");
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -240,8 +250,18 @@ public class ReservationDAO extends BaseDAO {
     public void deleteReservedAsset(int resCode) {
         String query = "delete from \"laZattera\".reserved_assets where \"reservedID\" = " + resCode;
         try(Statement stmt = conn.createStatement()){
-            stmt.executeQuery(query);
+            stmt.executeUpdate(query);
             System.out.println("L'asset è stato cancellato correttamente");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void deleteReservedAddOn(int reservedID) {
+        String query = "delete from \"laZattera\".reserved_add_on where \"reserved_assetsID\" = " + reservedID;
+        try(Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate(query);
+            System.out.println("Gli AddOn sono stati cancellati correttamente");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

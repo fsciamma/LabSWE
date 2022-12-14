@@ -213,7 +213,7 @@ public class CustomerDAO extends BaseDAO {
             } catch (SQLException e){
                 System.err.println(e.getMessage());
                 //TODO deve ritornare false? Probabilmente sì, perché non è riuscito ad accedere al db...
-                //e se invece lanciasse un'eccezione?
+                //TODO e se invece lanciasse un'eccezione?
             }
         } catch (RuntimeException e) {
             System.err.println(e.getMessage() + "\nNon è stato possibile modificare le credenziali.");
