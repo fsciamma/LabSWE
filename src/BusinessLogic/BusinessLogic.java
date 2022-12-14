@@ -600,7 +600,6 @@ public abstract class BusinessLogic {
 
     private static void reservationSearch(){
         boolean running = true;
-        ReservationDAO rd = ReservationDAO.getInstance();
         int choice;
         while(running){
             System.out.println("Ricerca per: ");
@@ -616,80 +615,14 @@ public abstract class BusinessLogic {
             } catch(InputMismatchException i){
                 choice = 0;
             }
-            Scanner reservationData;
             switch(choice){
-                case 1 -> {
-                    System.out.println("Inserisci codice prenotazione: ");
-                    reservationData = new Scanner(System.in);
-                    try {
-                        System.out.println(rd.findById(reservationData.nextInt()));
-                    } catch (InputMismatchException i){
-                        System.err.println("Inserire un codice numerico...");
-                    } catch (SQLException s){
-                        System.err.println(s.getMessage());
-                    }
-                }
-                case 2 -> {
-                    System.out.println("Inserisci email cliente:");
-                    reservationData = new Scanner(System.in);
-                    try {
-                        rd.findByCustomerId(reservationData.nextLine()); //TODO va messo un controllo su come è scritto l'indirizzo email
-                    } catch (InputMismatchException i){
-                        System.err.println("Inserire un codice numerico...");
-                    } catch(SQLException s ){
-                        System.err.println(s.getMessage());
-                    }
-                }
-                case 3 -> {
-                    System.out.println("Inserisci codice ombrellone: ");
-                    reservationData = new Scanner(System.in);
-                    try {
-                        rd.findByUmbrellaId(reservationData.nextInt());
-                    } catch (InputMismatchException i){
-                        System.err.println("Inserire un codice numerico...");
-                    } catch (SQLException s){
-                        System.err.println(s.getMessage());
-                    }
-                }
-                case 4 -> {
-                //    TODO aggiungere eventualmente la possibilita che in assenza di seconda data mostri tutte le prenotazioni dalla data di partenza in poi
-                    LocalDate start = LocalDate.now();
-                    LocalDate end = LocalDate.now();
-                    boolean validStartDate = false;
-                    while(!validStartDate){
-                        System.out.println("Inserire data di inizio: (dd-mm-yyyy)");
-                        try{
-                            start = parseDate();
-                            validStartDate = true;
-                        } catch (NumberFormatException | DateTimeException e){
-                            System.err.println(e.getMessage());
-                        }
-                    }
-                    boolean validEndDate = false;
-                    while(!validEndDate){
-                        System.out.println("Inserire data di fine: (dd-mm-yyyy)");
-                        try{
-                            end = parseDate();
-                            if(end.compareTo(start) >= 0) { // controlla che la data di fine prenotazione sia successiva a quella d'inizio prenotazione
-                                validEndDate = true;
-                            }
-                            else {
-                                System.err.println("La data di fine prenotazione è precedente alla data di inizio prenotazione.");
-                                System.out.println("Inserire una nuova data di fine prenotazione");
-                            }
-                        } catch (NumberFormatException | DateTimeException e){
-                            System.err.println(e.getMessage());
-                        }
-                    }
-                    try{
-                        rd.findByDates(start, end);
-                    } catch(SQLException e){
-                        System.err.println(e.getMessage());
-                    }
-                }
+                case 1 -> BL_findReservationByID();
+                case 2 -> BL_findReservationsByCustomer();
+                case 3 -> BL_findReservationsByAsset();
+                case 4 -> BL_findReservationsByDates();
                 case 5 -> {
                     try{
-                        rd.findAll();
+                        ReservationDAO.getInstance().findAll();
                     } catch(SQLException s){
                         System.err.println(s.getMessage());
                     }
@@ -697,6 +630,76 @@ public abstract class BusinessLogic {
                 case 6 -> running = false;
                 default -> System.err.println("Opzione non valida...");
             }
+        }
+    }
+
+    private static void BL_findReservationsByCustomer() {
+        System.out.println("Inserisci email cliente:");
+        try {
+            ReservationDAO.getInstance().findByCustomerId(new Scanner(System.in).nextLine()); //TODO va messo un controllo su come è scritto l'indirizzo email
+        } catch (InputMismatchException i){
+            System.err.println("Inserire un codice numerico...");
+        } catch(SQLException s ){
+            System.err.println(s.getMessage());
+        }
+    }
+
+    private static void BL_findReservationsByAsset() {
+        System.out.println("Inserisci codice ombrellone: ");
+        try {
+            ReservationDAO.getInstance().findByUmbrellaId(new Scanner(System.in).nextInt());
+        } catch (InputMismatchException i){
+            System.err.println("Inserire un codice numerico...");
+        } catch (SQLException s){
+            System.err.println(s.getMessage());
+        }
+    }
+
+    private static void BL_findReservationsByDates() {
+        //TODO aggiungere eventualmente la possibilita che in assenza di seconda data mostri tutte le prenotazioni dalla data di partenza in poi
+        LocalDate start = LocalDate.now();
+        LocalDate end = LocalDate.now();
+        boolean validStartDate = false;
+        while(!validStartDate){
+            System.out.println("Inserire data di inizio: (dd-mm-yyyy)");
+            try{
+                start = parseDate();
+                validStartDate = true;
+            } catch (NumberFormatException | DateTimeException e){
+                System.err.println(e.getMessage());
+            }
+        }
+        boolean validEndDate = false;
+        while(!validEndDate){
+            System.out.println("Inserire data di fine: (dd-mm-yyyy)");
+            try{
+                end = parseDate();
+                if(end.compareTo(start) >= 0) { // controlla che la data di fine prenotazione sia successiva a quella d'inizio prenotazione
+                    validEndDate = true;
+                }
+                else {
+                    System.err.println("La data di fine prenotazione è precedente alla data di inizio prenotazione.");
+                    System.out.println("Inserire una nuova data di fine prenotazione");
+                }
+            } catch (NumberFormatException | DateTimeException e){
+                System.err.println(e.getMessage());
+            }
+        }
+        try{
+            ReservationDAO.getInstance().findByDates(start, end);
+        } catch(SQLException e){
+            System.err.println(e.getMessage());
+        }
+    }
+
+    private static void BL_findReservationByID() {
+        System.out.println("Inserisci codice prenotazione: ");
+        try {
+            System.out.println(ReservationDAO.getInstance().findById(new Scanner(System.in).nextInt()));
+        } catch (InputMismatchException i){
+            System.err.println("Inserire un codice numerico...");
+        } catch (SQLException s){
+            System.err.println(s.getMessage());
         }
     }
 
