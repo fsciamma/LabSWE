@@ -145,7 +145,7 @@ public abstract class BusinessLogic {
             switch (customer_choice) {
                 case 1 -> addNewReservation(c.get_email());
                 case 2 -> showReservations(c.get_email());
-                case 3 -> modifyClientInfo(c);
+                case 3 -> modifyCustomerInfo(c);
                 case 4 -> {
                     System.out.println("Torna a pagina precedente...");
                     customer_menu = false;
@@ -174,7 +174,7 @@ public abstract class BusinessLogic {
      * @param email Identificativo del Customer di cui sono state cercate le prenotazioni: viene usato per controllare
      *              che non venga modificata o cancellata una prenotazione che non gli appartiene
      */
-    private static void reservationOptionMenu(String email) {
+    private static void reservationOptionMenu(String email) { //TODO da rivedere insieme al metodo di modifica della prenotazione
         boolean running = true;
         while(running) {
             System.out.println("Selezionare l'operazione che si vuole eseguire:");
@@ -200,7 +200,7 @@ public abstract class BusinessLogic {
         }
     }
 
-    private static void modifyReservation(String email) {
+    private static void modifyReservation(String email) {//TODO
 
     }
 
@@ -438,10 +438,10 @@ public abstract class BusinessLogic {
      * Metodo che permette di modificare i campi di un oggetto Customer c che è stato trovato nel database attraverso i metodi CustomerDAO.findById() o CustomerDAO.findByInfo()
      * @param c è il Customer di cui si vuole modificare le informazioni e che viene poi restituito
      */
-    private static void modifyClientInfo(Customer c) {
-        boolean modifying = true;
+    private static void modifyCustomerInfo(Customer c) {
+        boolean running = true;
         Customer updatedC = new Customer(c);
-        while (modifying) {
+        while (running) {
             System.out.println("Cosa vuoi modificare?");
             System.out.println("\t 1 - Nome");
             System.out.println("\t 2 - Cognome");
@@ -457,7 +457,7 @@ public abstract class BusinessLogic {
             switch (choice) {
                 case 1 -> updatedC.set_first_name();
                 case 2 -> updatedC.set_last_name();
-                case 3 -> {
+                case 3 -> { //TODO wrappare?
                     boolean mailIsValid = false;
                     while (!mailIsValid) {
                         try {
@@ -469,7 +469,7 @@ public abstract class BusinessLogic {
                     }
                 }
                 case 4 -> {
-                    modifying = false;
+                    running = false;
                     if(CustomerDAO.getINSTANCE().updateInfo(updatedC)) { //Termina le modifiche sul Customer e fa l'update
                         c.copy(updatedC);
                     }
@@ -483,14 +483,13 @@ public abstract class BusinessLogic {
      * Metodo che permette di accedere a un sotto-menù con operazioni di utility per la gestione del bagno (e.g. operazioni di visualizzazione)
      */
     private static void resortOptions(){
-        boolean oRunning = true;
-        while(oRunning){
+        boolean running = true;
+        while(running){
             System.out.println("Selezionare l'operazione che si vuole compiere: ");
-            System.out.println("\t 1 - Ricerca per clienti" );
-            System.out.println("\t 2 - Ricerca per ombrelloni");
-            System.out.println("\t 3 - Ricerca per prenotazioni attive");
-            System.out.println("\t 4 - Ricerca per pagamenti");
-            System.out.println("\t 5 - Torna indietro");
+            System.out.println("\t 1 - Ricerca per clienti");
+            System.out.println("\t 2 - Ricerca per prenotazioni attive");
+            System.out.println("\t 3 - Ricerca per pagamenti");
+            System.out.println("\t 4 - Torna indietro");
             Scanner input = new Scanner(System.in);
             int choice;
             try{
@@ -499,11 +498,10 @@ public abstract class BusinessLogic {
                 choice = 0;
             }
             switch(choice) {
-                case 1 -> clientSearch();
-                case 2 -> umbrellaSearch();
-                case 3 -> reservationSearch();
-                case 4 -> paymentSearch();
-                case 5 -> oRunning = false;
+                case 1 -> customerSearch();
+                case 2 -> reservationSearch();
+                case 3 -> paymentSearch();
+                case 4 -> running = false;
                 default -> System.err.println("Opzione non valida...");
             }
         }
@@ -513,9 +511,8 @@ public abstract class BusinessLogic {
      * Metodo che permette da accedere a un sotto-menù con operazioni che permettono di visualizzare a schermo i clienti
      * registrati al bagno secondo criteri selezionabili.
      */
-    private static void clientSearch(){
+    private static void customerSearch(){
         boolean search = true;
-        CustomerDAO cd = CustomerDAO.getINSTANCE();
         int choice;
         while(search){
             System.out.println("Ricerca per: ");
@@ -531,132 +528,84 @@ public abstract class BusinessLogic {
             } catch(InputMismatchException i){
                 choice = 0;
             }
-            Scanner customerData;
             switch(choice){
-                case 1 -> {
-                    boolean emailNotValid = true;
-                    String email;
-                    while(emailNotValid){
-                        System.out.println("Inserire email cliente:");
-                        customerData = new Scanner(System.in);
-                        email = customerData.nextLine();
-                        if(email.matches("^(.+)@(.+).(.+)$")){
-                            emailNotValid = false;
-                        } else {
-                            System.err.println("Indirizzo e-mail non valido...");
-                        }
-                    try{
-                        System.out.println(cd.findByEMail(email));
-                    } catch(InputMismatchException i){
-                        System.err.println("Inserire una email cliente...");
-                    } catch(SQLException s){
-                        System.err.println(s.getMessage());
-                    }
-                }
-                }
-                case 2 -> {
-                    System.out.println("Inserire nome e cognome del cliente da cercare (formato: Nome Cognome):");
-                    customerData = new Scanner(System.in);
-                    String name = customerData.nextLine();
-                    if(name.matches("^([A-ZÀ-Ü^×]){1}([a-zà-ü^÷])*+\\s([A-ZÀ-Ü^×]){1}([a-zà-ü^÷])*+$")) {
-                        String[] fullName = name.split(" ");
-                        cd.findByFullName(fullName);
-                    } else {
-                        System.err.println("Formato nome non valido...");
-                    }
-                }
-                case 3 -> {
-                    System.out.println("Inserire nome del cliente: ");
-                    customerData = new Scanner(System.in);
-                    String name = customerData.nextLine();
-                    if(name.matches("^([A-ZÀ-Ü^×]){1}([a-zà-ü^÷])*+$")){
-                        cd.findByFirstName(name);
-                    } else {
-                        System.err.println("Formato nome non valido...");
-                    }
-                }
-                case 4 -> {
-                    System.out.println("Inserire cognome del cliente: ");
-                    customerData = new Scanner(System.in);
-                    String surname = customerData.nextLine();
-                    if(surname.matches("^([A-ZÀ-Ü^×]){1}([a-zà-ü^÷])*+$")){
-                        cd.findByLastName(surname);
-                    } else {
-                        System.err.println("Formato cognome non valido...");
-                    }
-                }
-                case 5 -> cd.findAll();
+                case 1 -> BL_findByEmail();
+                case 2 -> BL_findByFullName();
+                case 3 -> BL_findByFirstName();
+                case 4 -> BL_findByLastName();
+                case 5 -> CustomerDAO.getINSTANCE().findAll();
                 case 6 -> search = false;
                 default -> System.err.println("Opzione non valida...");
             }
             System.out.println("\n");
         }
     }
-    /**
-     * Metodo che permette di accedere a un sotto-menù con operazioni che permettono di visualizzare a schermo gli ombrelloni
-     * in possesso del bagno secondo criteri selezionabili.
-     */
-    private static void umbrellaSearch(){
-        boolean search = true;
-        UmbrellaDAO ud = UmbrellaDAO.getINSTANCE();
-        int choice;
-        while(search){
-            System.out.println("Ricerca per: ");
-            System.out.println("\t 1 - ID ombrellone");
-            System.out.println("\t 2 - Tipo ombrellone");
-            System.out.println("\t 3 - Torna indietro");
-            Scanner option = new Scanner(System.in);
-            try{
-                choice = option.nextInt();
-            } catch(InputMismatchException i){
-                choice = 0;
+
+    private static void BL_findByEmail() {
+        boolean emailNotValid = true;
+        String email;
+        while(emailNotValid){
+            System.out.println("Inserire email cliente:");
+            email = new Scanner(System.in).nextLine();
+            if(email.matches("^(.+)@(.+).(.+)$")){
+                emailNotValid = false;
+            } else {
+                System.err.println("Indirizzo e-mail non valido...");
             }
-            Scanner umbrellaData;
-            switch (choice){
-                case 1 -> {
-                    System.out.println("Inserire codice ombrellone: ");
-                    umbrellaData = new Scanner(System.in);
-                    try {
-                        ud.findById(umbrellaData.nextInt());
-                    } catch (InputMismatchException i){
-                        System.err.println("Inserire un codice numerico...");
-                    } catch (SQLException s){
-                        System.err.println(s.getMessage());
-                    }
-                }
-                case 2 -> {
-                    System.out.println("Inserire codice tipo ombrellone: ");
-                    umbrellaData = new Scanner(System.in);
-                    try {
-                        int favoriteType = umbrellaData.nextInt();
-                        System.out.println("E' stato selezionato il tipo " + UmbrellaType.getInstance().getUTypeMap().get(favoriteType).getTypeName());
-                        ud.findByType(favoriteType); //Se il tipo indicato non è presente in UmbrellaType, tira una nullPointerException; NB non è gestito il caso in cui 0 indica "nessun tipo preferito"
-                    } catch(NullPointerException n){
-                        System.err.println("Il codice inserito non identifica nessun tipo di ombrellone");
-                    } catch (InputMismatchException i){
-                        System.err.println("Codice ombrellone non valido...");
-                    } catch (SQLException s){
-                        System.err.println(s.getMessage());
-                    }
-                }
-                case 3 -> search = false;
-                default -> System.err.println("Opzione non valida...");
+            try{
+                System.out.println(CustomerDAO.getINSTANCE().findByEMail(email));
+            } catch(InputMismatchException i){
+                System.err.println("Inserire una email cliente...");
+            } catch(SQLException s){
+                System.err.println(s.getMessage());
             }
         }
     }
+
+    private static void BL_findByFullName() {
+        System.out.println("Inserire nome e cognome del cliente da cercare (formato: Nome Cognome):");
+        String name = new Scanner(System.in).nextLine();
+        if(name.matches("^([A-ZÀ-Ü^×]){1}([a-zà-ü^÷])*+\\s([A-ZÀ-Ü^×]){1}([a-zà-ü^÷])*+$")) {
+            String[] fullName = name.split(" ");
+            CustomerDAO.getINSTANCE().findByFullName(fullName);
+        } else {
+            System.err.println("Formato nome non valido...");
+        }
+    }
+
+    private static void BL_findByFirstName() {
+        System.out.println("Inserire nome del cliente: ");
+        String name = new Scanner(System.in).nextLine();
+        if(name.matches("^([A-ZÀ-Ü^×]){1}([a-zà-ü^÷])*+$")){
+            CustomerDAO.getINSTANCE().findByFirstName(name);
+        } else {
+            System.err.println("Formato nome non valido...");
+        }
+    }
+
+    private static void BL_findByLastName() {
+        System.out.println("Inserire cognome del cliente:");
+        String surname = new Scanner(System.in).nextLine();
+        if(surname.matches("^([A-ZÀ-Ü^×]){1}([a-zà-ü^÷])*+$")){
+            CustomerDAO.getINSTANCE().findByLastName(surname);
+        } else {
+            System.err.println("Formato cognome non valido...");
+        }
+    }
+
     /**
      * Metodo che permette di accedere a un sotto-menù con operazioni che permettono di visualizzare a schermo le prenotazioni
      * verso il bagno secondo criteri selezionabili.
      */
 
     private static void reservationSearch(){
-        boolean rRunning = true;
+        boolean running = true;
         ReservationDAO rd = ReservationDAO.getInstance();
         int choice;
-        while(rRunning){
+        while(running){
             System.out.println("Ricerca per: ");
             System.out.println("\t 1 - ID prenotazione");
-            System.out.println("\t 2 - ID cliente");
+            System.out.println("\t 2 - Email cliente");
             System.out.println("\t 3 - Id ombrellone");
             System.out.println("\t 4 - Data");
             System.out.println("\t 5 - Mostra tutte");
@@ -681,10 +630,10 @@ public abstract class BusinessLogic {
                     }
                 }
                 case 2 -> {
-                    System.out.println("Inserisci codice cliente: ");
+                    System.out.println("Inserisci email cliente:");
                     reservationData = new Scanner(System.in);
                     try {
-                        rd.findByCustomerId(reservationData.nextLine());
+                        rd.findByCustomerId(reservationData.nextLine()); //TODO va messo un controllo su come è scritto l'indirizzo email
                     } catch (InputMismatchException i){
                         System.err.println("Inserire un codice numerico...");
                     } catch(SQLException s ){
@@ -745,15 +694,14 @@ public abstract class BusinessLogic {
                         System.err.println(s.getMessage());
                     }
                 }
-                case 6 -> rRunning = false;
+                case 6 -> running = false;
                 default -> System.err.println("Opzione non valida...");
             }
         }
     }
 
     /**
-     * Metodo che prende in ingresso da Command Line una data in formato gg-mm-aa e la riorganizza in un formato accettato
-     * da SQL
+     * Metodo che prende in ingresso da Command Line una data in formato gg-mm-aa e la riorganizza in un formato accettato da SQL
      * @return data inserita ma in un formato accettato da SQL
      */
     private static LocalDate parseDate(){
