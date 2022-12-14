@@ -375,7 +375,7 @@ public abstract class BusinessLogic {
         ReservationDAO rd = ReservationDAO.getInstance();
         boolean selecting = true;
 
-        do{
+        while(selecting){
             // Selezione date per l'addOn
             LocalDate addOn_sd;
             LocalDate addOn_ed;
@@ -411,10 +411,10 @@ public abstract class BusinessLogic {
             // Procedo all'aggiunta di un
             System.out.println("Vuoi aggiungere altri AddOn a questo asset? (Y/N)");
             String choice = new Scanner(System.in).nextLine();
-            if ("N".equals(line) || "n".equals(line)) { // Se viene inserito qualsiasi altro carattere esce dall'if
+            if ("N".equals(choice) || "n".equals(choice)) { // Se viene inserito qualsiasi altro carattere esce dall'if
                 selecting = false;
             }
-        }while(selecting);
+        }
 
         return addOnList;
     }

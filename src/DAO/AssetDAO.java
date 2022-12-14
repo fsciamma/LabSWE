@@ -40,7 +40,7 @@ public class AssetDAO extends  BaseDAO{
                         .append(" N°").append(rs.getString("sub_classID"))
                         .append(", dal ").append(rs.getDate("start_date"))
                         .append(" al ").append(rs.getDate("end_date"))
-                        .append(AddOnDAO.showAssociatedAddOns(rs.getInt("reservedID"))) //TODO forse va fatta una classe reservableAddOnDAO?
+                        .append(AddOnDAO.showAssociatedAddOns(rs.getInt("reservedID")))
                         .append("\n");
             }
             return s.toString();
@@ -59,7 +59,7 @@ public class AssetDAO extends  BaseDAO{
         BigDecimal price = BigDecimal.ZERO;
         try(Statement stmt = conn.createStatement()){
             ResultSet rs = stmt.executeQuery(query);
-            while(rs.next()){ //TODO nb: la query passata deve essere un join tra ReservableAsset e ReservableType
+            while(rs.next()){ //nb: la query passata deve essere un join tra ReservableAsset e ReservableType
                 resID = rs.getInt("assetID");
                 type = rs.getInt("asset_type");
                 sub_classID = rs.getInt("sub_classID");

@@ -69,7 +69,7 @@ public class ReservationDAO extends BaseDAO {
             id = rs.getInt("reservationID");
 
         }
-        //TODO inserire un eccezione se id risulta essere ancora 0
+        //TODO inserire un eccezione se id risulta essere ancora 0?
         return id;
     }
 
@@ -97,7 +97,7 @@ public class ReservationDAO extends BaseDAO {
             rs.next();
             new_id = rs.getInt("reservedID");
         }
-        //TODO inserire un eccezione se id risulta essere ancora 0
+        //TODO inserire un eccezione se id risulta essere ancora 0?
         return new_id;
     }
 
