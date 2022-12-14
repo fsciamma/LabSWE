@@ -730,58 +730,59 @@ public abstract class BusinessLogic {
      * relative alle prenotazioni secondo criteri selezionabili.
      */
     private static void paymentSearch(){
-        boolean pRunning = true;
-        InvoiceDAO id = InvoiceDAO.getINSTANCE();
+        boolean running = true;
         int choice;
-        while(pRunning){
+        while(running){
             System.out.println("Ricerca per: ");
             System.out.println("\t 1 - Ricerca per codice ricevuta" );
             System.out.println("\t 2 - Ricerca per codice cliente");
             System.out.println("\t 3 - Ricerca per stato pagamento");
             System.out.println("\t 4 - Torna indietro");
-            Scanner input = new Scanner(System.in);
             try{
-                choice = input.nextInt();
+                choice = new Scanner(System.in).nextInt();
             } catch(InputMismatchException i){
                 choice = 0;
             }
             switch(choice) {
-                case 1 -> {
-                    System.out.println("Inserire codice ricevuta/prenotazione: ");
-                    input = new Scanner(System.in);
-                    try{
-                        System.out.println(id.findByInvoiceID(input.nextInt()));
-                    } catch (InputMismatchException i){
-                        System.err.println("Inserire un codice numerico...");
-                    } catch(SQLException s){
-                        System.err.println(s.getMessage());
-                    }
-                }
-                case 2 -> {
-                    System.out.println("Inserire codice cliente: ");
-                    input = new Scanner(System.in);
-                    try{
-                        id.findByCustomerID(input.nextLine());
-                    } catch (InputMismatchException i){
-                        System.err.println("Inserire un codice numerico...");
-                    } catch(SQLException s){
-                        System.err.println(s.getMessage());
-                    }
-                }
-                case 3 -> {
-                    System.out.println("Inserire stato pagamento (true o false): ");
-                    input = new Scanner(System.in);
-                    try{
-                        id.findByPaymentStatus(input.nextBoolean());
-                    } catch (InputMismatchException i){
-                        System.err.println("Inserire un valore valido...");
-                    } catch(SQLException s){
-                        System.err.println(s.getMessage());
-                    }
-                }
-                case 4 -> pRunning = false;
+                case 1 -> BL_findInvoiceByCode();
+                case 2 -> BL_findInvoiceByCustomer();
+                case 3 -> BL_findInvoiceByState();
+                case 4 -> running = false;
                 default -> System.err.println("Opzione non valida...");
             }
+        }
+    }
+
+    private static void BL_findInvoiceByCode() {
+        System.out.println("Inserire codice ricevuta/prenotazione:");
+        try{
+            System.out.println(InvoiceDAO.getINSTANCE().findByInvoiceID(new Scanner(System.in).nextInt()));
+        } catch (InputMismatchException i){
+            System.err.println("Inserire un codice numerico...");
+        } catch(SQLException s){
+            System.err.println(s.getMessage());
+        }
+    }
+
+    private static void BL_findInvoiceByCustomer() {
+        System.out.println("Inserire codice cliente: ");
+        try{
+            InvoiceDAO.getINSTANCE().findByCustomerID(new Scanner(System.in).nextLine());
+        } catch (InputMismatchException i){
+            System.err.println("Inserire un codice numerico...");
+        } catch(SQLException s){
+            System.err.println(s.getMessage());
+        }
+    }
+
+    private static void BL_findInvoiceByState() {
+        System.out.println("Inserire stato pagamento (true o false): ");
+        try{
+            InvoiceDAO.getINSTANCE().findByPaymentStatus(new Scanner(System.in).nextBoolean());
+        } catch (InputMismatchException i){
+            System.err.println("Inserire un valore valido...");
+        } catch(SQLException s){
+            System.err.println(s.getMessage());
         }
     }
 }
