@@ -529,10 +529,10 @@ public abstract class BusinessLogic {
                 choice = 0;
             }
             switch(choice){
-                case 1 -> BL_findByEmail();
-                case 2 -> BL_findByFullName();
-                case 3 -> BL_findByFirstName();
-                case 4 -> BL_findByLastName();
+                case 1 -> BL_findCustomerByEmail();
+                case 2 -> BL_findCustomersByFullName();
+                case 3 -> BL_findCustomersByFirstName();
+                case 4 -> BL_findCustomersByLastName();
                 case 5 -> CustomerDAO.getINSTANCE().findAll();
                 case 6 -> search = false;
                 default -> System.err.println("Opzione non valida...");
@@ -541,7 +541,7 @@ public abstract class BusinessLogic {
         }
     }
 
-    private static void BL_findByEmail() {
+    private static void BL_findCustomerByEmail() {
         boolean emailNotValid = true;
         String email;
         while(emailNotValid){
@@ -562,7 +562,7 @@ public abstract class BusinessLogic {
         }
     }
 
-    private static void BL_findByFullName() {
+    private static void BL_findCustomersByFullName() {
         System.out.println("Inserire nome e cognome del cliente da cercare (formato: Nome Cognome):");
         String name = new Scanner(System.in).nextLine();
         if(name.matches("^([A-ZÀ-Ü^×]){1}([a-zà-ü^÷])*+\\s([A-ZÀ-Ü^×]){1}([a-zà-ü^÷])*+$")) {
@@ -573,7 +573,7 @@ public abstract class BusinessLogic {
         }
     }
 
-    private static void BL_findByFirstName() {
+    private static void BL_findCustomersByFirstName() {
         System.out.println("Inserire nome del cliente: ");
         String name = new Scanner(System.in).nextLine();
         if(name.matches("^([A-ZÀ-Ü^×]){1}([a-zà-ü^÷])*+$")){
@@ -583,7 +583,7 @@ public abstract class BusinessLogic {
         }
     }
 
-    private static void BL_findByLastName() {
+    private static void BL_findCustomersByLastName() {
         System.out.println("Inserire cognome del cliente:");
         String surname = new Scanner(System.in).nextLine();
         if(surname.matches("^([A-ZÀ-Ü^×]){1}([a-zà-ü^÷])*+$")){
