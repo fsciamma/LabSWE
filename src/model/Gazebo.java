@@ -7,8 +7,6 @@ public class Gazebo extends Asset {
 
     private int gazeboId;
 
-    private ArrayList<AddOn> add_ons;
-
     private BigDecimal daily_price;
 
     public Gazebo(){

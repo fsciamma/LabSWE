@@ -36,11 +36,12 @@ public class ReservationDAO extends BaseDAO {
             for (Integer i: reserved_assets) {
                 // Aggiornamento tabella reserved_assets
                 updateReservedAssetReservationIDValue(i, id);
-                //TODO ciclo for per gli addon di ciascun reservable asset
+                //TODO valutare se serve toccare gli addOn in questa tabella (a me non sembra)
             }
             return id;
         } catch (SQLException s) {
             for(Integer i: reserved_assets){
+                deleteReservedAddOn(i);
                 deleteReservedAsset(i);
             }
             if(id > 0)
@@ -239,7 +240,7 @@ public class ReservationDAO extends BaseDAO {
     public void deleteReservation(int resCode) {
         String query = "delete from \"laZattera\".reservation where \"reservationID\" = " + resCode;
         try(Statement stmt = conn.createStatement()){
-            stmt.execute(query);
+            stmt.executeUpdate(query);
             System.out.println("La prenotazione è stata cancellata!");
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -249,8 +250,18 @@ public class ReservationDAO extends BaseDAO {
     public void deleteReservedAsset(int resCode) {
         String query = "delete from \"laZattera\".reserved_assets where \"reservedID\" = " + resCode;
         try(Statement stmt = conn.createStatement()){
-            stmt.executeQuery(query);
+            stmt.executeUpdate(query);
             System.out.println("L'asset è stato cancellato correttamente");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void deleteReservedAddOn(int reservedID) {
+        String query = "delete from \"laZattera\".reserved_add_on where \"reserved_assetsID\" = " + reservedID;
+        try(Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate(query);
+            System.out.println("Gli AddOn sono stati cancellati correttamente");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

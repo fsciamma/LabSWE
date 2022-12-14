@@ -7,7 +7,6 @@ public class Umbrella extends Asset {
 
     private int umbrellaId;
 
-    private ArrayList<AddOn> add_ons;
     private BigDecimal daily_price;
     public Umbrella() {
     }
