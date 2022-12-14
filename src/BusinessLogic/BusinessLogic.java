@@ -500,7 +500,7 @@ public abstract class BusinessLogic {
             switch(choice) {
                 case 1 -> customerSearch();
                 case 2 -> reservationSearch();
-                case 3 -> paymentSearch();
+                case 3 -> invoiceSearch();
                 case 4 -> running = false;
                 default -> System.err.println("Opzione non valida...");
             }
@@ -541,6 +541,9 @@ public abstract class BusinessLogic {
         }
     }
 
+    /**
+     * Prende in ingresso da tastiera l'indirizzo email del cliente ricercato e passa la String al metodo di CustomerDAO per la ricerca del Customer e printa a schermo le informazioni ritornate
+     */
     private static void BL_findCustomerByEmail() {
         boolean emailNotValid = true;
         String email;
@@ -562,6 +565,9 @@ public abstract class BusinessLogic {
         }
     }
 
+    /**
+     * Prende in ingresso da tastiera il nome completo del cliente ricercato e passa la String al metodo di CustomerDAO per la ricerca dei Customers corrispondenti e printa a schermo le informazioni ritornate (può ritornare più di un risultato)
+     */
     private static void BL_findCustomersByFullName() {
         System.out.println("Inserire nome e cognome del cliente da cercare (formato: Nome Cognome):");
         String name = new Scanner(System.in).nextLine();
@@ -573,6 +579,9 @@ public abstract class BusinessLogic {
         }
     }
 
+    /**
+     * Prende in ingresso da tastiera il nome del cliente ricercato e passa la String al metodo di CustomerDAO per la ricerca dei Customers corrispondenti e printa a schermo le informazioni ritornate (può ritornare più di un risultato)
+     */
     private static void BL_findCustomersByFirstName() {
         System.out.println("Inserire nome del cliente: ");
         String name = new Scanner(System.in).nextLine();
@@ -583,6 +592,9 @@ public abstract class BusinessLogic {
         }
     }
 
+    /**
+     * Prende in ingresso da tastiera il cognome del cliente ricercato e passa la String al metodo di CustomerDAO per la ricerca dei Customers corrispondenti e printa a schermo le informazioni ritornate (può ritornare più di un risultato)
+     */
     private static void BL_findCustomersByLastName() {
         System.out.println("Inserire cognome del cliente:");
         String surname = new Scanner(System.in).nextLine();
@@ -633,6 +645,23 @@ public abstract class BusinessLogic {
         }
     }
 
+    /**
+     * Prende in ingresso da tastiera il codice della Reservation ricercata e passa il valore al metodo di ReservationDAO per la ricerca della Reservation e printa a schermo le informazioni ritornate
+     */
+    private static void BL_findReservationByID() {
+        System.out.println("Inserisci codice prenotazione: ");
+        try {
+            System.out.println(ReservationDAO.getInstance().findById(new Scanner(System.in).nextInt()));
+        } catch (InputMismatchException i){
+            System.err.println("Inserire un codice numerico...");
+        } catch (SQLException s){
+            System.err.println(s.getMessage());
+        }
+    }
+
+    /**
+     * Prende in ingresso da tastiera l'indirizzo email del cliente ricercato e passa la String al metodo di ReservationDAO per la ricerca delle Reservations associate al cliente e printa a schermo le informazioni ritornate (può ritornare più di un risultato)
+     */
     private static void BL_findReservationsByCustomer() {
         System.out.println("Inserisci email cliente:");
         try {
@@ -644,8 +673,11 @@ public abstract class BusinessLogic {
         }
     }
 
+    /**
+     * Prende in ingresso da tastiera il codice dell'Asset ricercato e passa il valore al metodo di ReservationDAO per la ricerca delle Reservations e printa a schermo le informazioni ritornate (può ritornare più di un risultato)
+     */
     private static void BL_findReservationsByAsset() {
-        System.out.println("Inserisci codice ombrellone: ");
+        System.out.println("Inserisci codice asset: ");
         try {
             ReservationDAO.getInstance().findByUmbrellaId(new Scanner(System.in).nextInt());
         } catch (InputMismatchException i){
@@ -655,6 +687,9 @@ public abstract class BusinessLogic {
         }
     }
 
+    /**
+     * Prende in ingresso da tastiera le due date del periodo di cui si vogliono conoscere le Reservations  passa i valori al metodo di ReservationDAO per la ricerca delle Reservations e printa a schermo le informazioni ritornate (può ritornare più di un risultato)
+     */
     private static void BL_findReservationsByDates() {
         //TODO aggiungere eventualmente la possibilita che in assenza di seconda data mostri tutte le prenotazioni dalla data di partenza in poi
         LocalDate start = LocalDate.now();
@@ -692,17 +727,6 @@ public abstract class BusinessLogic {
         }
     }
 
-    private static void BL_findReservationByID() {
-        System.out.println("Inserisci codice prenotazione: ");
-        try {
-            System.out.println(ReservationDAO.getInstance().findById(new Scanner(System.in).nextInt()));
-        } catch (InputMismatchException i){
-            System.err.println("Inserire un codice numerico...");
-        } catch (SQLException s){
-            System.err.println(s.getMessage());
-        }
-    }
-
     /**
      * Metodo che prende in ingresso da Command Line una data in formato gg-mm-aa e la riorganizza in un formato accettato da SQL
      * @return data inserita ma in un formato accettato da SQL
@@ -729,7 +753,7 @@ public abstract class BusinessLogic {
      * Metodo che permette di accedere a un sotto-menù con operazioni che permettono di visualizzare a schermo le ricevute
      * relative alle prenotazioni secondo criteri selezionabili.
      */
-    private static void paymentSearch(){
+    private static void invoiceSearch(){
         boolean running = true;
         int choice;
         while(running){
@@ -753,6 +777,9 @@ public abstract class BusinessLogic {
         }
     }
 
+    /**
+     * Prende in ingresso da tastiera il codice della Invoice ricercata e passa il valore al metodo di InvoiceDAO per la ricerca della Invoice e printa a schermo le informazioni ritornate
+     */
     private static void BL_findInvoiceByCode() {
         System.out.println("Inserire codice ricevuta/prenotazione:");
         try{
@@ -764,8 +791,11 @@ public abstract class BusinessLogic {
         }
     }
 
+    /**
+     * Prende in ingresso da tastiera l'email del Customer ricercato e passa il valore al metodo di InvoiceDAO per la ricerca della Invoice e printa a schermo le informazioni ritornate (può ritornare più di un risultato)
+     */
     private static void BL_findInvoiceByCustomer() {
-        System.out.println("Inserire codice cliente: ");
+        System.out.println("Inserire email cliente: ");
         try{
             InvoiceDAO.getINSTANCE().findByCustomerID(new Scanner(System.in).nextLine());
         } catch (InputMismatchException i){
@@ -775,6 +805,9 @@ public abstract class BusinessLogic {
         }
     }
 
+    /**
+     * Prende in ingresso da tastiera lo stato ricercato del pagamento (effettuato o non effettuato) ricercato e passa il valore al metodo di InvoiceDAO per la ricerca della Invoice e printa a schermo le informazioni ritornate (può ritornare più di un risultato)
+     */
     private static void BL_findInvoiceByState() {
         System.out.println("Inserire stato pagamento (true o false): ");
         try{
