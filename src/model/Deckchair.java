@@ -7,15 +7,13 @@ public class Deckchair extends AddOn {
 
     private int deckchairId;
 
-    private BigDecimal daily_price;
-
     public Deckchair() {
+        super();
     }
 
     public Deckchair(int aoId, int dcId, BigDecimal daily_price) {
-        setAdd_onId(aoId);
+        super(aoId, daily_price);
         this.deckchairId = dcId;
-        this.daily_price = daily_price;
     }
 
     public int getDeckchairId() {
@@ -27,12 +25,7 @@ public class Deckchair extends AddOn {
     }
 
     @Override
-    public BigDecimal getPrice() {
-        return this.daily_price;
-    }
-
-    @Override
     public String toString(){
-        return "Lettino N°" + this.deckchairId + ", prezzo per giornata: " + this.daily_price +".";
+        return "Lettino N°" + this.deckchairId + ", prezzo per giornata: " + getPrice() +".";
     }
 }

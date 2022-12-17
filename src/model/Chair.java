@@ -6,14 +6,13 @@ public class Chair extends AddOn{
 
     private int chairId;
 
-    private BigDecimal daily_price;
-
-    public Chair() {}
+    public Chair() {
+        super();
+    }
 
     public Chair(int aoId, int chId, BigDecimal daily_price){
-        setAdd_onId(aoId);
+        super(aoId, daily_price);
         this.chairId = chId;
-        this.daily_price = daily_price;
     }
 
     public int getChairId() {
@@ -25,12 +24,7 @@ public class Chair extends AddOn{
     }
 
     @Override
-    public BigDecimal getPrice() {
-        return this.daily_price;
-    }
-
-    @Override
     public String toString(){
-        return "Lettino N°" + this.chairId + ", prezzo per giornata: " + this.daily_price +".";
+        return "Lettino N°" + this.chairId + ", prezzo per giornata: " + getPrice() +".";
     }
 }

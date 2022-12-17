@@ -24,8 +24,6 @@ public class DAOFactory {
         return InvoiceDAO.getINSTANCE();
     }
 
-    public UmbrellaDAO createUmbrellaDAO(){
-        return UmbrellaDAO.getINSTANCE();
-    }
+
     //TODO aggiungere gli altri metodi via via che vengono creati i rispettivi DAO
 }

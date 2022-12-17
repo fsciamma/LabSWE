@@ -6,15 +6,13 @@ public class Booth extends AddOn{
 
     private int boothId;
 
-    private BigDecimal daily_price;
-
     public Booth() {
+        super();
     }
 
     public Booth(int aoId, int boothId, BigDecimal daily_price) {
-        setAdd_onId(aoId);
+        super(aoId, daily_price);
         this.boothId = boothId;
-        this.daily_price = daily_price;
     }
 
     public int getBoothId() {
@@ -26,12 +24,7 @@ public class Booth extends AddOn{
     }
 
     @Override
-    public BigDecimal getPrice() {
-        return this.daily_price;
-    }
-
-    @Override
     public String toString(){
-        return "Lettino N°" + this.boothId + ", prezzo per giornata: " + this.daily_price +".";
+        return "Lettino N°" + this.boothId + ", prezzo per giornata: " + getPrice() +".";
     }
 }

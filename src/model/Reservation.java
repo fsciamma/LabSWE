@@ -1,9 +1,6 @@
 package model;
 
-import DAO.UmbrellaDAO;
-
 import java.math.BigDecimal;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 
@@ -12,8 +9,8 @@ import java.util.Scanner;
 public class Reservation {
     private int reservationID;
     private String customer;
-    private ArrayList<Asset> reserved_assets;
-    private int invoiceID;
+    private ArrayList<ReservedAsset> reserved_assets;
+    private Invoice invoice;
     private BigDecimal price = BigDecimal.ZERO;
 
     public Reservation(){
@@ -59,49 +56,49 @@ public class Reservation {
      * @param favoriteType: intero rappresentate un tipo scelto come preferito per filtrare i risultati
      * @return Umbrella: l'ombrellone selezionato da inserire nella prenotazione
      */
-    private static Umbrella getAvailableUmbrella(int favoriteType){
-        UmbrellaDAO ud = UmbrellaDAO.getINSTANCE();
-        Umbrella u = new Umbrella();
-        ArrayList<Integer> availableUmbrellas = ud.getAvailableUmbrellas(favoriteType);
-        try{
-            System.out.println("Per favore, seleziona uno degli ombrelloni disponibili.");
-            boolean notValidNumber = true;
-            int number;
-            while(notValidNumber){
-                Scanner input = new Scanner(System.in);
-                try{
-                    number = input.nextInt();
-                } catch (InputMismatchException i){
-                    number = 0;
-                }
-                if(availableUmbrellas.contains(number)){
-                    u = ud.findById(number);
-                    notValidNumber = false;
-                } else {
-                    System.err.println("Ombrellone " + number + " non disponibile. Prego selezionare un altro numero.");
-                }
-            }
-        }catch (SQLException e){
-            System.err.println(e.getMessage());
-        }
-        return u;
-    }
+    //private static Umbrella getAvailableUmbrella(int favoriteType){
+    //    UmbrellaDAO ud = UmbrellaDAO.getINSTANCE();
+    //    Umbrella u = new Umbrella();
+    //    ArrayList<Integer> availableUmbrellas = ud.getAvailableUmbrellas(favoriteType);
+    //    try{
+    //        System.out.println("Per favore, seleziona uno degli ombrelloni disponibili.");
+    //        boolean notValidNumber = true;
+    //        int number;
+    //        while(notValidNumber){
+    //            Scanner input = new Scanner(System.in);
+    //            try{
+    //                number = input.nextInt();
+    //            } catch (InputMismatchException i){
+    //                number = 0;
+    //            }
+    //            if(availableUmbrellas.contains(number)){
+    //                u = ud.findById(number);
+    //                notValidNumber = false;
+    //            } else {
+    //                System.err.println("Ombrellone " + number + " non disponibile. Prego selezionare un altro numero.");
+    //            }
+    //        }
+    //    }catch (SQLException e){
+    //        System.err.println(e.getMessage());
+    //    }
+    //    return u;
+    //}
 
     /**
      * Metodo che viene usato per selezionare un tipo di ombrellone per filtrare la ricerca
      * @return int : intero rappresentante il tipo selezionato
      */
-    private static int getFavoriteType() {
-        int favoriteType;
-        try{
-            favoriteType = new Scanner(System.in).nextInt();
-            System.out.println("E' stato richiesto un ombrellone del tipo: " + UmbrellaType.getInstance().getUTypeMap().get(favoriteType).getTypeName());
-        } catch (InputMismatchException | NullPointerException i){
-            favoriteType = 0;
-            System.out.println("Nessun tipo specifico richiesto.");
-        }
-        return favoriteType;
-    }
+    //private static int getFavoriteType() {
+    //    int favoriteType;
+    //    try{
+    //        favoriteType = new Scanner(System.in).nextInt();
+    //        System.out.println("E' stato richiesto un ombrellone del tipo: " + UmbrellaType.getInstance().getUTypeMap().get(favoriteType).getTypeName());
+    //    } catch (InputMismatchException | NullPointerException i){
+    //        favoriteType = 0;
+    //        System.out.println("Nessun tipo specifico richiesto.");
+    //    }
+    //    return favoriteType;
+    //}
 
     public void setTotal_price(BigDecimal total_price) {
         this.price = total_price;
@@ -125,12 +122,12 @@ public class Reservation {
         return customer;
     }
 
-    public void updateReservation(Asset r, int days){
+    public void updateReservation(ReservedAsset r, int days){
         this.reserved_assets.add(r);
         setTotal_price(getTotal_price().add(r.getPrice().multiply(BigDecimal.valueOf(days))));
     }
 
-    public ArrayList<Asset> getReserved_assets(){
+    public ArrayList<ReservedAsset> getReserved_assets(){
         return reserved_assets;
     }
 

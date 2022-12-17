@@ -280,8 +280,10 @@ public abstract class BusinessLogic {
                     //Rollback: siccome ho già inserito su DB i reservable asset scelti e rispettivi add on,
                     //se la procedura fallisce devo cancellare tutto ciò che ho aggiunto fino ad ora.
                     System.err.println(s.getMessage());
-                    if(!a.isEmpty() && reservedID > 0){
-                        rd.deleteReservedAddOn(reservedID);
+                    if(!a.isEmpty()){
+                        for(Integer i: added){
+                            rd.deleteReservedAddOn(i);
+                        }
                     }
                     for(Integer i: added){
                         rd.deleteReservedAsset(i);
@@ -306,7 +308,9 @@ public abstract class BusinessLogic {
                 //Rollback: devo cancellare tutto a partire dagli add on fino all'invoice
                 System.err.println(r.getMessage());
                 if(!a.isEmpty()){
-                    rd.deleteReservedAddOn(reservedID);
+                    for(Integer i: added){
+                        rd.deleteReservedAddOn(i);
+                    }
                 }
                 // Cancello tutti i reservable asset associati
                 for(Integer i: added){
@@ -343,7 +347,7 @@ public abstract class BusinessLogic {
             System.out.println("E' stato richiesto un ombrellone del tipo: " + rad.fecthType(fav_type));
         } catch (SQLException s){
             System.err.println("Errore nella lettura della tabella");
-            fav_type = 0;
+            fav_type = 0; //TODO
         } catch (InputMismatchException i){
             System.out.println("Nessun tipo specifico richiesto");
             fav_type = 0;

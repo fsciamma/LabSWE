@@ -1,23 +1,25 @@
 package model;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 
 public class Asset {
-    protected int resId;
+    protected int assetId;
 
-    protected ArrayList<AddOn> add_ons;
+    protected BigDecimal daily_price;
 
-    public void setAddOns(ArrayList<AddOn> a){
-        this.add_ons.addAll(a);
+    protected Asset(){}
+
+    protected Asset(int assetId, BigDecimal price){
+        this.assetId = assetId;
+        this.daily_price = price;
     }
 
     public int getResId() {
-        return resId;
+        return assetId;
     }
 
     public void setResId(int resId) {
-        this.resId = resId;
+        this.assetId = resId;
     }
 
     public BigDecimal getPrice(){
