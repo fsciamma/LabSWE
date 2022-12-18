@@ -44,11 +44,15 @@ public class ReservedAsset {
         return asset;
     }
 
+    public ArrayList<ReservedAddOn> getAdd_ons() {
+        return add_ons;
+    }
+
     public BigDecimal getPrice(){
-        BigDecimal asset_price = asset.getPrice().multiply(BigDecimal.valueOf(DAYS.between(start_date, end_date)));
+        BigDecimal asset_price = asset.getPrice().multiply(BigDecimal.valueOf(DAYS.between(start_date, end_date) + 1));
         BigDecimal addon_price = BigDecimal.ZERO;
         for (ReservedAddOn r: add_ons) {
-            addon_price = addon_price.add(r.getPrice().multiply(BigDecimal.valueOf(DAYS.between(r.getStart_date(), r.getEnd_date()))));
+            addon_price = addon_price.add(r.getPrice());
         }
         return asset_price.add(addon_price);
     }

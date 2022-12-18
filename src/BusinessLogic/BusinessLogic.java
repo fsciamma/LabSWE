@@ -235,14 +235,15 @@ public abstract class BusinessLogic {
      * @param customerEmail Email del cliente che richiede una nuova prenotazione
      */
     private static void addNewReservation(String customerEmail){
+        ReservationDAO rDAO = ReservationDAO.getInstance();
+        Reservation newRes = Reservation.createNewReservation(customerEmail);
+
+        //Per tenere traccia dell'id di tutte le righe aggiunte
+        ArrayList<Integer> reservedIDs = new ArrayList<>();
         try{
             //TODO rivedere un po' tutte le eccezioni in questo pezzo di codice
-            Reservation newRes = Reservation.createNewReservation(customerEmail);
 
-            //TODO valutare se trasferirlo in una funzione a parte
             ArrayList<ReservedAsset> added = new ArrayList<>();
-            ArrayList<ReservedAddOn> a = new ArrayList<>();
-            ReservationDAO rd = ReservationDAO.getInstance();
             boolean selecting = true;
 
             do {
@@ -252,73 +253,70 @@ public abstract class BusinessLogic {
                 ReservedAsset ra;
 
                 // Faccio scegliere al cliente il reservable asset che si vuole prenotare e lo aggiungo alla prenotazione
-                // inoltre aggiungo il reserved asset alla lista e al database, tenendo traccia di tutti i reserved aggiunti
-                try {
-                    Asset the_chosen_one = chooseReservableAsset(start_date, end_date, added);
-                    ra = new ReservedAsset(the_chosen_one, start_date, end_date);
-                    added.add(ra);
+                // inoltre aggiungo il reserved asset alla lista per tenere traccia di tutti i reserved aggiunti
+                Asset the_chosen_one = chooseReservableAsset(start_date, end_date, added);
+                ra = new ReservedAsset(the_chosen_one, start_date, end_date);
+                added.add(ra);
 
-                    //int reservedID = rd.addNewReserved_asset(the_chosen_one, start_date, end_date);
-
-                    // funzione per la selezione degli add on per ciascun asset
-                    System.out.println("Vuoi aggiungere AddOn a questo asset? (Y/N)");
-                    Scanner input = new Scanner(System.in);
-                    String line = input.nextLine();
-                    if ("Y".equals(line) || "y".equals(line)) { // Se viene inserito qualsiasi altro carattere esce dall'if
-                        a = reserveAddOns(ra);
-                    }
-
-                } catch (SQLException s) {
-                    //Rollback: siccome ho già inserito su DB i reservable asset scelti e rispettivi add on,
-                    //se la procedura fallisce devo cancellare tutto ciò che ho aggiunto fino ad ora.
-                    //System.err.println(s.getMessage());
-                    //if(!a.isEmpty()){
-                    //    for(Integer i: added){
-                    //        rd.deleteReservedAddOn(i);
-                    //    }
-                    //}
-                    //for(Integer i: added){
-                    //    rd.deleteReservedAsset(i);
-                    //}
-                    throw new RuntimeException("Errore nell'aggiunta degli asset; annullamento operazione");
-                }
-
-                System.out.println("Vuoi aggiungere altro? (Y/N)");
+                // funzione per la selezione degli add on per ciascun asset
+                System.out.println("Vuoi aggiungere AddOn a questo asset? (Y/N)");
                 Scanner input = new Scanner(System.in);
                 String line = input.nextLine();
+                if ("Y".equals(line) || "y".equals(line)) { // Se viene inserito qualsiasi altro carattere esce dall'if
+                    reserveAddOns(ra);
+                }
+
+                newRes.addReservedAsset(ra);
+
+                System.out.println("Vuoi aggiungere altro? (Y/N)");
+
+                line = new Scanner(System.in).nextLine();
                 if ("N".equals(line) || "n".equals(line)) { // Se viene inserito qualsiasi altro carattere esce dall'if
                     selecting = false;
                 }
             } while(selecting);
 
-            // Aggiungo la reservation al DB per poter generare l'ID e creare l'Invoice
-            //int id = rd.updateReservationTables(newRes, added);
+            // Aggiungo la reservation e tutto ciò che ho prenotato al DB per poter generare l'ID e creare l'Invoice
+            int id = updateReservationTables(newRes, reservedIDs);
 
-            try{
-                //addNewInvoice(newRes, id);
-            } catch (RuntimeException r){
-                //Rollback: devo cancellare tutto a partire dagli add on fino all'invoice
-                //System.err.println(r.getMessage());
-                //if(!a.isEmpty()){
-                //    for(Integer i: added){
-                //        rd.deleteReservedAddOn(i);
-                //    }
-                //}
-                // Cancello tutti i reservable asset associati
-                //for(Integer i: added){
-                //    rd.deleteReservedAsset(i);
-                //}
-                // Cancello la prenotazione effettuata
-                //rd.deleteReservation(id);
-                throw new RuntimeException("Errore nell'aggiunta della ricevuta; annullamento operazione");
-            }
+            addNewInvoice(newRes, id);
+
             System.out.println("Prenotazione effettuata!");
         } catch(RuntimeException r){
             System.err.println(r.getMessage());
+            //TODO ROLLBACK
+            //DELETE RESERVED ADD ONS -> uso i numeri contenuti in reservedIDs per eliminare prima tutti gli add on
+            //DELETE RESERVED ASSETS -> poi uso gli stessi numeri per eliminare i reserved asset
+            //DELETE INVOICE -> uso l'id della prenotazione per cancellare l'invoice
+            //DELETE RESERVATION -> e anche la prenotazione
         }
     }
 
-    private static Asset chooseReservableAsset(LocalDate start_date, LocalDate end_date, ArrayList<ReservedAsset> r) throws SQLException {
+    /**
+     * Aggiunge una reservation al database aggiornando tutte le tabelle influenzate
+     * @param r : reservation, date
+     */
+    public static int updateReservationTables(Reservation r, ArrayList<Integer> a) {
+        int reservationID = 0;
+        ReservationDAO rDAO = ReservationDAO.getInstance();
+        try{
+            // Aggiornamento tabella reservation
+            reservationID = rDAO.addNewReservation(r);
+            for (ReservedAsset i: r.getReserved_assets()) {
+                // Aggiornamento tabella reserved_assets
+                int reservedID = rDAO.addNewReserved_asset(reservationID, i);
+                a.add(reservedID);
+                for (ReservedAddOn ao : i.getAdd_ons())
+                    // Aggiornamento tabella reserved_add_on
+                    rDAO.addNewReservedAddOn(reservedID, ao);
+            }
+            return reservationID;
+        } catch (SQLException s) {
+            throw new RuntimeException("Errore nell'aggiornamento delle tabelle; annulamento operazione");
+        }
+    }
+
+    private static Asset chooseReservableAsset(LocalDate start_date, LocalDate end_date, ArrayList<ReservedAsset> r) {
         AssetDAO rad = AssetDAO.getINSTANCE();
         System.out.println("Seleziona il tipo di Prenotabile preferito: ");
         int chosen_type = chooseType();
@@ -350,8 +348,7 @@ public abstract class BusinessLogic {
             fav_type = new Scanner(System.in).nextInt();
             System.out.println("E' stato richiesto un ombrellone del tipo: " + rad.fecthType(fav_type));
         } catch (SQLException s){
-            System.err.println("Errore nella lettura della tabella");
-            fav_type = 0; //TODO
+            throw new RuntimeException("Errore nella lettura della tabella");
         } catch (InputMismatchException i){
             System.out.println("Nessun tipo specifico richiesto");
             fav_type = 0;
@@ -378,9 +375,8 @@ public abstract class BusinessLogic {
         return choice - 1;
     }
 
-    private static ArrayList<ReservedAddOn> reserveAddOns(ReservedAsset ra) throws SQLException {
+    private static void reserveAddOns(ReservedAsset ra){
         ArrayList<ReservedAddOn> added = new ArrayList<>();
-        //ReservationDAO rd = ReservationDAO.getInstance();
         boolean selecting = true;
 
         while(selecting){
@@ -400,33 +396,25 @@ public abstract class BusinessLogic {
                 addOn_sd = ra.getStart_date();
                 addOn_ed = ra.getEnd_date();
             }
-            try{
-                // Scelgo l'addon
-                AddOn chosen = chooseAddOn(addOn_sd, addOn_ed, added);
-                // Lo aggiungo ai prenotati sul DB e a una lista per completare l'Asset corrispondente
-                //rd.addNewReservedAddOn(chosen, reservedID, addOn_sd, addOn_ed);
-                ReservedAddOn rao = new ReservedAddOn(chosen, addOn_sd, addOn_ed);
-                ra.addReservedAddOn(rao);
-                added.add(rao);
-            } catch (SQLException s){
-                //Rollback, cancello gli addon inseriti
-                System.err.println(s.getMessage());
-                //rd.deleteReservedAddOn(reservedID);
-                throw new SQLException("Errore nell'aggiunta degli Add On, annullamento operazione");
-            }
 
-            // Procedo all'aggiunta di un
+            // Scelgo l'addon
+            AddOn chosen = chooseAddOn(addOn_sd, addOn_ed, added);
+
+            // Lo aggiungo ai prenotati sul DB e a una lista per completare l'Asset corrispondente
+            ReservedAddOn rao = new ReservedAddOn(chosen, addOn_sd, addOn_ed);
+            ra.addReservedAddOn(rao);
+            added.add(rao);
+
+
             System.out.println("Vuoi aggiungere altri AddOn a questo asset? (Y/N)");
             String choice = new Scanner(System.in).nextLine();
             if ("N".equals(choice) || "n".equals(choice)) { // Se viene inserito qualsiasi altro carattere esce dall'if
                 selecting = false;
             }
         }
-
-        return added;
     }
 
-    private static AddOn chooseAddOn(LocalDate start_date, LocalDate end_date, ArrayList<ReservedAddOn> a) throws SQLException {
+    private static AddOn chooseAddOn(LocalDate start_date, LocalDate end_date, ArrayList<ReservedAddOn> a) {
         AddOnDAO aoDAO = AddOnDAO.getINSTANCE();
         System.out.println("Seleziona il tipo di AddOn desiderato: ");
         int chosen_type = chooseAddOnType();
@@ -585,6 +573,7 @@ public abstract class BusinessLogic {
      * @param res: Prenotazione di cui voglio creare una ricevuta
      */
     private static void addNewInvoice(Reservation res, int id) throws RuntimeException{
+        res.compute_total();
         Invoice newInv = new Invoice(id, res.getTotal_price()); //TODO wrapper del costruttore?
         InvoiceDAO iDAO = InvoiceDAO.getINSTANCE();
         iDAO.addNewInvoice(newInv);

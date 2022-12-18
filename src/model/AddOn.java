@@ -24,6 +24,6 @@ public class AddOn {
     }
 
     public BigDecimal getPrice(){
-        return BigDecimal.ZERO;
+        return this.price;
     }
 }

@@ -1,8 +1,6 @@
 package DAO;
 
-import model.AddOn;
-import model.Asset;
-import model.Reservation;
+import model.*;
 
 import java.sql.*;
 import java.time.LocalDate;
@@ -24,32 +22,6 @@ public class ReservationDAO extends BaseDAO {
     }
 
     //ADD METHODS//
-    /**
-     * Aggiunge una reservation al database aggiornando tutte le tabelle influenzate
-     * @param r : reservation, date
-     */
-    public int updateReservationTables(Reservation r, ArrayList<Integer> reserved_assets) {
-        int id = 0;
-        try{
-            // Aggiornamento tabella reservation
-            id = addNewReservation(r);
-            for (Integer i: reserved_assets) {
-                // Aggiornamento tabella reserved_assets
-                updateReservedAssetReservationIDValue(i, id);
-                //TODO valutare se serve toccare gli addOn in questa tabella (a me non sembra)
-            }
-            return id;
-        } catch (SQLException s) {
-            for(Integer i: reserved_assets){
-                deleteReservedAddOn(i);
-                deleteReservedAsset(i);
-            }
-            if(id > 0)
-                deleteReservation(id);
-            throw new RuntimeException("Errore nell'aggiornamento delle tabelle; annulamento operazione");
-        }
-    }
-
     /**
      * Aggiorna la tabella reservation
      * @param newR La Reservation che deve essere inserita nel database
@@ -73,23 +45,17 @@ public class ReservationDAO extends BaseDAO {
         return id;
     }
 
-    /**
-     * Aggiorna la tabella resesrved_assets
-     * @param r: asset inserito nella prenotazione
-     * @param sd: data di inizio della prenotazione
-     * @param ed: data di fine della prenotazione
-     * @return : id dell'assegnazione
-     */
-    public int addNewReserved_asset(Asset r, LocalDate sd, LocalDate ed) throws SQLException{
-        String insertStatement = "INSERT INTO \"laZattera\".reserved_assets (\"assetID\", start_date, end_date) " +
-                "values(?, ?, ?) " +
+    public int addNewReserved_asset(int reservationID, ReservedAsset a) throws SQLException{
+        String insertStatement = "INSERT INTO \"laZattera\".reserved_assets (\"reservationID\", \"assetID\", start_date, end_date) " +
+                "values(?, ?, ?, ?) " +
                 "RETURNING \"reservedID\"";
         int new_id = 0;
         ResultSet rs;
         try(PreparedStatement stmt = conn.prepareStatement(insertStatement)){
-            stmt.setInt(1, r.getResId());
-            stmt.setDate(2, Date.valueOf(sd));
-            stmt.setDate(3, Date.valueOf(ed));
+            stmt.setInt(1, reservationID);
+            stmt.setInt(2, a.getAsset().getResId());
+            stmt.setDate(3, Date.valueOf(a.getStart_date()));
+            stmt.setDate(4, Date.valueOf(a.getEnd_date()));
             
             stmt.execute();
 
@@ -101,9 +67,9 @@ public class ReservationDAO extends BaseDAO {
         return new_id;
     }
 
-    public void addNewReservedAddOn(AddOn chosen, int reservedID, LocalDate addOnSd, LocalDate addOnEd) throws SQLException {
+    public void addNewReservedAddOn(int reservedID, ReservedAddOn a) throws SQLException {
         String insertStatement = "INSERT INTO \"laZattera\".reserved_add_on (\"reserved_assetsID\", \"add_onID\", start_date, end_date) " +
-                "values("+ reservedID + ", " + chosen.getAdd_onId() + ", '" + addOnSd+ "', '" + addOnEd +"')";
+                "values("+ reservedID + ", " + a.getAddon().getAdd_onId() + ", '" + a.getStart_date() + "', '" + a.getEnd_date() +"')";
         try(Statement stmt = conn.createStatement()){
             stmt.executeUpdate(insertStatement);
         }
@@ -218,7 +184,6 @@ public class ReservationDAO extends BaseDAO {
     //UPDATE METHODS//
     /**
      * Metodo per aggiornare la tabella reserved_assets al completamento della prenotazione
-     * @param reservedCode
      * @param reservationCode
      */
     public void updateReservedAssetReservationIDValue(int reservedCode, int reservationCode) throws SQLException {

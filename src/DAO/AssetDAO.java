@@ -135,14 +135,10 @@ public class AssetDAO extends  BaseDAO{
             ResultSet rs = stmt.executeQuery(query);
             while(rs.next()){
                 int ID = rs.getInt("assetID");
-                //String name = rs.getString("type_name");
-                //int sub = rs.getInt("sub_classID");
-                //BigDecimal price = rs.getBigDecimal("price");
-                //System.out.println("Seleziona " + ID + " per: " + name + " - N°" + sub + " - " + price + "€ al giorno");
                 available.add(findByID(ID));
             }
         } catch (SQLException s){
-            System.err.println("Errore nella connesione alla tabella.");
+            throw new RuntimeException("Errore nella connesione alla tabella");
         }
         return available;
     }

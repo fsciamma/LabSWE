@@ -23,6 +23,6 @@ public class Asset {
     }
 
     public BigDecimal getPrice(){
-        return BigDecimal.ZERO;
+        return this.daily_price;
     }
 }
