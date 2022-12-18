@@ -25,6 +25,6 @@ public class Beachbed extends AddOn{
 
     @Override
     public String toString(){
-        return "Lettino N°" + this.beachbedId + ", prezzo per giornata: " + getPrice() +".";
+        return "Lettino N°" + this.beachbedId + ", prezzo per giornata: " + this.price +"€.";
     }
 }

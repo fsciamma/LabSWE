@@ -25,6 +25,6 @@ public class Booth extends AddOn{
 
     @Override
     public String toString(){
-        return "Lettino N°" + this.boothId + ", prezzo per giornata: " + getPrice() +".";
+        return "Cabina N°" + this.boothId + ", prezzo per giornata: " + this.price +"€.";
     }
 }

@@ -40,6 +40,10 @@ public class ReservedAsset {
         this.end_date = end_date;
     }
 
+    public Asset getAsset() {
+        return asset;
+    }
+
     public BigDecimal getPrice(){
         BigDecimal asset_price = asset.getPrice().multiply(BigDecimal.valueOf(DAYS.between(start_date, end_date)));
         BigDecimal addon_price = BigDecimal.ZERO;
@@ -47,5 +51,9 @@ public class ReservedAsset {
             addon_price = addon_price.add(r.getPrice().multiply(BigDecimal.valueOf(DAYS.between(r.getStart_date(), r.getEnd_date()))));
         }
         return asset_price.add(addon_price);
+    }
+
+    public void addReservedAddOn(ReservedAddOn r){
+        this.add_ons.add(r);
     }
 }

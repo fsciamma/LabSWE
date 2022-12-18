@@ -25,6 +25,6 @@ public class Umbrella extends Asset {
 
     @Override
     public String toString(){
-        return "Ombrellone #" + this.umbrellaId + ", prezzo per giornata: " + this.daily_price + ".";
+        return "Ombrellone #" + this.umbrellaId + ", prezzo per giornata: " + this.daily_price + "€.";
     }
 }

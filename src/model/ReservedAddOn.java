@@ -37,6 +37,10 @@ public class ReservedAddOn {
         this.end_date = end_date;
     }
 
+    public AddOn getAddon() {
+        return addon;
+    }
+
     public BigDecimal getPrice() {
         return addon.getPrice().multiply(BigDecimal.valueOf(DAYS.between(start_date, end_date)));
     }

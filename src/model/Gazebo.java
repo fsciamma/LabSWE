@@ -25,6 +25,6 @@ public class Gazebo extends Asset {
 
     @Override
     public String toString(){
-        return "Gazebo N°" + this.gazeboId + ", prezzo per giornata: " + this.daily_price + ".";
+        return "Gazebo N°" + this.gazeboId + ", prezzo per giornata: " + this.daily_price + "€.";
     }
 }

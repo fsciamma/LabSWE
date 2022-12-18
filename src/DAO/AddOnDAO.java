@@ -101,7 +101,7 @@ public class AddOnDAO extends BaseDAO{
         }
     }
 
-    public ArrayList<Integer> checkAvailability(LocalDate startDate, LocalDate endDate, int chosenType) {
+    public ArrayList<AddOn> checkAvailability(LocalDate startDate, LocalDate endDate, int chosenType) {
         String view_query = "create or replace view \"laZattera\".availableAddOn as select \"add_onID\" from \"laZattera\".add_on " +
                 "except " +
                 "select \"add_onID\" from \"laZattera\".reserved_add_on where start_date <= '" + endDate + "' and end_date >= '" + startDate + "'";
@@ -113,7 +113,7 @@ public class AddOnDAO extends BaseDAO{
             query = query + " where b.add_on_type = " + chosenType;
         }
         query = query + "order by \"add_onID\"";
-        ArrayList <Integer> available = new ArrayList<>();
+        ArrayList <AddOn> available = new ArrayList<>();
 
         try(Statement stmt = conn.createStatement()){
             stmt.execute(view_query);
@@ -123,11 +123,11 @@ public class AddOnDAO extends BaseDAO{
             ResultSet rs = stmt.executeQuery(query);
             while(rs.next()){
                 int ID = rs.getInt("add_onID");
-                String name = rs.getString("type_name");
-                int sub = rs.getInt("sub_classID");
-                BigDecimal price = rs.getBigDecimal("price");
-                System.out.println("Seleziona " + ID + " per: " + name + " - N°" + sub + " - " + price + "€ al giorno");
-                available.add(ID);
+                //String name = rs.getString("type_name");
+                //int sub = rs.getInt("sub_classID");
+                //BigDecimal price = rs.getBigDecimal("price");
+                //System.out.println("Seleziona " + ID + " per: " + name + " - N°" + sub + " - " + price + "€ al giorno");
+                available.add(findByID(ID));
             }
         } catch (SQLException s){
             System.err.println("Errore nella connesione alla tabella.");

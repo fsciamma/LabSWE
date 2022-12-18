@@ -26,6 +26,6 @@ public class Deckchair extends AddOn {
 
     @Override
     public String toString(){
-        return "Lettino N°" + this.deckchairId + ", prezzo per giornata: " + getPrice() +".";
+        return "Sdraio N°" + this.deckchairId + ", prezzo per giornata: " + this.price +"€.";
     }
 }

@@ -25,6 +25,6 @@ public class Chair extends AddOn{
 
     @Override
     public String toString(){
-        return "Lettino N°" + this.chairId + ", prezzo per giornata: " + getPrice() +".";
+        return "Regista N°" + this.chairId + ", prezzo per giornata: " + this.price +"€.";
     }
 }

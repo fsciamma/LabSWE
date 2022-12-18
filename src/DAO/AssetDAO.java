@@ -113,7 +113,7 @@ public class AssetDAO extends  BaseDAO{
         }
     }
 
-    public ArrayList<Integer> checkAvailability(LocalDate start_date, LocalDate end_date, int fav_type) {
+    public ArrayList<Asset> checkAvailability(LocalDate start_date, LocalDate end_date, int fav_type) {
         String view_query = "create or replace view \"laZattera\".availableAssets as select \"assetID\" from \"laZattera\".reservable_asset " +
                 "except " +
                 "select \"assetID\" from \"laZattera\".reserved_assets where start_date <= '" + end_date + "' and end_date >= '" + start_date + "'";
@@ -125,7 +125,7 @@ public class AssetDAO extends  BaseDAO{
             query = query + " where b.asset_type = " + fav_type;
         }
         query = query + "order by \"assetID\"";
-        ArrayList <Integer> available = new ArrayList<>();
+        ArrayList <Asset> available = new ArrayList<>();
 
         try(Statement stmt = conn.createStatement()){
             stmt.execute(view_query);
@@ -135,11 +135,11 @@ public class AssetDAO extends  BaseDAO{
             ResultSet rs = stmt.executeQuery(query);
             while(rs.next()){
                 int ID = rs.getInt("assetID");
-                String name = rs.getString("type_name");
-                int sub = rs.getInt("sub_classID");
-                BigDecimal price = rs.getBigDecimal("price");
-                System.out.println("Seleziona " + ID + " per: " + name + " - N°" + sub + " - " + price + "€ al giorno");
-                available.add(ID);
+                //String name = rs.getString("type_name");
+                //int sub = rs.getInt("sub_classID");
+                //BigDecimal price = rs.getBigDecimal("price");
+                //System.out.println("Seleziona " + ID + " per: " + name + " - N°" + sub + " - " + price + "€ al giorno");
+                available.add(findByID(ID));
             }
         } catch (SQLException s){
             System.err.println("Errore nella connesione alla tabella.");
