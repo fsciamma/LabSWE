@@ -31,16 +31,19 @@ public class AddOnDAO extends BaseDAO{
                 " where \"reserved_assetsID\" = " + reservedID;
         try (Statement stmt = conn.createStatement()) {
             ResultSet rs = stmt.executeQuery(query);
-            StringBuilder s = new StringBuilder("\n\t   con le seguenti aggiunte:\n");
-            while (rs.next()) {
-                s.append("\t   - ")
-                        .append(rs.getString("type_name"))
-                        .append(" N°").append(rs.getString("sub_classID"))
-                        .append(", dal ").append(rs.getDate("start_date"))
-                        .append(" al ").append(rs.getDate("end_date"))
-                        .append("\n");
+            if(rs.isBeforeFirst()) {
+                StringBuilder s = new StringBuilder("\n\t   con le seguenti aggiunte:\n");
+                while (rs.next()) {
+                    s.append("\t   - ")
+                            .append(rs.getString("type_name"))
+                            .append(" N°").append(rs.getString("sub_classID"))
+                            .append(", dal ").append(rs.getDate("start_date"))
+                            .append(" al ").append(rs.getDate("end_date"))
+                            .append("\n");
+                }
+                return s.toString();
             }
-            return s.toString();
+            return "";
         }
     }
 
