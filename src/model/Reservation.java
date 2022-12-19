@@ -1,6 +1,7 @@
 package model;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class Reservation {
@@ -55,6 +56,16 @@ public class Reservation {
 
     public ArrayList<ReservedAsset> getReserved_assets(){
         return reserved_assets;
+    }
+
+    public LocalDate getNearestAssetDate(){
+        LocalDate nearest = LocalDate.MAX;
+        for(ReservedAsset r: this.reserved_assets){
+            if(r.getStart_date().compareTo(nearest) < 0){
+                nearest = r.getStart_date();
+            }
+        }
+        return nearest;
     }
 
     @Override
