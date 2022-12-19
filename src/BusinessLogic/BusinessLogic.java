@@ -235,14 +235,11 @@ public abstract class BusinessLogic {
      * @param customerEmail Email del cliente che richiede una nuova prenotazione
      */
     private static void addNewReservation(String customerEmail){
-        ReservationDAO rDAO = ReservationDAO.getInstance();
-        InvoiceDAO iDAO = InvoiceDAO.getINSTANCE();
-        Reservation newRes = Reservation.createNewReservation(customerEmail);
-
-        //Per tenere traccia dell'id di tutte le righe aggiunte e dell'ID delle prenotazione
-        ArrayList<Integer> reservedIDs = new ArrayList<>();
-        int reservationID = 0;
         try{
+            Reservation newRes = Reservation.createNewReservation(customerEmail);
+            //Per tenere traccia dell'id di tutte le righe aggiunte e dell'ID delle prenotazione
+            ArrayList<Integer> reservedIDs = new ArrayList<>();
+            int reservationID = 0;
             //TODO rivedere un po' tutte le eccezioni in questo pezzo di codice
 
             ArrayList<ReservedAsset> added = new ArrayList<>();
@@ -286,21 +283,6 @@ public abstract class BusinessLogic {
             System.out.println("Prenotazione effettuata!");
         } catch(RuntimeException r){
             System.err.println(r.getMessage());
-            //TODO ROLLBACK
-            if(!reservedIDs.isEmpty()){
-                for(int i: reservedIDs){
-                    //DELETE RESERVED ADD ONS -> uso i numeri contenuti in reservedIDs per eliminare prima tutti gli add on
-                    rDAO.deleteReservedAddOn(i);
-                    //DELETE RESERVED ASSETS -> poi uso gli stessi numeri per eliminare i reserved asset
-                    rDAO.deleteReservedAsset(i);
-                }
-            }
-            if(reservationID > 0){
-                //DELETE INVOICE -> uso l'id della prenotazione per cancellare l'invoice
-                iDAO.deleteInvoice(reservationID);
-                //DELETE RESERVATION -> e anche la prenotazione
-                rDAO.deleteReservation(reservationID);
-            }
         }
     }
 
@@ -324,6 +306,18 @@ public abstract class BusinessLogic {
             }
             return reservationID;
         } catch (SQLException s) {
+            if(!a.isEmpty()){
+                for(int i: a){
+                    //DELETE RESERVED ADD ONS -> uso i numeri contenuti in reservedIDs per eliminare prima tutti gli add on
+                    rDAO.deleteReservedAddOn(i);
+                    //DELETE RESERVED ASSETS -> poi uso gli stessi numeri per eliminare i reserved asset
+                    rDAO.deleteReservedAsset(i);
+                }
+            }
+            if(reservationID > 0){
+                //DELETE RESERVATION -> e anche la prenotazione
+                rDAO.deleteReservation(reservationID);
+            }
             throw new RuntimeException("Errore nell'aggiornamento delle tabelle; annulamento operazione");
         }
     }
