@@ -236,10 +236,12 @@ public abstract class BusinessLogic {
      */
     private static void addNewReservation(String customerEmail){
         ReservationDAO rDAO = ReservationDAO.getInstance();
+        InvoiceDAO iDAO = InvoiceDAO.getINSTANCE();
         Reservation newRes = Reservation.createNewReservation(customerEmail);
 
-        //Per tenere traccia dell'id di tutte le righe aggiunte
+        //Per tenere traccia dell'id di tutte le righe aggiunte e dell'ID delle prenotazione
         ArrayList<Integer> reservedIDs = new ArrayList<>();
+        int reservationID = 0;
         try{
             //TODO rivedere un po' tutte le eccezioni in questo pezzo di codice
 
@@ -277,18 +279,28 @@ public abstract class BusinessLogic {
             } while(selecting);
 
             // Aggiungo la reservation e tutto ciò che ho prenotato al DB per poter generare l'ID e creare l'Invoice
-            int id = updateReservationTables(newRes, reservedIDs);
+            reservationID = updateReservationTables(newRes, reservedIDs);
 
-            addNewInvoice(newRes, id);
+            addNewInvoice(newRes, reservationID);
 
             System.out.println("Prenotazione effettuata!");
         } catch(RuntimeException r){
             System.err.println(r.getMessage());
             //TODO ROLLBACK
-            //DELETE RESERVED ADD ONS -> uso i numeri contenuti in reservedIDs per eliminare prima tutti gli add on
-            //DELETE RESERVED ASSETS -> poi uso gli stessi numeri per eliminare i reserved asset
-            //DELETE INVOICE -> uso l'id della prenotazione per cancellare l'invoice
-            //DELETE RESERVATION -> e anche la prenotazione
+            if(!reservedIDs.isEmpty()){
+                for(int i: reservedIDs){
+                    //DELETE RESERVED ADD ONS -> uso i numeri contenuti in reservedIDs per eliminare prima tutti gli add on
+                    rDAO.deleteReservedAddOn(i);
+                    //DELETE RESERVED ASSETS -> poi uso gli stessi numeri per eliminare i reserved asset
+                    rDAO.deleteReservedAsset(i);
+                }
+            }
+            if(reservationID > 0){
+                //DELETE INVOICE -> uso l'id della prenotazione per cancellare l'invoice
+                iDAO.deleteInvoice(reservationID);
+                //DELETE RESERVATION -> e anche la prenotazione
+                rDAO.deleteReservation(reservationID);
+            }
         }
     }
 
