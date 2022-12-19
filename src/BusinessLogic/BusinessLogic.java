@@ -222,7 +222,7 @@ public abstract class BusinessLogic {
             //Controlla che il Customer che richiede la cancellazione sia anche lo stesso che possiede la prenotazione e che manchino almeno 7 giorni alla data d'inizio della prenotazione
             if(Objects.equals(res.getCustomer(), email) && (DAYS.between(LocalDate.now(), res.getNearestAssetDate()) >= 7)) { //TODO da trovare un modo per recuperare la data
                 InvoiceDAO.getINSTANCE().deleteInvoice(resCode);
-                ReservationDAO.getInstance().deleteReservation(resCode);
+                ReservationDAO.getInstance().totalDestruction(resCode);
             } else {
                 System.out.println("Non puoi cancellare questa prenotazione! Il periodo per annullare la prenotazione è scaduto!");
             }
