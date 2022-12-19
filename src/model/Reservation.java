@@ -73,4 +73,8 @@ public class Reservation {
         return "Prenotazione #" + this.reservationID + " del cliente #" + this.customer + ".\nPrezzo totale: " +
                 this.price + "€.";
     }
+
+    public void setReserved_Assets(ArrayList<ReservedAsset> assetList) {
+        this.reserved_assets = assetList;
+    }
 }
