@@ -138,4 +138,16 @@ public class InvoiceDAO extends BaseDAO{
             throw new RuntimeException(e);
         }
     }
+
+    public void updateInovice(Invoice i) throws SQLException {
+        String query = "select * from \"laZattera\".invoice where \"reservationID\" = " + i.getInvoiceID();
+        try(Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE)){
+            ResultSet rs = stmt.executeQuery(query);
+            while(rs.next()){
+                rs.updateBigDecimal("total", i.getInvoice_amount());
+                rs.updateBoolean("paid", i.isPaid());
+                rs.updateRow();
+            }
+        }
+    }
 }

@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 
 public class Invoice {
     private int invoiceID;
-    private BigDecimal invoice_amount;
+    private BigDecimal invoice_amount = BigDecimal.ZERO;
     private boolean paid = false;
 
     //TODO aggiungere le righe d'ordine e relativo metodo per visualizzare?

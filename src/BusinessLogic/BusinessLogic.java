@@ -3,11 +3,15 @@ package BusinessLogic;
 import DAO.*;
 import model.*;
 
+import java.io.Console;
+import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.logging.ConsoleHandler;
 
+import static java.lang.Thread.sleep;
 import static java.time.temporal.ChronoUnit.DAYS;
 
 public abstract class BusinessLogic {
@@ -21,9 +25,8 @@ public abstract class BusinessLogic {
             System.out.println("Selezionare un'opzione:");
             //System.out.println("\t -");
             System.out.println("\t 1 - Operazioni Cliente");
-            System.out.println("\t 2 - Operazioni Prenotazione");
-            System.out.println("\t 3 - Operazioni Stabilimento");
-            System.out.println("\t 4 - Esci");
+            System.out.println("\t 2 - Operazioni Stabilimento");
+            System.out.println("\t 3 - Esci");
             int choice;
             try{
                 choice = input.nextInt();
@@ -33,9 +36,8 @@ public abstract class BusinessLogic {
             }
             switch (choice) {
                 case 1 -> customerOptions();
-                case 2 -> System.out.println("-- PRENOTAZIONE --"); //TODO
-                case 3 -> resortOptions();
-                case 4 -> {
+                case 2 -> resortOptions();
+                case 3 -> {
                     System.out.println("-- CHIUSURA PROGRAMMA --");
                     running = false;
                 }
@@ -177,7 +179,8 @@ public abstract class BusinessLogic {
             System.out.println("Selezionare l'operazione che si vuole eseguire:");
             System.out.println("\t1 - Modifica una prenotazione");
             System.out.println("\t2 - Cancella una prenotazione");
-            System.out.println("\t3 - Torna indietro");
+            System.out.println("\t3 - Paga");
+            System.out.println("\t4 - Torna indietro");
             Scanner input = new Scanner(System.in);
             int choice = 0;
             try {
@@ -188,7 +191,8 @@ public abstract class BusinessLogic {
             switch (choice) {
                 case 1 -> modifyReservation(email);
                 case 2 -> deleteReservation(email);
-                case 3 -> {
+                case 3 -> pay();
+                case 4 -> {
                     System.out.println("Torna a pagina precedente");
                     running = false;
                 }
@@ -198,6 +202,38 @@ public abstract class BusinessLogic {
     }
 
     private static void modifyReservation(String email) {//TODO
+
+    }
+
+    private static void pay() {
+        InvoiceDAO iDAO = InvoiceDAO.getINSTANCE();
+        try{
+            boolean selected = false;
+            Invoice i = new Invoice();
+            while(!selected){
+                System.out.println("Seleziona la prenotazione da pagare: ");
+                try{
+                    i = iDAO.findByInvoiceID(new Scanner(System.in).nextInt());
+                    if(!i.isPaid()){
+                        System.out.println("Vuoi pagare questa prenotazione? \nImporto dovuto: "+ i.getInvoice_amount() +"€");
+                        String line = new Scanner(System.in).nextLine();
+                        if ("Y".equals(line) || "y".equals(line)) {
+                            selected = true;
+                        }
+                    } else{
+                        System.out.println("Le seguente prenotazione è già stata pagata");
+                    }
+                } catch (InputMismatchException im){
+                    System.err.println("Inserire input numerico");
+                }
+            }
+            i.setPaid(true);
+            iDAO.updateInovice(i);
+            System.out.println("Prenotazione pagata con successo");
+        } catch (SQLException s){
+            System.err.println(s.getMessage());
+            System.err.println("Non è stato possibile effettuare il pagamento, riprovare più tardi");
+        }
 
     }
 
