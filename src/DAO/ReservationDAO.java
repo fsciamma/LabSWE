@@ -240,12 +240,12 @@ public class ReservationDAO extends BaseDAO {
 
     public void totalDestruction(int resCode) {
         AssetDAO.getINSTANCE().totalDestruction(resCode);
+        InvoiceDAO.getINSTANCE().deleteInvoice(resCode);
 
         String query = "delete from \"laZattera\".reservation where \"reservationID\" = " + resCode;
         try(Statement stmt = conn.createStatement()) {
             stmt.executeUpdate(query);
             System.out.println("La prenotazione è stata cancellata con successo");
-            //TODO aggiungere delete della Invoice
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

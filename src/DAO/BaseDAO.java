@@ -13,12 +13,7 @@ public abstract class BaseDAO {
      */
     public BaseDAO() {
         try {
-            if(conn == null) {
-                conn = getConnection();
-            }
-            else{
-                System.out.println("Esiste già una connessione: " + conn); //TODO riga da cancellare alla consegna del progetto
-            }
+            conn = getConnection();
         } catch (SQLException e) {
             System.err.println(e.getMessage());
         }
