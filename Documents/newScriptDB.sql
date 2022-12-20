@@ -129,8 +129,8 @@ insert into "laZattera".reservable_type values(1, 'Ombrellone', 15.00),
                                               (2, 'Gazebo', 45.00);
 
 insert into "laZattera".add_on_type values(1, 'Sedia', 3.00),
-                                          (2, 'Lettino', 4.50),
-                                          (3, 'Sdraio', 4.00),
+                                          (2, 'Sdraio', 3.50),
+                                          (3, 'Lettino', 4.50),
                                           (4, 'Cabina', 5.00);
 
 insert into "laZattera".reservable_asset values
@@ -216,3 +216,30 @@ insert into "laZattera".customer values ('filipposciammacca@gmail.com', 'Filippo
                                         ('mariorossi@gimli.com', 'Mario', 'Rossi'),
                                         ('francescotodino@gimli.com', 'Francesco', 'Todino'),
                                         ('francescocorazzi@gimli.com', 'Francesco', 'Corazzi');
+
+insert into "laZattera".reservation values (DEFAULT, 'mariorossi@gimli.com'),
+                                           (DEFAULT, 'filipposciammacca@gmail.com'),
+                                           (DEFAULT, 'filipposciammacca@gmail.com'),
+                                           (DEFAULT, 'francescotodino@gimli.com');
+
+insert into "laZattera".reserved_assets values (DEFAULT, 1, 37, '2023-06-07', '2023-06-15'),
+                                               (DEFAULT, 2, 30, '2023-06-12', '2023-06-26'),
+                                               (DEFAULT, 3, 5, '2023-06-02', '2023-06-08'),
+                                               (DEFAULT, 4, 27, '2023-06-03', '2023-06-17');
+
+insert into "laZattera".reserved_add_on values (1, 4,'2023-06-07', '2023-06-15'),
+                                               (1, 16,'2023-06-07', '2023-06-15'),
+                                               (1, 27,'2023-06-07', '2023-06-15'),
+                                               (1, 32,'2023-06-07', '2023-06-15'),
+                                               (2, 31,'2023-06-12', '2023-06-26'),
+                                               (2, 27,'2023-06-12', '2023-06-19'),
+                                               (2, 28,'2023-06-19', '2023-06-26'),
+                                               (3, 14,'2023-06-02', '2023-06-06'),
+                                               (4, 12,'2023-06-03', '2023-06-17'),
+                                               (4, 13,'2023-06-03', '2023-06-17');
+
+insert into "laZattera".invoice values (1, 549.00, false),
+                                       (2, 822.00, false),
+                                       (3, 122.50, false),
+                                       (4, 780.00, false);
+
