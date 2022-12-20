@@ -8,6 +8,8 @@ import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.*;
 
+import static java.time.temporal.ChronoUnit.DAYS;
+
 public abstract class BusinessLogic {
     /**
      * Metodo che mostra il menù principale del programma, permette di accedere ai metodi per eseguire operazioni su clienti o prenotazioni o chiudere il programma
@@ -218,9 +220,9 @@ public abstract class BusinessLogic {
         try {
             Reservation res = ReservationDAO.getInstance().findById(resCode);
             //Controlla che il Customer che richiede la cancellazione sia anche lo stesso che possiede la prenotazione e che manchino almeno 7 giorni alla data d'inizio della prenotazione
-            if(Objects.equals(res.getCustomer(), email) /*&& DAYS.between(LocalDate.now(), res.getStart_date()) >= 7*/) { //TODO da trovare un modo per recuperare la data
+            if(Objects.equals(res.getCustomer(), email) && (DAYS.between(LocalDate.now(), res.getNearestAssetDate()) >= 7)) { //TODO da trovare un modo per recuperare la data
                 InvoiceDAO.getINSTANCE().deleteInvoice(resCode);
-                ReservationDAO.getInstance().deleteReservation(resCode);
+                ReservationDAO.getInstance().totalDestruction(resCode);
             } else {
                 System.out.println("Non puoi cancellare questa prenotazione! Il periodo per annullare la prenotazione è scaduto!");
             }

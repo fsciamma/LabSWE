@@ -2,6 +2,7 @@ package DAO;
 
 import model.Gazebo;
 import model.Asset;
+import model.ReservedAsset;
 import model.Umbrella;
 
 import java.math.BigDecimal;
@@ -141,5 +142,52 @@ public class AssetDAO extends  BaseDAO{
             throw new RuntimeException("Errore nella connesione alla tabella");
         }
         return available;
+    }
+
+    public ArrayList<ReservedAsset> getReservedAssets(int reservationID) {
+        String query = "select reserved_assets.\"assetID\", asset_type, \"sub_classID\", price, start_date, end_date from \"laZattera\".reserved_assets" +
+                " join \"laZattera\".reservable_asset on \"laZattera\".reserved_assets.\"assetID\" = \"laZattera\".reservable_asset.\"assetID\"" +
+                " join \"laZattera\".reservable_type on \"laZattera\".reservable_asset.asset_type = \"laZattera\".reservable_type.\"typeID\"" +
+                " where \"laZattera\".reserved_assets.\"reservationID\" = " + reservationID;
+        ArrayList<ReservedAsset> myList = new ArrayList<>();
+        int type = 0, resID = 0, sub_classID = 0;
+        BigDecimal price = BigDecimal.ZERO;
+        try(Statement stmt = conn.createStatement()){
+            ResultSet rs = stmt.executeQuery(query);
+            while(rs.next()){ //nb: la query passata deve essere un join tra ReservableAsset e ReservableType
+                switch (rs.getInt("asset_type")){
+                    case 1 -> {
+                        myList.add(new ReservedAsset(new Umbrella(), rs.getDate("start_date").toLocalDate(), rs.getDate("end_date").toLocalDate()));
+                    }
+                    case 2 -> {
+                        myList.add(new ReservedAsset(new Gazebo(), rs.getDate("start_date").toLocalDate(), rs.getDate("end_date").toLocalDate()));
+                    }
+                    default -> throw new SQLException("L'asset cercato non è stato trovato");
+                }
+            }
+        } catch(SQLException s){
+            s.getMessage();
+        }
+        return myList;
+    }
+
+    public void totalDestruction(int resCode) {
+        String query = "select * from \"laZattera\".reserved_assets where \"reservationID\" = " + resCode;
+        try(Statement stmt = conn.createStatement()) {
+            ResultSet rs = stmt.executeQuery(query);
+            while (rs.next()) {
+                AddOnDAO.getINSTANCE().totalDestruction(rs.getInt("reservedID"));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        String queryDelete = "delete from \"laZattera\".reserved_assets where \"reservationID\" = " + resCode;
+        try(Statement stmt = conn.createStatement()){
+            stmt.executeUpdate(queryDelete);
+            System.out.println("Gli asset sono stati cancellati correttamente");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

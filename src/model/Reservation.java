@@ -1,6 +1,7 @@
 package model;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class Reservation {
@@ -57,9 +58,23 @@ public class Reservation {
         return reserved_assets;
     }
 
+    public LocalDate getNearestAssetDate(){
+        LocalDate nearest = LocalDate.MAX;
+        for(ReservedAsset r: this.reserved_assets){
+            if(r.getStart_date().compareTo(nearest) < 0){
+                nearest = r.getStart_date();
+            }
+        }
+        return nearest;
+    }
+
     @Override
     public String toString() {
         return "Prenotazione #" + this.reservationID + " del cliente #" + this.customer + ".\nPrezzo totale: " +
                 this.price + "€.";
+    }
+
+    public void setReserved_Assets(ArrayList<ReservedAsset> assetList) {
+        this.reserved_assets = assetList;
     }
 }

@@ -146,6 +146,8 @@ public class ReservationDAO extends BaseDAO {
             ResultSet rs = stmt.executeQuery(query);
             while(rs.next()){
                 r.setReservationId(rs.getInt("reservationID"));
+                r.setCustomer(rs.getString("customerID"));
+                r.setReserved_Assets(AssetDAO.getINSTANCE().getReservedAssets(rs.getInt("reservationID")));
                 //TODO manca il corpo
                 //r.setTotal_price(rs.getBigDecimal("total_price"));
             }
@@ -231,6 +233,19 @@ public class ReservationDAO extends BaseDAO {
         try(Statement stmt = conn.createStatement()) {
             stmt.executeUpdate(query);
             System.out.println("Gli AddOn sono stati cancellati correttamente");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void totalDestruction(int resCode) {
+        AssetDAO.getINSTANCE().totalDestruction(resCode);
+
+        String query = "delete from \"laZattera\".reservation where \"reservationID\" = " + resCode;
+        try(Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate(query);
+            System.out.println("La prenotazione è stata cancellata con successo");
+            //TODO aggiungere delete della Invoice
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

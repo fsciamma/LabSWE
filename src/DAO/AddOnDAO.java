@@ -139,4 +139,14 @@ public class AddOnDAO extends BaseDAO{
                 " where \"add_onID\" = " + ID;
         return getAO(query);
     }
+
+    public void totalDestruction(int reservedID) {
+        String query = "delete from \"laZattera\".reserved_add_on where \"reserved_assetsID\" = " + reservedID;
+        try(Statement stmt = conn.createStatement()){
+            stmt.executeUpdate(query);
+            System.out.println("Gli AddOn sono stati cancellati correttamente");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
