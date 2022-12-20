@@ -42,6 +42,6 @@ public class Invoice {
 
     @Override
     public String toString() {
-        return "Ricevuta dell'ordine #" + this.invoiceID + ": quota da pagare " + this.invoice_amount + "€, stato pagamento " + this.paid;
+        return "Ricevuta dell'ordine N°" + this.invoiceID + ": quota da pagare " + this.invoice_amount + "€, stato pagamento: " + (this.paid ? "pagato" : "da pagare");
     }
 }

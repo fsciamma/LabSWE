@@ -4,7 +4,6 @@ import model.*;
 
 import java.sql.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
 
 public class ReservationDAO extends BaseDAO {
 
@@ -100,9 +99,10 @@ public class ReservationDAO extends BaseDAO {
      * Metodo che mostra a schermo le prenotazioni che matchano l'ID dell'ombrellone inserito
      * @param id: id dell'ombrellone relativo alle prenotazioni cercate
      */
-    //TODO da rivedere
-    public void findByUmbrellaId(int id) throws SQLException {
-        String query = "select * from \"laZattera\".reservation where ombrelloneid = " + id;
+    public void findByAssetId(int id) throws SQLException {
+        String query = "select * from \"laZattera\".reservation a join " +
+                "\"laZattera\".reserved_assets b on a.\"reservationID\" = b.\"reservationID\"" +
+                "where \"assetID\" = " + id + "order by a.\"customerID\"";
         if(!showReservations(query)){
             throw new SQLException("Non sono state trovate prenotazioni per l'ombrellone #" + id);
         }
@@ -114,9 +114,11 @@ public class ReservationDAO extends BaseDAO {
      * @param start: data d'inizio dell'intervallo di ricerca
      * @param end: data di fine dell'intervallo di ricerca
      */
-    //TODO da modificare secondo nuovo schema
     public void findByDates(LocalDate start, LocalDate end) throws SQLException {
-        String query = "select * from \"laZattera\".reservation where end_date >= '" + start + "' and start_date <= '" + end + "'";
+        String query = "select * from \"laZattera\".reservation a join \"laZattera\".reserved_assets b on a.\"reservationID\"" +
+                " = b.\"reservationID\"" +
+                " where b.end_date >= '" + start + "' and b.start_date <= '" + end + "'" +
+                " order by a.\"customerID\"";
         if(!showReservations(query)){
             throw new SQLException("Non sono state trovate prenotazioni comprese tra " + start + " e " + end);
         }
@@ -126,7 +128,8 @@ public class ReservationDAO extends BaseDAO {
      * Metodo che mostra a schermo tutte le prenotazioni registrate sul database
      */
     public void findAll() throws SQLException {
-        String query = "select * from \"laZattera\".reservation";
+        String query = "select * from \"laZattera\".reservation a join \"laZattera\".reserved_assets b on a.\"reservationID\" = " +
+                "b.\"reservationID\" order by a.\"customerID\"";
         if(!showReservations(query)){
             System.err.println("Non ci sono prenotazioni attive");
         }
@@ -164,9 +167,12 @@ public class ReservationDAO extends BaseDAO {
         try(Statement stmt = conn.createStatement()){
             ResultSet rs = stmt.executeQuery(query);
             String s = "";
+            String last = "";
             while(rs.next()){
-                if(!isFound){ //è falso solo la prima volta che esegue rs.next
-                    s = "Cliente: " + rs.getString("customerID");
+                String customer = rs.getString("customerID");
+                if(!last.equals(customer)){
+                    s = s + "Cliente: " + customer;
+                    last = customer;
                 }
                 int resID = rs.getInt("reservationID");
                 s = s + "\n * Codice prenotazione: " + resID + "\n" + AssetDAO.showReservedAssets(resID);

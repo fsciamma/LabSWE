@@ -770,7 +770,7 @@ public abstract class BusinessLogic {
             System.out.println("Ricerca per: ");
             System.out.println("\t 1 - ID prenotazione");
             System.out.println("\t 2 - Email cliente");
-            System.out.println("\t 3 - Id ombrellone");
+            System.out.println("\t 3 - Id Asset");
             System.out.println("\t 4 - Data");
             System.out.println("\t 5 - Mostra tutte");
             System.out.println("\t 6 - Torna indietro");
@@ -832,7 +832,7 @@ public abstract class BusinessLogic {
     private static void BL_findReservationsByAsset() {
         System.out.println("Inserisci codice asset: ");
         try {
-            ReservationDAO.getInstance().findByUmbrellaId(new Scanner(System.in).nextInt());
+            ReservationDAO.getInstance().findByAssetId(new Scanner(System.in).nextInt());
         } catch (InputMismatchException i){
             System.err.println("Inserire un codice numerico...");
         } catch (SQLException s){
@@ -862,7 +862,7 @@ public abstract class BusinessLogic {
             System.out.println("Inserire data di fine: (dd-mm-yyyy)");
             try{
                 end = parseDate();
-                if(end.compareTo(start) >= 0) { // controlla che la data di fine prenotazione sia successiva a quella d'inizio prenotazione
+                if(!end.isBefore(start)) { // controlla che la data di fine prenotazione sia successiva a quella d'inizio prenotazione
                     validEndDate = true;
                 }
                 else {

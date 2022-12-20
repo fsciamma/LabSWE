@@ -55,14 +55,12 @@ public class InvoiceDAO extends BaseDAO{
                 i.setInvoiceID(rs.getInt("reservationID"));
                 i.setInvoice_amount(rs.getBigDecimal("total"));
                 i.setPaid(rs.getBoolean("paid"));
+                System.out.println(i + "\n Cliente: " + rs.getString("customerID"));
                 iList.add(i);
             }
         }
         if(iList.isEmpty()){
             isFound = false;
-        }
-        for (Invoice i: iList) {
-            System.out.println(i);
         }
         return isFound;
     }
@@ -98,7 +96,8 @@ public class InvoiceDAO extends BaseDAO{
      * @return L'oggetto Invoice cercato
      */
     public Invoice findByInvoiceID(int id) throws SQLException{
-        String query = "select * from \"laZattera\".invoice where \"reservationID\" = " + id;
+        String query = "select * from \"laZattera\".invoice " +
+                " where \"reservationID\" = " + id;
         return getInvoice(query);
     }
 
@@ -106,9 +105,9 @@ public class InvoiceDAO extends BaseDAO{
      * Metodo che mostra a schermo le Invoice relative al Customer con l'ID richiesto
      * @param email: ID del Customer relativo alle Invoice che voglio cercare
      */
-    //TODO può essere utile mantenere questo metodo?
     public void findByCustomerID(String email) throws SQLException{
-        String query = "select * from \"laZattera\".invoice where customerid = '" + email + "'";
+        String query = "select * from \"laZattera\".invoice a join \"laZattera\".reservation b" +
+                " on a.\"reservationID\" = b.\"reservationID\" where b.\"customerID\" = '" + email + "'";
         if(!showInvoices(query)){
             throw new SQLException("La ricevuta del cliente " + email + " non è stata trovata");
         }
@@ -119,7 +118,8 @@ public class InvoiceDAO extends BaseDAO{
      * @param status: Variabile booleana che indica se cercare le Invoice pagate o quelle non pagate
      */
     public void findByPaymentStatus(boolean status) throws SQLException {
-        String query = "select * from \"laZattera\".invoice where paid = " + status;
+        String query = "select * from \"laZattera\".invoice a join \"laZattera\".reservation b" +
+                " on a.\"reservationID\" = b.\"reservationID\" where a.paid = " + status;
         if(!showInvoices(query)){
             throw new SQLException("Non sono state trovate ricevute con questo stato");
         }

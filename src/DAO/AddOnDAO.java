@@ -43,7 +43,7 @@ public class AddOnDAO extends BaseDAO{
                 }
                 return s.toString();
             }
-            return "";
+            return "\n";
         }
     }
 
