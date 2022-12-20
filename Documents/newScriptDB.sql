@@ -212,7 +212,7 @@ insert into "laZattera".add_on values (DEFAULT, 1, 1),
                                       (DEFAULT, 4, 5);
 
 insert into "laZattera".customer values ('filipposciammacca@gmail.com', 'Filippo', 'Sciammacca'),
-                                        ('niccolomenghini@gmail.com', 'Niccolò', 'Menghini'),
+                                        ('niccolo.menghini@gmail.com', 'Niccolò', 'Menghini'),
                                         ('mariorossi@gimli.com', 'Mario', 'Rossi'),
                                         ('francescotodino@gimli.com', 'Francesco', 'Todino'),
                                         ('francescocorazzi@gimli.com', 'Francesco', 'Corazzi');
