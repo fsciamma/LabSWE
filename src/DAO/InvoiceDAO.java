@@ -69,7 +69,7 @@ public class InvoiceDAO extends BaseDAO{
      * Metodo utilizzato per inserire una nuova Invoice nel database
      * @param i: Invoice da aggiungere al database
      */
-    public void addNewInvoice(Invoice i){
+    public void addNewInvoice(Invoice i) throws SQLException {
         String query = "select * from \"laZattera\".invoice";
         ResultSet rs;
         try(Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE)){
@@ -83,10 +83,6 @@ public class InvoiceDAO extends BaseDAO{
 
             rs.insertRow();
             rs.beforeFirst();
-
-        } catch(SQLException e){
-            System.err.println(e.getMessage());
-            throw new RuntimeException("Non è stata aggiunta la nuova ricevuta al database...");
         }
     }
 
@@ -144,7 +140,6 @@ public class InvoiceDAO extends BaseDAO{
         try(Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE)){
             ResultSet rs = stmt.executeQuery(query);
             while(rs.next()){
-                rs.updateBigDecimal("total", i.getInvoice_amount());
                 rs.updateBoolean("paid", i.isPaid());
                 rs.updateRow();
             }
