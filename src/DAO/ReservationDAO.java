@@ -2,6 +2,7 @@ package DAO;
 
 import model.*;
 
+import java.math.BigDecimal;
 import java.sql.*;
 import java.time.LocalDate;
 
@@ -29,7 +30,7 @@ public class ReservationDAO extends BaseDAO {
     public int addNewReservation(Reservation newR) throws SQLException{
         String insertStatement = "INSERT INTO \"laZattera\".reservation (\"customerID\") values (?) " +
                 "RETURNING \"reservationID\"";
-        int id = 0;
+        int id;
         ResultSet rs;
         try(PreparedStatement stmt = conn.prepareStatement(insertStatement)){
             stmt.setString(1, newR.getCustomer());
@@ -47,7 +48,7 @@ public class ReservationDAO extends BaseDAO {
         String insertStatement = "INSERT INTO \"laZattera\".reserved_assets (\"reservationID\", \"assetID\", start_date, end_date) " +
                 "values(?, ?, ?, ?) " +
                 "RETURNING \"reservedID\"";
-        int new_id = 0;
+        int new_id;
         ResultSet rs;
         try(PreparedStatement stmt = conn.prepareStatement(insertStatement)){
             stmt.setInt(1, reservationID);
@@ -246,6 +247,20 @@ public class ReservationDAO extends BaseDAO {
         try(Statement stmt = conn.createStatement()) {
             stmt.executeUpdate(query);
             System.out.println("La prenotazione è stata cancellata con successo");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void updatePrice(int resCode, BigDecimal offset) {
+        String query = "select * from \"laZattera\".invoice where \"reservationID\" = " + resCode + ";";
+        try(Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE)){
+            ResultSet rs = stmt.executeQuery(query);
+            while(rs.next()) {
+                BigDecimal newTot = offset.add(rs.getBigDecimal("total"));
+                rs.updateBigDecimal("total", newTot);
+                rs.updateRow();
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

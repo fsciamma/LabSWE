@@ -1,9 +1,6 @@
 package DAO;
 
-import model.Gazebo;
-import model.Asset;
-import model.ReservedAsset;
-import model.Umbrella;
+import model.*;
 
 import java.math.BigDecimal;
 import java.sql.ResultSet;
@@ -145,28 +142,25 @@ public class AssetDAO extends  BaseDAO{
     }
 
     public ArrayList<ReservedAsset> getReservedAssets(int reservationID) {
-        String query = "select reserved_assets.\"assetID\", asset_type, \"sub_classID\", price, start_date, end_date from \"laZattera\".reserved_assets" +
+        String query = "select reserved_assets.\"assetID\", asset_type, reservable_asset.\"sub_classID\", reservable_type.price, reserved_assets.start_date, reserved_assets.end_date from \"laZattera\".reserved_assets" +
                 " join \"laZattera\".reservable_asset on \"laZattera\".reserved_assets.\"assetID\" = \"laZattera\".reservable_asset.\"assetID\"" +
                 " join \"laZattera\".reservable_type on \"laZattera\".reservable_asset.asset_type = \"laZattera\".reservable_type.\"typeID\"" +
                 " where \"laZattera\".reserved_assets.\"reservationID\" = " + reservationID;
         ArrayList<ReservedAsset> myList = new ArrayList<>();
-        int type = 0, resID = 0, sub_classID = 0;
-        BigDecimal price = BigDecimal.ZERO;
         try(Statement stmt = conn.createStatement()){
             ResultSet rs = stmt.executeQuery(query);
             while(rs.next()){ //nb: la query passata deve essere un join tra ReservableAsset e ReservableType
                 switch (rs.getInt("asset_type")){
-                    case 1 -> {
-                        myList.add(new ReservedAsset(new Umbrella(), rs.getDate("start_date").toLocalDate(), rs.getDate("end_date").toLocalDate()));
-                    }
+                    case 1 -> myList.add(new ReservedAsset(new Umbrella(rs.getInt("assetID"), rs.getInt("sub_classID"), rs.getBigDecimal("price")), rs.getDate("start_date").toLocalDate(), rs.getDate("end_date").toLocalDate()));
                     case 2 -> {
-                        myList.add(new ReservedAsset(new Gazebo(), rs.getDate("start_date").toLocalDate(), rs.getDate("end_date").toLocalDate()));
+                        ReservedAsset tmp = new ReservedAsset(new Gazebo(rs.getInt("assetID"), rs.getInt("sub_classID"), rs.getBigDecimal("price")), rs.getDate("start_date").toLocalDate(), rs.getDate("end_date").toLocalDate());
+                        myList.add(tmp);
                     }
                     default -> throw new SQLException("L'asset cercato non è stato trovato");
                 }
             }
         } catch(SQLException s){
-            s.getMessage();
+            System.err.println(s.getMessage());
         }
         return myList;
     }

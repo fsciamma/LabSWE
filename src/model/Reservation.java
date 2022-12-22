@@ -61,7 +61,7 @@ public class Reservation {
     public LocalDate getNearestAssetDate(){
         LocalDate nearest = LocalDate.MAX;
         for(ReservedAsset r: this.reserved_assets){
-            if(r.getStart_date().compareTo(nearest) < 0){
+            if(r.getStart_date().isBefore(nearest)){
                 nearest = r.getStart_date();
             }
         }
@@ -76,5 +76,9 @@ public class Reservation {
 
     public void setReserved_Assets(ArrayList<ReservedAsset> assetList) {
         this.reserved_assets = assetList;
+    }
+
+    public void setTotal_price(BigDecimal totalPrice) {
+        this.price = totalPrice;
     }
 }

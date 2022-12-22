@@ -3,15 +3,11 @@ package BusinessLogic;
 import DAO.*;
 import model.*;
 
-import java.io.Console;
-import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.logging.ConsoleHandler;
 
-import static java.lang.Thread.sleep;
 import static java.time.temporal.ChronoUnit.DAYS;
 
 public abstract class BusinessLogic {
@@ -202,7 +198,72 @@ public abstract class BusinessLogic {
     }
 
     private static void modifyReservation(String email) {//TODO
+        System.out.println("Inserire il codice della prenotazione da modificare:");
+        int resCode = 0;
+        boolean notValidCode = true;
+        while(notValidCode){
+            try {
+                resCode = new Scanner(System.in).nextInt();
+                notValidCode = false;
+            } catch (InputMismatchException i) {
+                System.err.println("Inserire un codice prenotazione...");
+            }
+        }
+        try{
+            boolean paid = InvoiceDAO.getINSTANCE().findByInvoiceID(resCode).isPaid();
+            String customer_email = ReservationDAO.getInstance().findById(resCode).getCustomer();
+            if(!paid && customer_email.equals(email)) {
+                System.out.println("Selezionare un'opzione:");
+                System.out.println("\t1 - Aggiungi un asset alla prenotazione N°" + resCode);
+                System.out.println("\t2 - Cancella un asset dalla prenotazione N°" + resCode);
+                System.out.println("\t3 - Modifica un asset della prenotazione N°" + resCode);
+                System.out.println("\t4 - Torna indietro");
+                int choice = 0;
+                try {
+                    choice = new Scanner(System.in).nextInt();
+                } catch (InputMismatchException i) {
+                    System.err.println("Inserire un valore numerico");
+                }
+                switch (choice) {
+                    case 1 -> addAssetToReservation(resCode);
+                    case 2 -> {
+                        //deleteAssetFromReservation();
+                    }
+                    case 3 -> {
+                        //modifyReservedAsset();
+                    }
+                    case 4 -> {
+                        System.out.println("Torna a pagina precedente");
+                        //running = false;
+                    }
+                    default -> System.err.println("Opzione non valida...");
+                }
+            } else {
+                System.err.println("La prenotazione selezionata non è associata a questo cliente...");
+            }
+        } catch (SQLException s) {
+            System.err.println(s.getMessage());
+        }
+    }
 
+    /**
+     * Permette di aggiungere un ReservedAsset (uno alla volta) ad una prenotazione già esistente
+     * @param resCode identificativo della prenotazione
+     */
+    private static void addAssetToReservation(int resCode) {
+        try{
+            LocalDate sd = setStart_date();
+            LocalDate ed = setEnd_date(sd);
+            Reservation myRes = ReservationDAO.getInstance().findById(resCode);
+            ArrayList<ReservedAsset> alreadyAdded = myRes.getReserved_assets();
+            Asset asset = chooseReservableAsset(sd, ed, alreadyAdded);
+            ReservedAsset ra = new ReservedAsset(asset, sd, ed);
+            ReservationDAO.getInstance().addNewReserved_asset(resCode, ra);
+            System.out.println(ra.getPrice());
+            ReservationDAO.getInstance().updatePrice(resCode, ra.getPrice());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static void pay() {
@@ -234,7 +295,6 @@ public abstract class BusinessLogic {
             System.err.println(s.getMessage());
             System.err.println("Non è stato possibile effettuare il pagamento, riprovare più tardi");
         }
-
     }
 
     /**
@@ -275,8 +335,8 @@ public abstract class BusinessLogic {
         try{
             Reservation newRes = Reservation.createNewReservation(customerEmail);
             //Per tenere traccia dell'id di tutte le righe aggiunte e dell'ID delle prenotazione
+            int reservationID;
             ArrayList<Integer> reservedIDs = new ArrayList<>();
-            int reservationID = 0;
             //TODO rivedere un po' tutte le eccezioni in questo pezzo di codice
 
             ArrayList<ReservedAsset> added = new ArrayList<>();
@@ -315,7 +375,7 @@ public abstract class BusinessLogic {
             // Aggiungo la reservation e tutto ciò che ho prenotato al DB per poter generare l'ID e creare l'Invoice
             reservationID = updateReservationTables(newRes, reservedIDs);
 
-            addNewInvoice(newRes, reservationID);
+            addNewInvoice(newRes, reservationID, reservedIDs);
 
             System.out.println("Prenotazione effettuata!");
         } catch(RuntimeException r){
@@ -550,7 +610,7 @@ public abstract class BusinessLogic {
             System.out.println("Inserire data di inizio: (dd-mm-yyyy)");
             try {
                 LocalDate tmp = set_date();
-                if (tmp.compareTo(LocalDate.now()) >= 0) {
+                if (!tmp.isBefore(LocalDate.now())) {
                     start_date = tmp;
                     validStartDate = true;
                 } else {
@@ -574,7 +634,7 @@ public abstract class BusinessLogic {
             System.out.println("Inserire data di fine: (dd-mm-yyyy)");
             try {
                 LocalDate tmp = set_date();
-                if (tmp.compareTo(start_date) >= 0) {
+                if (!tmp.isBefore(start_date)) {
                     end_date = tmp;
                     validEndDate = true;
                 } else {
@@ -615,11 +675,29 @@ public abstract class BusinessLogic {
      * Metodo che permette di aggiungere una Invoice relativa a una prenotazione
      * @param res: Prenotazione di cui voglio creare una ricevuta
      */
-    private static void addNewInvoice(Reservation res, int id) throws RuntimeException{
-        res.compute_total();
-        Invoice newInv = new Invoice(id, res.getTotal_price()); //TODO wrapper del costruttore?
-        InvoiceDAO iDAO = InvoiceDAO.getINSTANCE();
-        iDAO.addNewInvoice(newInv);
+    private static void addNewInvoice(Reservation res, int id, ArrayList<Integer> a) {
+        try{
+            res.compute_total();
+            Invoice newInv = new Invoice(id, res.getTotal_price()); //TODO wrapper del costruttore?
+            InvoiceDAO iDAO = InvoiceDAO.getINSTANCE();
+            iDAO.addNewInvoice(newInv);
+        } catch (SQLException s){
+            ReservationDAO rDAO = ReservationDAO.getInstance();
+
+            if(!a.isEmpty()){
+                for(int i: a){
+                    //DELETE RESERVED ADD ONS -> uso i numeri contenuti in reservedIDs per eliminare prima tutti gli add on
+                    rDAO.deleteReservedAddOn(i);
+                    //DELETE RESERVED ASSETS -> poi uso gli stessi numeri per eliminare i reserved asset
+                    rDAO.deleteReservedAsset(i);
+                }
+            }
+
+            //DELETE RESERVATION -> e anche la prenotazione
+            rDAO.deleteReservation(id);
+
+            throw new RuntimeException("Errore nell'aggiornamento delle tabelle; annulamento operazione");
+        }
     }
 
     /**
