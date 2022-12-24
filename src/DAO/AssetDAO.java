@@ -141,8 +141,14 @@ public class AssetDAO extends  BaseDAO{
         return available;
     }
 
+    /**
+     * Ricerca i ReservedAsset associati ad una specifica prenotazione. Per ogni ReservedAsset esegue una call a getReservedAddOns per popolarne la lista di ReservedAddOns
+     * @param reservationID identificativo della prenotazione
+     * @return la lista di ReservedAsset associata alla prenotazione
+     */
     public ArrayList<ReservedAsset> getReservedAssets(int reservationID) {
-        String query = "select reserved_assets.\"assetID\", asset_type, reservable_asset.\"sub_classID\", reservable_type.price, reserved_assets.start_date, reserved_assets.end_date from \"laZattera\".reserved_assets" +
+        String query = "select reserved_assets.\"assetID\", asset_type, reservable_asset.\"sub_classID\", reservable_type.price, reserved_assets.start_date, reserved_assets.end_date, reserved_assets.\"reservedID\"" +
+                " from \"laZattera\".reserved_assets" +
                 " join \"laZattera\".reservable_asset on \"laZattera\".reserved_assets.\"assetID\" = \"laZattera\".reservable_asset.\"assetID\"" +
                 " join \"laZattera\".reservable_type on \"laZattera\".reservable_asset.asset_type = \"laZattera\".reservable_type.\"typeID\"" +
                 " where \"laZattera\".reserved_assets.\"reservationID\" = " + reservationID;
@@ -151,9 +157,14 @@ public class AssetDAO extends  BaseDAO{
             ResultSet rs = stmt.executeQuery(query);
             while(rs.next()){ //nb: la query passata deve essere un join tra ReservableAsset e ReservableType
                 switch (rs.getInt("asset_type")){
-                    case 1 -> myList.add(new ReservedAsset(new Umbrella(rs.getInt("assetID"), rs.getInt("sub_classID"), rs.getBigDecimal("price")), rs.getDate("start_date").toLocalDate(), rs.getDate("end_date").toLocalDate()));
+                    case 1 -> {
+                        ReservedAsset tmp = new ReservedAsset(new Umbrella(rs.getInt("assetID"), rs.getInt("sub_classID"), rs.getBigDecimal("price")), rs.getDate("start_date").toLocalDate(), rs.getDate("end_date").toLocalDate());
+                        tmp.setAdd_ons(AddOnDAO.getINSTANCE().getReservedAddOns(rs.getInt("reservedID")));
+                        myList.add(tmp);
+                    }
                     case 2 -> {
                         ReservedAsset tmp = new ReservedAsset(new Gazebo(rs.getInt("assetID"), rs.getInt("sub_classID"), rs.getBigDecimal("price")), rs.getDate("start_date").toLocalDate(), rs.getDate("end_date").toLocalDate());
+                        tmp.setAdd_ons(AddOnDAO.getINSTANCE().getReservedAddOns(rs.getInt("reservedID")));
                         myList.add(tmp);
                     }
                     default -> throw new SQLException("L'asset cercato non è stato trovato");
