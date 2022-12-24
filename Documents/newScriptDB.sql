@@ -245,7 +245,7 @@ insert into "laZattera".reserved_add_on values (1, 4, '2023-06-07', '2023-06-15'
                                                (5, 30, '2023-06-01', '2023-06-10'),
                                                (6, 32, '2023-06-21', '2023-06-28');
 
-insert into "laZattera".invoice values (1, 549.00, false),
+insert into "laZattera".invoice values (1, 639.00, false),
                                        (2, 822.00, false),
                                        (3, 122.50, false),
                                        (4, 780.00, false),
