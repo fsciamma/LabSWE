@@ -226,9 +226,7 @@ public abstract class BusinessLogic {
                 }
                 switch (choice) {
                     case 1 -> addAssetToReservation(resCode);
-                    case 2 -> {
-                        //deleteAssetFromReservation();
-                    }
+                    case 2 -> deleteAssetFromReservation(resCode);
                     case 3 -> {
                         //modifyReservedAsset();
                     }
@@ -259,10 +257,36 @@ public abstract class BusinessLogic {
             Asset asset = chooseReservableAsset(sd, ed, alreadyAdded);
             ReservedAsset ra = new ReservedAsset(asset, sd, ed);
             ReservationDAO.getInstance().addNewReserved_asset(resCode, ra);
-            System.out.println(ra.getPrice());
             ReservationDAO.getInstance().updatePrice(resCode, ra.getPrice());
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private static void deleteAssetFromReservation(int resCode) {
+        try{
+            ReservationDAO rDAO = ReservationDAO.getInstance();
+            ArrayList<Integer> assetIDs = new ArrayList<>();
+            Reservation myRes = rDAO.findById(resCode);
+            for(ReservedAsset ra: myRes.getReserved_assets()){
+                assetIDs.add(ra.getAsset().getResId());
+            }
+            System.out.println("Seleziona l'asset da cancellare:");
+            int choice = new Scanner(System.in).nextInt();
+            if(assetIDs.contains(choice)){
+                ReservedAsset ra = myRes.getReserved_assets().get(assetIDs.indexOf(choice));
+                rDAO.updatePrice(resCode, ra.getPrice().negate());
+                int tmp = rDAO.findReservedAssetNumber(resCode, ra);
+                rDAO.deleteReservedAddOn(tmp);
+                rDAO.deleteReservedAsset(tmp);
+            } else{
+                System.err.println("L'asset N°" + choice + " non è associato alla prenotazione N°" + resCode);
+            }
+        } catch (InputMismatchException i){
+            System.err.println("Inserire un valore numerico");
+        }
+        catch (SQLException s) {
+            System.err.println(s.getMessage());
         }
     }
 
