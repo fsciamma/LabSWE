@@ -149,4 +149,33 @@ public class AddOnDAO extends BaseDAO{
             throw new RuntimeException(e);
         }
     }
+
+    /**
+     * Ritorna una lista di tutti i ReservedAddOns associati all'ID di un ReservedAsset
+     * @param reservedID numero univoco che identifica un ReservedAsset sul database
+     * @return la lista di ReservedAddOns associati al ReservedAsset
+     */
+    public ArrayList<ReservedAddOn> getReservedAddOns(int reservedID) {
+        String query = "select reserved_add_on.\"add_onID\", add_on.add_on_type, add_on.\"sub_classID\", add_on_type.price, reserved_add_on.start_date, reserved_add_on.end_date" +
+                " from \"laZattera\".reserved_add_on" +
+                " join \"laZattera\".add_on on \"laZattera\".reserved_add_on.\"add_onID\" = \"laZattera\".add_on.\"add_onID\"" +
+                " join \"laZattera\".add_on_type on \"laZattera\".add_on.add_on_type = \"laZattera\".add_on_type.\"typeID\"" +
+                " where \"laZattera\".reserved_add_on.\"reserved_assetsID\" = " + reservedID;
+        ArrayList<ReservedAddOn> myList = new ArrayList<>();
+        try(Statement stmt = conn.createStatement()){
+            ResultSet rs = stmt.executeQuery(query);
+            while(rs.next()){
+                switch(rs.getInt("add_on_type")){
+                    case 1 -> myList.add(new ReservedAddOn(new Chair(rs.getInt("add_onID"), rs.getInt("sub_classID"), rs.getBigDecimal("price")), rs.getDate("start_date").toLocalDate(), rs.getDate("end_date").toLocalDate()));
+                    case 2 -> myList.add(new ReservedAddOn(new Deckchair(rs.getInt("add_onID"), rs.getInt("sub_classID"), rs.getBigDecimal("price")), rs.getDate("start_date").toLocalDate(), rs.getDate("end_date").toLocalDate()));
+                    case 3 -> myList.add(new ReservedAddOn(new Beachbed(rs.getInt("add_onID"), rs.getInt("sub_classID"), rs.getBigDecimal("price")), rs.getDate("start_date").toLocalDate(), rs.getDate("end_date").toLocalDate()));
+                    case 4 -> myList.add(new ReservedAddOn(new Booth(rs.getInt("add_onID"), rs.getInt("sub_classID"), rs.getBigDecimal("price")), rs.getDate("start_date").toLocalDate(), rs.getDate("end_date").toLocalDate()));
+                    default -> throw new SQLException("L'addOn cercato non è stato trovato");
+                }
+            }
+        } catch (SQLException s) {
+            System.err.println(s.getMessage());
+        }
+        return myList;
+    }
 }
