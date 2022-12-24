@@ -265,4 +265,24 @@ public class ReservationDAO extends BaseDAO {
             throw new RuntimeException(e);
         }
     }
+
+    /**
+     * Ritorna il numero univoco del Reserved Asset dati il numero della prenotazione e l'ID dell'asset
+     * @param resCode
+     * @param ra
+     * @return l'ID del ReservedAsset sul database
+     */
+    public int findReservedAssetNumber(int resCode, ReservedAsset ra) {
+        String query = "select \"reservedID\" from \"laZattera\".reserved_assets where \"reservationID\" = " + resCode + " and \"assetID\" = " + ra.getAsset().getResId();
+        int value = 0;
+        try(Statement stmt = conn.createStatement()){
+            ResultSet rs = stmt.executeQuery(query);
+            while(rs.next()) {
+                value = rs.getInt("reservedID");
+            }
+        } catch (SQLException s) {
+            System.err.println(s.getMessage());
+        }
+        return value;
+    }
 }
