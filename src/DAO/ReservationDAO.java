@@ -90,7 +90,7 @@ public class ReservationDAO extends BaseDAO {
      */
     public void findByCustomerId(String email) throws SQLException {
         String query = "select * from \"laZattera\".reservation" +
-                " where \"customerID\" = '" + email + "'"; //TODO prob andrà fatto un altro join per visualizzare anche gli addOn
+                " where \"customerID\" = '" + email + "'";
         if(!showReservations(query)){
             throw new SQLException("Non sono state trovate prenotazioni per il cliente " + email);
         }
@@ -149,8 +149,7 @@ public class ReservationDAO extends BaseDAO {
                 r.setReservationId(rs.getInt("reservationID"));
                 r.setCustomer(rs.getString("customerID"));
                 r.setReserved_Assets(AssetDAO.getINSTANCE().getReservedAssets(rs.getInt("reservationID")));
-                //TODO manca il corpo
-                //r.setTotal_price(rs.getBigDecimal("total_price"));
+                r.compute_total();
             }
         }
         if(r.getReservationId() == 0){
@@ -177,8 +176,6 @@ public class ReservationDAO extends BaseDAO {
                 }
                 int resID = rs.getInt("reservationID");
                 s = s + "\n * Codice prenotazione: " + resID + "\n" + AssetDAO.showReservedAssets(resID);
-                //TODO manca il corpo: id cliente che ha prenotato, i reservable asset prenotati e per ciascuno le date di prenotazione e i reservable addOn prenotati e le loro date di prenotazione, infine il prezzo totale della prenotazione
-                //r.setTotal_price(rs.getBigDecimal("total_price"));
                 isFound = true;
             }
             if(isFound){

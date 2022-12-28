@@ -75,7 +75,7 @@ public abstract class BusinessLogic {
      * Metodo che invoca i metodi di Customer e CustomerDAO per aggiungere un nuovo cliente al database
      */
     private static void addNewCustomer(){
-        CustomerDAO cd = CustomerDAO.getINSTANCE(); //TODO qui andrebbe la factory
+        CustomerDAO cd = CustomerDAO.getINSTANCE(); //TODO qui andrebbe la factory?
         Customer newC = Customer.createNewCustomer();
         try {
             cd.addNewCustomer(newC);
@@ -126,7 +126,7 @@ public abstract class BusinessLogic {
         while(customer_menu) {
             System.out.println(c);
             System.out.println("Selezionare un'opzione:");
-            System.out.println("\t1 - Aggiungi prenotazione"); //TODO aggiungere possibilità di modificare una prenotazione o cancellarla(volendo anche entro una certa data)
+            System.out.println("\t1 - Aggiungi prenotazione");
             System.out.println("\t2 - Vedi prenotazioni");
             System.out.println("\t3 - Modifica dati cliente");
             System.out.println("\t4 - Torna indietro");
@@ -197,7 +197,7 @@ public abstract class BusinessLogic {
         }
     }
 
-    private static void modifyReservation(String email) {//TODO
+    private static void modifyReservation(String email) {
         System.out.println("Inserire il codice della prenotazione da modificare:");
         int resCode = 0;
         boolean notValidCode = true;
@@ -340,7 +340,7 @@ public abstract class BusinessLogic {
         try {
             Reservation res = ReservationDAO.getInstance().findById(resCode);
             //Controlla che il Customer che richiede la cancellazione sia anche lo stesso che possiede la prenotazione e che manchino almeno 7 giorni alla data d'inizio della prenotazione
-            if(Objects.equals(res.getCustomer(), email) && (DAYS.between(LocalDate.now(), res.getNearestAssetDate()) >= 7)) { //TODO da trovare un modo per recuperare la data
+            if(Objects.equals(res.getCustomer(), email) && (DAYS.between(LocalDate.now(), res.getNearestAssetDate()) >= 7)) {
                 ReservationDAO.getInstance().totalDestruction(resCode);
             } else {
                 System.out.println("Non puoi cancellare questa prenotazione! Il periodo per annullare la prenotazione è scaduto!");
@@ -361,7 +361,6 @@ public abstract class BusinessLogic {
             //Per tenere traccia dell'id di tutte le righe aggiunte e dell'ID delle prenotazione
             int reservationID;
             ArrayList<Integer> reservedIDs = new ArrayList<>();
-            //TODO rivedere un po' tutte le eccezioni in questo pezzo di codice
 
             ArrayList<ReservedAsset> added = new ArrayList<>();
             boolean selecting = true;
@@ -702,7 +701,7 @@ public abstract class BusinessLogic {
     private static void addNewInvoice(Reservation res, int id, ArrayList<Integer> a) {
         try{
             res.compute_total();
-            Invoice newInv = new Invoice(id, res.getTotal_price()); //TODO wrapper del costruttore?
+            Invoice newInv = new Invoice(id, res.getTotal_price());
             InvoiceDAO iDAO = InvoiceDAO.getINSTANCE();
             iDAO.addNewInvoice(newInv);
         } catch (SQLException s){
@@ -747,7 +746,7 @@ public abstract class BusinessLogic {
             switch (choice) {
                 case 1 -> updatedC.set_first_name();
                 case 2 -> updatedC.set_last_name();
-                case 3 -> { //TODO wrappare?
+                case 3 -> {
                     boolean mailIsValid = false;
                     while (!mailIsValid) {
                         try {
@@ -955,7 +954,7 @@ public abstract class BusinessLogic {
     private static void BL_findReservationsByCustomer() {
         System.out.println("Inserisci email cliente:");
         try {
-            ReservationDAO.getInstance().findByCustomerId(new Scanner(System.in).nextLine()); //TODO va messo un controllo su come è scritto l'indirizzo email
+            ReservationDAO.getInstance().findByCustomerId(new Scanner(System.in).nextLine());
         } catch (InputMismatchException i){
             System.err.println("Inserire un codice numerico...");
         } catch(SQLException s ){
@@ -981,7 +980,6 @@ public abstract class BusinessLogic {
      * Prende in ingresso da tastiera le due date del periodo di cui si vogliono conoscere le Reservations  passa i valori al metodo di ReservationDAO per la ricerca delle Reservations e printa a schermo le informazioni ritornate (può ritornare più di un risultato)
      */
     private static void BL_findReservationsByDates() {
-        //TODO aggiungere eventualmente la possibilita che in assenza di seconda data mostri tutte le prenotazioni dalla data di partenza in poi
         LocalDate start = LocalDate.now();
         LocalDate end = LocalDate.now();
         boolean validStartDate = false;

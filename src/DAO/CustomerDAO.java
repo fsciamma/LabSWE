@@ -27,26 +27,20 @@ public class CustomerDAO extends BaseDAO {
      * @throws SQLException lancia un'eccezione se nel database esiste già un cliente registrato con la stessa e-mail
      */
     public void addNewCustomer(Customer newC) throws SQLException{
-        try { //TODO probabilmente si può togliere questo try catch perché la runtime exception era lanciata da findHomonym()
-            //findHomonym(newC);
-            //prosegue se non ha trovato un customer con gli stessi dati
-            String query = "select * from \"laZattera\".customer";
-            ResultSet rs;
-            try(Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE)){
-                rs = stmt.executeQuery(query);
+        String query = "select * from \"laZattera\".customer";
+        ResultSet rs;
+        try(Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE)){
+            rs = stmt.executeQuery(query);
 
-                rs.moveToInsertRow();
+            rs.moveToInsertRow();
 
-                rs.updateString("name", newC.get_first_name());
-                rs.updateString("surname", newC.get_last_name());
-                rs.updateString("email", newC.get_email());
+            rs.updateString("name", newC.get_first_name());
+            rs.updateString("surname", newC.get_last_name());
+            rs.updateString("email", newC.get_email());
 
-                rs.insertRow();
-                rs.beforeFirst();
+            rs.insertRow();
+            rs.beforeFirst();
 
-            }
-        } catch (RuntimeException e) {
-            System.err.println(e.getMessage());
         }
     }
 
@@ -54,7 +48,6 @@ public class CustomerDAO extends BaseDAO {
      * Metodo per cercare nel database clienti con la stessa tripla univoca del cliente che si prova a inserire; se trova un cliente già registrato con le stesse credenziali lancia un'eccezione
      * @param newC oggetto Customer di cui si cerca un omonimo
      */
-    //TODO da rivedere, potrebbe non servire più
     private void findHomonym(Customer newC) throws RuntimeException {
         String query = "select * from \"laZattera\".customer where email = '" + newC.get_email() + "'";
         try {
@@ -77,24 +70,10 @@ public class CustomerDAO extends BaseDAO {
     }
 
     /**
-     * Permette la ricerca di un cliente nel database usando la tripla chiave (Nome, Cognome, E-mail)
-     *
-     * @param fn Prende il nome completo del Customer, che deve essere inserito separando Nome e Cognome con uno spazio
-     * @param em Prende l'indirizzo e-mail del Customer
-     * @return Customer c: oggetto Customer che presenta le informazioni ottenute dal DB usando la chiave (Nome, Cognome, E-mail)
-     */
-    public Customer findByInfo(String fn, String em) throws SQLException{
-        String[] fullName = fn.split(" "); //dà per assunto che n sia composto di un nome e un cognome
-        String query = "select * from \"laZattera\".customer where name = '" + fullName[0] + "' and surname = '" + fullName[1] + "' and email = '" + em + "'";
-        return getCustomer(query);
-    }
-
-    /**
      * Cerca le informazioni su un Customer nel database
      *
      * @param query La query da usare per cercare il Customer nel database
      * @return Customer c: contenente le informazioni estratte dal database
-     * @throws SQLException
      */
     private Customer getCustomer(String query) throws SQLException {
         Customer c = new Customer();
@@ -130,7 +109,7 @@ public class CustomerDAO extends BaseDAO {
      * Metodo che printa a schermo in una tabella tutti i clienti che matchano il nome inserito
      * @param ln: nome dei clienti da cercare
      */
-    public void findByFirstName(String ln){ //TODO possibile renderlo case insensitive
+    public void findByFirstName(String ln){
         String query = "select * from \"laZattera\".customer where name = '" + ln +"'";
         tabulateFindBy(query);
     }
@@ -165,7 +144,6 @@ public class CustomerDAO extends BaseDAO {
             showCustomers(query);
         } catch(SQLException e){
             System.err.println(e.getMessage() + " con i dati forniti.");
-            //TODO valutare se aggiungere una wait per far printare l'errore subito sotto alla tabella
         }
     }
 
@@ -198,7 +176,7 @@ public class CustomerDAO extends BaseDAO {
      * @param c oggetto Customer contenente le informazioni da modificare
      * @return true se le credenziali sul db sono state modificate con successo, false altrimenti
      */
-    public boolean updateInfo(Customer c){ //TODO valutare se può essere un metodo comune a tutti gli ObjectDAO, nel caso, ognuno esegue un proprio override
+    public boolean updateInfo(Customer c){
         try {
             findHomonym(c);
             String query = "select * from \"laZattera\".customer where email = " + c.get_email();
@@ -212,8 +190,7 @@ public class CustomerDAO extends BaseDAO {
                 }
             } catch (SQLException e){
                 System.err.println(e.getMessage());
-                //TODO deve ritornare false? Probabilmente sì, perché non è riuscito ad accedere al db...
-                //TODO e se invece lanciasse un'eccezione?
+                return false;
             }
         } catch (RuntimeException e) {
             System.err.println(e.getMessage() + "\nNon è stato possibile modificare le credenziali.");

@@ -70,7 +70,7 @@ public class Reservation {
 
     @Override
     public String toString() {
-        return "Prenotazione #" + this.reservationID + " del cliente #" + this.customer + ".\nPrezzo totale: " +
+        return "Prenotazione #" + this.reservationID + " del cliente " + this.customer + ".\nPrezzo totale: " +
                 this.price + "€.";
     }
 

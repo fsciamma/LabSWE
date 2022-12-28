@@ -23,7 +23,7 @@ public class InvoiceDAO extends BaseDAO{
      * @param query: Query utilizzata per recuperare i dati
      * @return L'Invoice da modificare
      */
-    private Invoice getInvoice(String query) throws SQLException { //TODO può ritornare void?
+    private Invoice getInvoice(String query) throws SQLException {
         Invoice i = new Invoice();
         try(Statement stmt = conn.createStatement()) {
             ResultSet rs = stmt.executeQuery(query);
