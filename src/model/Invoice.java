@@ -7,8 +7,6 @@ public class Invoice {
     private BigDecimal invoice_amount = BigDecimal.ZERO;
     private boolean paid = false;
 
-    //TODO aggiungere le righe d'ordine e relativo metodo per visualizzare?
-
     public Invoice(){}
 
     public Invoice(int invoiceID, BigDecimal amount){

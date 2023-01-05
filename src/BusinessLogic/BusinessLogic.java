@@ -75,7 +75,7 @@ public abstract class BusinessLogic {
      * Metodo che invoca i metodi di Customer e CustomerDAO per aggiungere un nuovo cliente al database
      */
     private static void addNewCustomer(){
-        CustomerDAO cd = CustomerDAO.getINSTANCE(); //TODO qui andrebbe la factory?
+        CustomerDAO cd = CustomerDAO.getINSTANCE();
         Customer newC = Customer.createNewCustomer();
         try {
             cd.addNewCustomer(newC);
