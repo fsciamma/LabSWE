@@ -178,8 +178,8 @@ public class CustomerDAO extends BaseDAO {
      */
     public boolean updateInfo(Customer c){
         try {
-            findHomonym(c);
-            String query = "select * from \"laZattera\".customer where email = " + c.get_email();
+            //findHomonym(c);
+            String query = "select * from \"laZattera\".customer where email = '" + c.get_email() + "'";
             try(Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE)){
                 ResultSet rs = stmt.executeQuery(query);
                 while(rs.next()) {
