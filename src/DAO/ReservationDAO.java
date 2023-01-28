@@ -185,22 +185,6 @@ public class ReservationDAO extends BaseDAO {
         return isFound;
     }
 
-    //UPDATE METHODS//
-    /**
-     * Metodo per aggiornare la tabella reserved_assets al completamento della prenotazione
-     * @param reservationCode
-     */
-    public void updateReservedAssetReservationIDValue(int reservedCode, int reservationCode) throws SQLException {
-        String query = "select * from \"laZattera\".reserved_assets where \"reservedID\" = " + reservedCode;
-        try(Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE)){
-            ResultSet rs = stmt.executeQuery(query);
-            while(rs.next()) {
-                rs.updateInt("reservationID", reservationCode);
-                rs.updateRow();
-            }
-        }
-    }
-
     //DELETE METHODS//
     /**
      * Metodo che permette di cancellare una riga dalla tabella reservation

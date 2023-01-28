@@ -169,7 +169,7 @@ public abstract class BusinessLogic {
      * @param email Identificativo del Customer di cui sono state cercate le prenotazioni: viene usato per controllare
      *              che non venga modificata o cancellata una prenotazione che non gli appartiene
      */
-    private static void reservationOptionMenu(String email) { //TODO da rivedere insieme al metodo di modifica della prenotazione
+    private static void reservationOptionMenu(String email) {
         boolean running = true;
         while(running) {
             System.out.println("Selezionare l'operazione che si vuole eseguire:");

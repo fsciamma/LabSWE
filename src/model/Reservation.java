@@ -8,7 +8,6 @@ public class Reservation {
     private int reservationID;
     private String customer;
     private ArrayList<ReservedAsset> reserved_assets;
-    private Invoice invoice;
     private BigDecimal price = BigDecimal.ZERO;
 
     public Reservation(){

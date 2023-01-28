@@ -155,7 +155,7 @@ public class AssetDAO extends  BaseDAO{
         ArrayList<ReservedAsset> myList = new ArrayList<>();
         try(Statement stmt = conn.createStatement()){
             ResultSet rs = stmt.executeQuery(query);
-            while(rs.next()){ //nb: la query passata deve essere un join tra ReservableAsset e ReservableType
+            while(rs.next()){
                 switch (rs.getInt("asset_type")){
                     case 1 -> {
                         ReservedAsset tmp = new ReservedAsset(new Umbrella(rs.getInt("assetID"), rs.getInt("sub_classID"), rs.getBigDecimal("price")), rs.getDate("start_date").toLocalDate(), rs.getDate("end_date").toLocalDate());
