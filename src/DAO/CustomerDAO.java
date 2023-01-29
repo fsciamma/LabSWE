@@ -45,20 +45,6 @@ public class CustomerDAO extends BaseDAO {
     }
 
     /**
-     * Metodo per cercare nel database clienti con la stessa tripla univoca del cliente che si prova a inserire; se trova un cliente già registrato con le stesse credenziali lancia un'eccezione
-     * @param newC oggetto Customer di cui si cerca un omonimo
-     */
-    private void findHomonym(Customer newC) throws RuntimeException {
-        String query = "select * from \"laZattera\".customer where email = '" + newC.get_email() + "'";
-        try {
-            getCustomer(query);
-            throw new RuntimeException("Cliente con stesse credenziali già registrato..."); //Viene lanciata solo se getCustomer non lancia la sua
-        } catch (SQLException ignored) {
-            //Non è stato trovato nessun cliente con le stesse credenziali, quindi si può inserire senza problemi il nuovo cliente
-        }
-    }
-
-    /**
      * Metodo che restituisce un cliente (chiave primaria) data la sua email
      *
      * @param em: mail del cliente da cercare
