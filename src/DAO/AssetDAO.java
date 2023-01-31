@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
@@ -31,13 +32,14 @@ public class AssetDAO extends  BaseDAO{
                 " where \"reservationID\" = " + resID;
         try(Statement stmt = conn.createStatement()){
             ResultSet rs = stmt.executeQuery(query);
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
             StringBuilder s = new StringBuilder("   Sono stati richiesti i seguenti asset:\n");
             while(rs.next()){
                 s.append("\t- ")
                         .append(rs.getString("type_name"))
                         .append(" N°").append(rs.getString("sub_classID"))
-                        .append(", dal ").append(rs.getDate("start_date"))
-                        .append(" al ").append(rs.getDate("end_date"))
+                        .append(", dal ").append(sdf.format(rs.getDate("start_date")))
+                        .append(" al ").append(sdf.format(rs.getDate("end_date")))
                         .append(AddOnDAO.showAssociatedAddOns(rs.getInt("reservedID")))
                         .append("\n");
             }

@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
@@ -32,13 +33,14 @@ public class AddOnDAO extends BaseDAO{
         try (Statement stmt = conn.createStatement()) {
             ResultSet rs = stmt.executeQuery(query);
             if(rs.isBeforeFirst()) {
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
                 StringBuilder s = new StringBuilder("\n\t   con le seguenti aggiunte:\n");
                 while (rs.next()) {
                     s.append("\t   - ")
                             .append(rs.getString("type_name"))
                             .append(" N°").append(rs.getString("sub_classID"))
-                            .append(", dal ").append(rs.getDate("start_date"))
-                            .append(" al ").append(rs.getDate("end_date"))
+                            .append(", dal ").append(sdf.format(rs.getDate("start_date")))
+                            .append(" al ").append(sdf.format(rs.getDate("end_date")))
                             .append("\n");
                 }
                 return s.toString();
