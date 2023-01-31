@@ -221,6 +221,16 @@ public class ReservationDAO extends BaseDAO {
         }
     }
 
+    public void deleteReservedAddOn(ReservedAddOn rao){
+        String query = "delete from \"laZattera\".reserved_add_on where reserved_add_on.\"add_onID\" = " + rao.getAddon().getAdd_onId() +" and start_date = '" + rao.getStart_date() + "'";
+        try(Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate(query);
+            System.out.println("Gli AddOn sono stati cancellati correttamente");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public void totalDestruction(int resCode) {
         AssetDAO.getINSTANCE().totalDestruction(resCode);
         InvoiceDAO.getINSTANCE().deleteInvoice(resCode);
@@ -286,6 +296,12 @@ public class ReservationDAO extends BaseDAO {
         return assetList;
     }
 
+    /**
+     * Genera un ArrayList contenente le informazioni sul ReservedAsset associato a resCode e assetCode. È considerato il caso in cui uno stesso Asset sia associato in più periodi a una Reservation, per questo motivo ritorna una lista e non un singolo Asset
+     * @param resCode il codice della Reservation di cui si vuole modificare un ReservedAsset
+     * @param assetCode il codice del ReservedAsset da modificare
+     * @return un ArrayList contenente tutti ReservedAsset associati a resCode e assetCode, ognuno con le proprie date
+     */
     public ArrayList<ReservedAsset> findRA(int resCode, int assetCode) {
         String query = "select \"reservedID\", start_date, end_date from \"laZattera\".reserved_assets where \"reservationID\" = " + resCode + " and  \"assetID\" = " + assetCode;
         ArrayList<ReservedAsset> raList = new ArrayList<>();
