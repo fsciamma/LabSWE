@@ -228,7 +228,7 @@ public abstract class BusinessLogic {
                     case 1 -> addAssetToReservation(resCode);
                     case 2 -> deleteAssetFromReservation(resCode);
                     case 3 -> {
-                        //modifyReservedAsset();
+                        modifyReservedAsset(resCode);
                     }
                     case 4 -> {
                         System.out.println("Torna a pagina precedente");
@@ -287,6 +287,73 @@ public abstract class BusinessLogic {
         }
         catch (SQLException s) {
             System.err.println(s.getMessage());
+        }
+    }
+
+    private static void modifyReservedAsset(int resCode) {
+        boolean found = true;
+        System.out.println("Inserire il codice dell'asset da modificare:");
+        int assetCode = 0;
+        ArrayList<Integer> reservedAssets = ReservationDAO.getInstance().getAssetsInReservation(resCode);
+        boolean notValidCode = true;
+        while(notValidCode){
+            if(!reservedAssets.isEmpty()) {
+                System.out.println("Selezionare uno degli asset:");
+                for (int ra : reservedAssets) {
+                    System.out.println(ra);
+                }
+                try {
+                    assetCode = new Scanner(System.in).nextInt();
+                    if(reservedAssets.contains(assetCode)) {
+                        notValidCode = false;
+                    } else {
+                        System.out.println("L'asset " + assetCode + " non è associato alla prenotazione " + resCode);
+                    }
+                } catch (InputMismatchException i) {
+                    System.err.println("Inserire un codice asset valido...");
+                }
+            } else {
+                System.out.println("Non sono stati trovati asset associati alla prenotazione N°" + resCode);
+                found = false;
+            }
+        }
+        if(found) {
+            try {
+                System.out.println("Selezionare un'opzione:");
+                System.out.println("\t1 - Aggiungi un addOn all'asset N°" + assetCode);
+                System.out.println("\t2 - Cancella un addOn dall'asset N°" + assetCode);
+                System.out.println("\t3 - Torna indietro");
+                int choice = 0;
+                try {
+                    choice = new Scanner(System.in).nextInt();
+                } catch (InputMismatchException i) {
+                    System.err.println("Inserire un valore numerico");
+                }
+                switch (choice) {
+                    case 1 -> addAddOnToReservedAsset(resCode, assetCode);
+                    //case 2 -> removeFromReservedAsset(resCode, assetCode);
+                    case 3 -> System.out.println("Torna a pagina precedente");
+
+                }
+            } catch (Exception e) {
+                //TODO da rivedere
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private static void addAddOnToReservedAsset(int resCode, int assetCode) {
+        ReservedAsset ra = ReservationDAO.getInstance().findRA(resCode, assetCode);
+        reserveAddOns(ra);
+        try{
+            for(ReservedAddOn rao: ra.getAdd_ons()){
+                ReservationDAO.getInstance().addNewReservedAddOn(ReservationDAO.getInstance().findReservedAssetNumber(resCode, ra), rao);
+            }
+        } catch (SQLException s){
+            System.err.println(s.getMessage());
+        }
+        for(ReservedAddOn rao: ra.getAdd_ons()){
+            ReservationDAO.getInstance().updatePrice(resCode, rao.getPrice());
         }
     }
 

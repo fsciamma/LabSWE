@@ -5,6 +5,7 @@ import model.*;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
 
 public class ReservationDAO extends BaseDAO {
 
@@ -265,5 +266,41 @@ public class ReservationDAO extends BaseDAO {
             System.err.println(s.getMessage());
         }
         return value;
+    }
+
+    /**
+     * @param resCode ID della prenotazione di cui si vuole conoscere gli ID degli asset prenotati
+     * @return La lista degli assetID prenotati
+     */
+    public ArrayList<Integer> getAssetsInReservation(int resCode) {
+        String query = "select \"assetID\" from \"laZattera\".reserved_assets where \"reservationID\" = " + resCode;
+        ArrayList<Integer> assetList = new ArrayList<>();
+        try(Statement stmt = conn.createStatement()){
+            ResultSet rs = stmt.executeQuery(query);
+            while(rs.next()) {
+                assetList.add(rs.getInt("assetID"));
+            }
+        } catch (SQLException s){
+            System.err.println(s.getMessage());
+        }
+        return assetList;
+    }
+
+    public ReservedAsset findRA(int resCode, int assetCode) {
+        String query = "select \"reservedID\", start_date, end_date from \"laZattera\".reserved_assets where \"reservationID\" = " + resCode + " and  \"assetID\" = " + assetCode;
+        ReservedAsset ra = new ReservedAsset();
+        //TODO gestire il caso in cui in una prenotazione è stato richiesto più volte in date differenti lo stesso asset: dare la possibilità di scegliere quale "data" si vuole modificare
+        try(Statement stmt = conn.createStatement()){
+            ResultSet rs = stmt.executeQuery(query);
+            ra.setAsset(AssetDAO.getINSTANCE().findByID(assetCode));
+            ra.setAdd_ons(new ArrayList<ReservedAddOn>());
+            while(rs.next()) {
+                ra.setStart_date(rs.getDate("start_date").toLocalDate());
+                ra.setEnd_date(rs.getDate("end_date").toLocalDate());
+            }
+        } catch (SQLException s){
+            System.err.println(s.getMessage());
+        }
+        return ra;
     }
 }

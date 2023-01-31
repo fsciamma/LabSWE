@@ -64,4 +64,8 @@ public class ReservedAsset {
     public void setAdd_ons(ArrayList<ReservedAddOn> addOnsList) {
         this.add_ons = addOnsList;
     }
+
+    public void setAsset(Asset ra) {
+        this.asset = ra;
+    }
 }
