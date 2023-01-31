@@ -6,6 +6,7 @@ import model.*;
 import java.sql.SQLException;
 import java.time.DateTimeException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -343,7 +344,19 @@ public abstract class BusinessLogic {
     }
 
     private static void addAddOnToReservedAsset(int resCode, int assetCode) {
-        ReservedAsset ra = ReservationDAO.getInstance().findRA(resCode, assetCode);
+        ArrayList<ReservedAsset> raList = ReservationDAO.getInstance().findRA(resCode, assetCode);
+        ReservedAsset ra;
+        if(raList.size() == 1){
+            ra = raList.get(0);
+        } else {
+            int i = 1;
+            System.out.println("Selezionare quale periodo modificare:");
+            for(ReservedAsset ra_tmp: raList){
+                System.out.println(i + " - " + ra_tmp.getStart_date().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + " -> " + ra_tmp.getEnd_date().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+                i++;
+            }
+            ra = raList.get(new Scanner(System.in).nextInt() - 1);
+        }
         reserveAddOns(ra);
         try{
             for(ReservedAddOn rao: ra.getAdd_ons()){

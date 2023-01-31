@@ -286,21 +286,22 @@ public class ReservationDAO extends BaseDAO {
         return assetList;
     }
 
-    public ReservedAsset findRA(int resCode, int assetCode) {
+    public ArrayList<ReservedAsset> findRA(int resCode, int assetCode) {
         String query = "select \"reservedID\", start_date, end_date from \"laZattera\".reserved_assets where \"reservationID\" = " + resCode + " and  \"assetID\" = " + assetCode;
-        ReservedAsset ra = new ReservedAsset();
-        //TODO gestire il caso in cui in una prenotazione è stato richiesto più volte in date differenti lo stesso asset: dare la possibilità di scegliere quale "data" si vuole modificare
+        ArrayList<ReservedAsset> raList = new ArrayList<>();
         try(Statement stmt = conn.createStatement()){
             ResultSet rs = stmt.executeQuery(query);
-            ra.setAsset(AssetDAO.getINSTANCE().findByID(assetCode));
-            ra.setAdd_ons(new ArrayList<ReservedAddOn>());
             while(rs.next()) {
+                ReservedAsset ra = new ReservedAsset();
+                ra.setAsset(AssetDAO.getINSTANCE().findByID(assetCode));
+                ra.setAdd_ons(new ArrayList<>());
                 ra.setStart_date(rs.getDate("start_date").toLocalDate());
                 ra.setEnd_date(rs.getDate("end_date").toLocalDate());
+                raList.add(ra);
             }
         } catch (SQLException s){
             System.err.println(s.getMessage());
         }
-        return ra;
+        return raList;
     }
 }
