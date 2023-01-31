@@ -229,7 +229,8 @@ insert into "laZattera".reserved_assets values (DEFAULT, 1, 37, '2023-06-07', '2
                                                (DEFAULT, 4, 27, '2023-06-03', '2023-06-17'),
                                                (DEFAULT, 5, 25, '2023-06-01', '2023-06-10'),
                                                (DEFAULT, 5, 38, '2023-06-21', '2023-06-28'),
-                                               (DEFAULT, 1, 20, '2023-06-21', '2023-06-26');
+                                               (DEFAULT, 1, 20, '2023-06-21', '2023-06-26'),
+                                               (DEFAULT, 1, 20, '2023-07-01', '2023-07-04');
 
 insert into "laZattera".reserved_add_on values (1, 4, '2023-06-07', '2023-06-15'),
                                                (1, 16, '2023-06-07', '2023-06-15'),
@@ -245,7 +246,7 @@ insert into "laZattera".reserved_add_on values (1, 4, '2023-06-07', '2023-06-15'
                                                (5, 30, '2023-06-01', '2023-06-10'),
                                                (6, 32, '2023-06-21', '2023-06-28');
 
-insert into "laZattera".invoice values (1, 639.00, false),
+insert into "laZattera".invoice values (1, 699.00, false),
                                        (2, 822.00, false),
                                        (3, 122.50, false),
                                        (4, 780.00, false),
