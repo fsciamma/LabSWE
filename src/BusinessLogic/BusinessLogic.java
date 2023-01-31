@@ -269,13 +269,15 @@ public abstract class BusinessLogic {
             ReservationDAO rDAO = ReservationDAO.getInstance();
             ArrayList<Integer> assetIDs = new ArrayList<>();
             Reservation myRes = rDAO.findById(resCode);
-            for(ReservedAsset ra: myRes.getReserved_assets()){
-                assetIDs.add(ra.getAsset().getResId());
-            }
             System.out.println("Seleziona l'asset da cancellare:");
+            int i = 0;
+            for(ReservedAsset ra: myRes.getReserved_assets()){
+                assetIDs.add(i);
+                System.out.println(++i + " - " + ra.getAsset().toString() + " dal " + ra.getStart_date() + " al " + ra.getEnd_date());
+            }
             int choice = new Scanner(System.in).nextInt();
             if(assetIDs.contains(choice)){
-                ReservedAsset ra = myRes.getReserved_assets().get(assetIDs.indexOf(choice));
+                ReservedAsset ra = myRes.getReserved_assets().get(choice - 1);
                 rDAO.updatePrice(resCode, ra.getPrice().negate());
                 int tmp = rDAO.findReservedAssetNumber(resCode, ra);
                 rDAO.deleteReservedAddOn(tmp);
@@ -332,7 +334,7 @@ public abstract class BusinessLogic {
                 }
                 switch (choice) {
                     case 1 -> addAddOnToReservedAsset(resCode, assetCode);
-                    //case 2 -> removeFromReservedAsset(resCode, assetCode);
+                    case 2 -> removeFromReservedAsset(resCode, assetCode);
                     case 3 -> System.out.println("Torna a pagina precedente");
 
                 }
@@ -344,6 +346,21 @@ public abstract class BusinessLogic {
     }
 
     private static void addAddOnToReservedAsset(int resCode, int assetCode) {
+        ReservedAsset ra = chooseReservedAssetFromList(resCode, assetCode);
+        reserveAddOns(ra);
+        try{
+            for(ReservedAddOn rao: ra.getAdd_ons()){
+                ReservationDAO.getInstance().addNewReservedAddOn(ReservationDAO.getInstance().findReservedAssetNumber(resCode, ra), rao);
+            }
+        } catch (SQLException s){
+            System.err.println(s.getMessage());
+        }
+        for(ReservedAddOn rao: ra.getAdd_ons()){
+            ReservationDAO.getInstance().updatePrice(resCode, rao.getPrice());
+        }
+    }
+
+    private static ReservedAsset chooseReservedAssetFromList(int resCode, int assetCode) {
         ArrayList<ReservedAsset> raList = ReservationDAO.getInstance().findRA(resCode, assetCode);
         ReservedAsset ra;
         if(raList.size() == 1){
@@ -357,16 +374,40 @@ public abstract class BusinessLogic {
             }
             ra = raList.get(new Scanner(System.in).nextInt() - 1);
         }
-        reserveAddOns(ra);
-        try{
-            for(ReservedAddOn rao: ra.getAdd_ons()){
-                ReservationDAO.getInstance().addNewReservedAddOn(ReservationDAO.getInstance().findReservedAssetNumber(resCode, ra), rao);
+        return ra;
+    }
+
+    private static void removeFromReservedAsset(int resCode, int assetCode) {
+        ReservedAsset ra = chooseReservedAssetFromList(resCode, assetCode);
+        //TODO individuato il ReservedAsset, adesso devo ottenere il suo ReservedAsset per vedere quali AddOn gli sono stati assegnati
+        int ra_ID = ReservationDAO.getInstance().findReservedAssetNumber(resCode, ra);
+        ArrayList<ReservedAddOn> raoList = AddOnDAO.getINSTANCE().getReservedAddOns(ra_ID);
+        //TODO seleziono un addOn da eliminare
+        System.out.println("Indicare l'addOn da eliminare");
+        ArrayList<Integer> addOnIDS = new ArrayList<>();
+        int i = 0;
+        if(raoList.isEmpty()){
+            System.out.println("Non sono stati trovati addOn associati a questo asset");
+        } else {
+            for (ReservedAddOn rao : raoList) { //TODO aggiungere un toString ai reservedAddon
+                System.out.println(++i + " - " + rao.getAddon().toString() + " dal " + rao.getStart_date().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + " al " + rao.getEnd_date().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+                addOnIDS.add(i);
             }
-        } catch (SQLException s){
-            System.err.println(s.getMessage());
-        }
-        for(ReservedAddOn rao: ra.getAdd_ons()){
-            ReservationDAO.getInstance().updatePrice(resCode, rao.getPrice());
+            int choice = 0;
+            try {
+                choice = new Scanner(System.in).nextInt();
+            } catch (InputMismatchException im) {
+                System.err.println("Inserire un valore numerico");
+            }
+            if(choice != 0 && addOnIDS.contains(choice)){
+                ReservedAddOn rao = raoList.get(choice - 1);
+                ReservationDAO.getInstance().deleteReservedAddOn(rao);
+                //TODO inserire il codice per rimuovere l'addOn dall'asset
+                ReservationDAO.getInstance().updatePrice(resCode, rao.getPrice().negate());
+                //TODO inserire il codice per decrementare il totale dell'invoice
+            } else {
+                System.out.println("Per favore, inserire un valore valido");
+            }
         }
     }
 
