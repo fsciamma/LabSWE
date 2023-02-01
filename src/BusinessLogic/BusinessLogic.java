@@ -258,7 +258,7 @@ public abstract class BusinessLogic {
             Asset asset = chooseReservableAsset(sd, ed, alreadyAdded);
             ReservedAsset ra = new ReservedAsset(asset, sd, ed);
             ReservationDAO.getInstance().addNewReserved_asset(resCode, ra);
-            ReservationDAO.getInstance().updatePrice(resCode, ra.getPrice());
+            InvoiceDAO.getINSTANCE().updatePrice(resCode, ra.getPrice());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -267,6 +267,7 @@ public abstract class BusinessLogic {
     private static void deleteAssetFromReservation(int resCode) {
         try{
             ReservationDAO rDAO = ReservationDAO.getInstance();
+            InvoiceDAO iDAO = InvoiceDAO.getINSTANCE();
             ArrayList<Integer> assetIDs = new ArrayList<>();
             Reservation myRes = rDAO.findById(resCode);
             System.out.println("Seleziona l'asset da cancellare:");
@@ -278,7 +279,7 @@ public abstract class BusinessLogic {
             int choice = new Scanner(System.in).nextInt();
             if(assetIDs.contains(choice)){
                 ReservedAsset ra = myRes.getReserved_assets().get(choice - 1);
-                rDAO.updatePrice(resCode, ra.getPrice().negate());
+                iDAO.updatePrice(resCode, ra.getPrice().negate());
                 int tmp = rDAO.findReservedAssetNumber(resCode, ra);
                 rDAO.deleteReservedAddOn(tmp);
                 rDAO.deleteReservedAsset(tmp);
@@ -351,7 +352,7 @@ public abstract class BusinessLogic {
             System.err.println(s.getMessage());
         }
         for(ReservedAddOn rao: ra.getAdd_ons()){
-            ReservationDAO.getInstance().updatePrice(resCode, rao.getPrice());
+            InvoiceDAO.getINSTANCE().updatePrice(resCode, rao.getPrice());
         }
     }
 
@@ -383,7 +384,7 @@ public abstract class BusinessLogic {
     private static void removeFromReservedAsset(int resCode, int assetCode) {
         ReservedAsset ra = chooseReservedAssetFromList(resCode, assetCode);
         int ra_ID = ReservationDAO.getInstance().findReservedAssetNumber(resCode, ra);
-        ArrayList<ReservedAddOn> raoList = AddOnDAO.getINSTANCE().getReservedAddOns(ra_ID);
+        ArrayList<ReservedAddOn> raoList = ReservationDAO.getInstance().getReservedAddOns(ra_ID);
         System.out.println("Indicare l'addOn da eliminare");
         ArrayList<Integer> addOnIDS = new ArrayList<>();
         int i = 0;
@@ -403,7 +404,7 @@ public abstract class BusinessLogic {
             if(choice != 0 && addOnIDS.contains(choice)){
                 ReservedAddOn rao = raoList.get(choice - 1);
                 ReservationDAO.getInstance().deleteReservedAddOn(rao);
-                ReservationDAO.getInstance().updatePrice(resCode, rao.getPrice().negate());
+                InvoiceDAO.getINSTANCE().updatePrice(resCode, rao.getPrice().negate());
             } else {
                 System.out.println("Per favore, inserire un valore valido");
             }
@@ -571,7 +572,7 @@ public abstract class BusinessLogic {
         if(!r.isEmpty()){
             for(ReservedAsset ra : r){
                 if(!ra.getStart_date().isAfter(end_date) && !ra.getEnd_date().isBefore(start_date)){
-                    av.removeIf(element -> ra.getAsset().getResId() == element.getResId());
+                    av.removeIf(element -> ra.getAsset().getAssetId() == element.getAssetId());
                 }
             }
         }

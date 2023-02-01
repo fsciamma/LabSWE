@@ -2,6 +2,7 @@ package DAO;
 
 import model.Invoice;
 
+import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -143,6 +144,20 @@ public class InvoiceDAO extends BaseDAO{
                 rs.updateBoolean("paid", i.isPaid());
                 rs.updateRow();
             }
+        }
+    }
+
+    public void updatePrice(int resCode, BigDecimal offset) {
+        String query = "select * from \"laZattera\".invoice where \"reservationID\" = " + resCode + ";";
+        try(Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE)){
+            ResultSet rs = stmt.executeQuery(query);
+            while(rs.next()) {
+                BigDecimal newTot = offset.add(rs.getBigDecimal("total"));
+                rs.updateBigDecimal("total", newTot);
+                rs.updateRow();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 }

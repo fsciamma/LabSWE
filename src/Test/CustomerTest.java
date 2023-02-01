@@ -1,11 +1,11 @@
 package Test;
 
-import DAO.BaseDAO;
 import DAO.CustomerDAO;
+import DAO.ReservationDAO;
 import model.Customer;
+import model.Reservation;
 import org.junit.jupiter.api.*;
 
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -13,11 +13,11 @@ import java.sql.Statement;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class CustomerDAOTest{
+class CustomerTest {
 
-    static CustomerDAO cDAO = CustomerDAO.getINSTANCE();
-    static String email = "g.g@gg.com";
-    public static int countElements(){
+    static CustomerDAO cDAO;
+    static String email = "test.email@g.com";
+    static int countElements(){
         int count = 0;
         String query = "select count(*) as countCustomers from \"laZattera\".customer";
         try(Statement stmt = cDAO.getConnection().createStatement()){
@@ -26,20 +26,27 @@ class CustomerDAOTest{
                 count = rs.getInt("countCustomers");
             }
         } catch (SQLException e) {
-            System.err.println("Errore nell'esecuzione del test");
+            System.err.println(e.getMessage());
         }
         return count;
     }
 
     @BeforeAll
-    public  static void setup(){
+    public static void setUp(){
         cDAO = CustomerDAO.getINSTANCE();
+        ReservationDAO rDAO = ReservationDAO.getInstance();
 
-        String query = "delete from \"laZattera\".customer where email = '" + email + "'";
-        try(Statement stmt = cDAO.getConnection().createStatement()){
+        String query = "delete from \"laZattera\".reservation where \"customerID\" = '" + email + "'";
+        try(Statement stmt = rDAO.getConnection().createStatement()){
             stmt.executeUpdate(query);
         } catch (SQLException e) {
-            System.err.println("Errore nell'esecuzione del test");
+            System.err.println(e.getMessage());
+        }
+        String query2 = "delete from \"laZattera\".customer where email = '" + email + "'";
+        try(Statement stmt = cDAO.getConnection().createStatement()){
+            stmt.executeUpdate(query2);
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
         }
     }
 
@@ -76,12 +83,12 @@ class CustomerDAOTest{
     }
 
     @AfterAll
-    public static void revert(){
+    public static void tearDown(){
         String query = "delete from \"laZattera\".customer where email = '" + email + "'";
         try(Statement stmt = cDAO.getConnection().createStatement()){
             stmt.executeUpdate(query);
         } catch (SQLException e) {
-            System.err.println("Errore nell'esecuzione del test");
+            System.err.println(e.getMessage());
         }
     }
 }

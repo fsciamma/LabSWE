@@ -2,7 +2,6 @@ package DAO;
 
 import model.*;
 
-import java.math.BigDecimal;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -53,7 +52,7 @@ public class ReservationDAO extends BaseDAO {
         ResultSet rs;
         try(PreparedStatement stmt = conn.prepareStatement(insertStatement)){
             stmt.setInt(1, reservationID);
-            stmt.setInt(2, a.getAsset().getResId());
+            stmt.setInt(2, a.getAsset().getAssetId());
             stmt.setDate(3, Date.valueOf(a.getStart_date()));
             stmt.setDate(4, Date.valueOf(a.getEnd_date()));
             
@@ -138,6 +137,70 @@ public class ReservationDAO extends BaseDAO {
     }
 
     /**
+     * Ritorna una lista di tutti i ReservedAddOns associati all'ID di un ReservedAsset
+     * @param reservedID numero univoco che identifica un ReservedAsset sul database
+     * @return la lista di ReservedAddOns associati al ReservedAsset
+     */
+    public ArrayList<ReservedAddOn> getReservedAddOns(int reservedID) {
+        String query = "select reserved_add_on.\"add_onID\", add_on.add_on_type, add_on.\"sub_classID\", add_on_type.price, reserved_add_on.start_date, reserved_add_on.end_date" +
+                " from \"laZattera\".reserved_add_on" +
+                " join \"laZattera\".add_on on \"laZattera\".reserved_add_on.\"add_onID\" = \"laZattera\".add_on.\"add_onID\"" +
+                " join \"laZattera\".add_on_type on \"laZattera\".add_on.add_on_type = \"laZattera\".add_on_type.\"typeID\"" +
+                " where \"laZattera\".reserved_add_on.\"reserved_assetsID\" = " + reservedID;
+        ArrayList<ReservedAddOn> myList = new ArrayList<>();
+        try(Statement stmt = conn.createStatement()){
+            ResultSet rs = stmt.executeQuery(query);
+            while(rs.next()){
+                switch(rs.getInt("add_on_type")){
+                    case 1 -> myList.add(new ReservedAddOn(new Chair(rs.getInt("add_onID"), rs.getInt("sub_classID"), rs.getBigDecimal("price")), rs.getDate("start_date").toLocalDate(), rs.getDate("end_date").toLocalDate()));
+                    case 2 -> myList.add(new ReservedAddOn(new Deckchair(rs.getInt("add_onID"), rs.getInt("sub_classID"), rs.getBigDecimal("price")), rs.getDate("start_date").toLocalDate(), rs.getDate("end_date").toLocalDate()));
+                    case 3 -> myList.add(new ReservedAddOn(new Beachbed(rs.getInt("add_onID"), rs.getInt("sub_classID"), rs.getBigDecimal("price")), rs.getDate("start_date").toLocalDate(), rs.getDate("end_date").toLocalDate()));
+                    case 4 -> myList.add(new ReservedAddOn(new Booth(rs.getInt("add_onID"), rs.getInt("sub_classID"), rs.getBigDecimal("price")), rs.getDate("start_date").toLocalDate(), rs.getDate("end_date").toLocalDate()));
+                    default -> throw new SQLException("L'addOn cercato non è stato trovato");
+                }
+            }
+        } catch (SQLException s) {
+            System.err.println(s.getMessage());
+        }
+        return myList;
+    }
+
+    /**
+     * Ricerca i ReservedAsset associati ad una specifica prenotazione. Per ogni ReservedAsset esegue una call a getReservedAddOns per popolarne la lista di ReservedAddOns
+     * @param reservationID identificativo della prenotazione
+     * @return la lista di ReservedAsset associata alla prenotazione
+     */
+    public ArrayList<ReservedAsset> getReservedAssets(int reservationID) {
+        String query = "select reserved_assets.\"assetID\", asset_type, reservable_asset.\"sub_classID\", reservable_type.price, reserved_assets.start_date, reserved_assets.end_date, reserved_assets.\"reservedID\"" +
+                " from \"laZattera\".reserved_assets" +
+                " join \"laZattera\".reservable_asset on \"laZattera\".reserved_assets.\"assetID\" = \"laZattera\".reservable_asset.\"assetID\"" +
+                " join \"laZattera\".reservable_type on \"laZattera\".reservable_asset.asset_type = \"laZattera\".reservable_type.\"typeID\"" +
+                " where \"laZattera\".reserved_assets.\"reservationID\" = " + reservationID;
+        ArrayList<ReservedAsset> myList = new ArrayList<>();
+        try(Statement stmt = conn.createStatement()){
+            ResultSet rs = stmt.executeQuery(query);
+            while(rs.next()){
+                switch (rs.getInt("asset_type")){
+                    case 1 -> {
+                        ReservedAsset tmp = new ReservedAsset(new Umbrella(rs.getInt("assetID"), rs.getInt("sub_classID"), rs.getBigDecimal("price")), rs.getDate("start_date").toLocalDate(), rs.getDate("end_date").toLocalDate());
+                        tmp.setAdd_ons(ReservationDAO.getInstance().getReservedAddOns(rs.getInt("reservedID")));
+                        myList.add(tmp);
+                    }
+                    case 2 -> {
+                        ReservedAsset tmp = new ReservedAsset(new Gazebo(rs.getInt("assetID"), rs.getInt("sub_classID"), rs.getBigDecimal("price")), rs.getDate("start_date").toLocalDate(), rs.getDate("end_date").toLocalDate());
+                        tmp.setAdd_ons(ReservationDAO.getInstance().getReservedAddOns(rs.getInt("reservedID")));
+                        myList.add(tmp);
+                    }
+                    default -> throw new SQLException("L'asset cercato non è stato trovato");
+                }
+            }
+        } catch(SQLException s){
+            System.err.println(s.getMessage());
+        }
+        return myList;
+    }
+
+    /**
      * Metodo che fetcha una prenotazione dal database secondo la query immessa.
      * @param query: query per selezionare prenotazioni dal Database
      * @return Reservation: istanza della prenotazione cercata dalla query nel Database
@@ -149,7 +212,7 @@ public class ReservationDAO extends BaseDAO {
             while(rs.next()){
                 r.setReservationId(rs.getInt("reservationID"));
                 r.setCustomer(rs.getString("customerID"));
-                r.setReserved_Assets(AssetDAO.getINSTANCE().getReservedAssets(rs.getInt("reservationID")));
+                r.setReserved_Assets(getReservedAssets(rs.getInt("reservationID")));
                 r.compute_total();
             }
         }
@@ -232,7 +295,7 @@ public class ReservationDAO extends BaseDAO {
     }
 
     public void totalDestruction(int resCode) {
-        AssetDAO.getINSTANCE().totalDestruction(resCode);
+        asset_totalDestruction(resCode);
         InvoiceDAO.getINSTANCE().deleteInvoice(resCode);
 
         String query = "delete from \"laZattera\".reservation where \"reservationID\" = " + resCode;
@@ -244,19 +307,36 @@ public class ReservationDAO extends BaseDAO {
         }
     }
 
-    public void updatePrice(int resCode, BigDecimal offset) {
-        String query = "select * from \"laZattera\".invoice where \"reservationID\" = " + resCode + ";";
-        try(Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE)){
+    public void asset_totalDestruction(int resCode) {
+        String query = "select * from \"laZattera\".reserved_assets where \"reservationID\" = " + resCode;
+        try(Statement stmt = conn.createStatement()) {
             ResultSet rs = stmt.executeQuery(query);
-            while(rs.next()) {
-                BigDecimal newTot = offset.add(rs.getBigDecimal("total"));
-                rs.updateBigDecimal("total", newTot);
-                rs.updateRow();
+            while (rs.next()) {
+                add_on_totalDestruction(rs.getInt("reservedID"));
             }
         } catch (SQLException e) {
-            System.out.println("Non è stato possibile aggiornare il prezzo: " + e.getMessage());
+            throw new RuntimeException(e);
+        }
+
+        String queryDelete = "delete from \"laZattera\".reserved_assets where \"reservationID\" = " + resCode;
+        try(Statement stmt = conn.createStatement()){
+            stmt.executeUpdate(queryDelete);
+            System.out.println("Gli asset sono stati cancellati correttamente");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
+
+    public void add_on_totalDestruction(int reservedID) {
+        String query = "delete from \"laZattera\".reserved_add_on where \"reserved_assetsID\" = " + reservedID;
+        try(Statement stmt = conn.createStatement()){
+            stmt.executeUpdate(query);
+            System.out.println("Gli AddOn sono stati cancellati correttamente");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     /**
      * Ritorna il numero univoco del Reserved Asset dati il numero della prenotazione e l'ID dell'asset
@@ -265,7 +345,7 @@ public class ReservationDAO extends BaseDAO {
      * @return l'ID del ReservedAsset sul database
      */
     public int findReservedAssetNumber(int resCode, ReservedAsset ra) {
-        String query = "select \"reservedID\" from \"laZattera\".reserved_assets where \"reservationID\" = " + resCode + " and \"assetID\" = " + ra.getAsset().getResId();
+        String query = "select \"reservedID\" from \"laZattera\".reserved_assets where \"reservationID\" = " + resCode + " and \"assetID\" = " + ra.getAsset().getAssetId();
         int value = 0;
         try(Statement stmt = conn.createStatement()){
             ResultSet rs = stmt.executeQuery(query);

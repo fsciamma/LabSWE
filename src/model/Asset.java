@@ -14,7 +14,7 @@ public class Asset {
         this.daily_price = price;
     }
 
-    public int getResId() {
+    public int getAssetId() {
         return assetId;
     }
 
