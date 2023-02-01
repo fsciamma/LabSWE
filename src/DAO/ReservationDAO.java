@@ -254,7 +254,7 @@ public class ReservationDAO extends BaseDAO {
                 rs.updateRow();
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            System.out.println("Non è stato possibile aggiornare il prezzo: " + e.getMessage());
         }
     }
 
