@@ -86,7 +86,7 @@ public class AssetDAO extends  BaseDAO{
 
     /*metodi per la tabella reservable_type*/
 
-    public String fecthType(int fav_type) throws SQLException {
+    public String fetchType(int fav_type) throws SQLException {
         String query = "select type_name from \"laZattera\".reservable_type where \"typeID\" =" + fav_type;
         try(Statement stmt = conn.createStatement()){
             ResultSet rs = stmt.executeQuery(query);

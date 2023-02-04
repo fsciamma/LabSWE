@@ -593,7 +593,7 @@ public abstract class BusinessLogic {
             System.out.println("\t0 - Nessuna preferenza");
             rad.showTypeTable();
             fav_type = new Scanner(System.in).nextInt();
-            System.out.println("E' stato richiesto un ombrellone del tipo: " + rad.fecthType(fav_type));
+            System.out.println("E' stato richiesto un ombrellone del tipo: " + rad.fetchType(fav_type));
         } catch (SQLException s){
             throw new RuntimeException("Errore nella lettura della tabella");
         } catch (InputMismatchException i){

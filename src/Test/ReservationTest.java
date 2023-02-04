@@ -20,6 +20,7 @@ class ReservationTest {
     static String customer = "test.email@g.com";
     static Asset asset;
     static AddOn addOn;
+    static AddOn addOn2;
     static int resCountElements(){
         int count = 0;
         String query = "select count(*) as countReservations from \"laZattera\".reservation";
@@ -83,6 +84,7 @@ class ReservationTest {
 
         asset = AssetDAO.getINSTANCE().findByID(20);
         addOn = AddOnDAO.getINSTANCE().findByID(28);
+        addOn2 = AddOnDAO.getINSTANCE().findByID(1);
     }
 
     @Test
@@ -121,7 +123,6 @@ class ReservationTest {
         //L'asset aggiunto contiene i relativi AddOns
         assertTrue(rDAO.getReservedAddOns(asset_id).stream().anyMatch(o -> o.getAddon().getAdd_onId() == addOn.getAdd_onId()));
 
-
         //Test eliminazione elementi dal DB
         rDAO.totalDestruction(res_id);
 
@@ -130,6 +131,35 @@ class ReservationTest {
         assertEquals(r_prev, resCountElements());
         assertEquals(a_prev, rAssetCountElements());
         assertEquals(ao_prev, rAddOnCountElements());
+    }
+
+    @Test
+    void testReservedHandling() throws SQLException {
+        //Setup per test
+        Reservation r = Reservation.createNewReservation(customer);
+
+        ReservedAsset rAsset1 = new ReservedAsset(asset, LocalDate.of(2023,6,18), LocalDate.of(2023,6,20));
+        ReservedAddOn rAddOn1 = new ReservedAddOn(addOn, LocalDate.of(2023, 6, 18), LocalDate.of(2023, 6, 18));
+        ReservedAddOn rAddOn2 = new ReservedAddOn(addOn2, LocalDate.of(2023, 6, 18), LocalDate.of(2023, 6, 18));
+
+        rAsset1.addReservedAddOn(rAddOn1);
+        rAsset1.addReservedAddOn(rAddOn2);
+
+        r.addReservedAsset(rAsset1);
+        int res_id = rDAO.addNewReservation(r);
+        int asset_id = rDAO.addNewReserved_asset(res_id, rAsset1);
+        rDAO.addNewReservedAddOn(asset_id, rAddOn1);
+        rDAO.addNewReservedAddOn(asset_id, rAddOn2);
+
+        assertEquals(2, rDAO.getReservedAddOns(asset_id).size());
+        rDAO.deleteReservedAddOn(rAddOn2);
+        assertFalse(rDAO.getReservedAddOns(asset_id).contains(rAddOn2));
+        rDAO.deleteReservedAddOn(asset_id);
+        assertTrue(rDAO.getReservedAddOns(asset_id).isEmpty());
+        rDAO.deleteReservedAsset(asset_id);
+        assertTrue(rDAO.getReservedAssets(res_id).isEmpty());
+
+        rDAO.totalDestruction(res_id);
     }
 
     @AfterAll
