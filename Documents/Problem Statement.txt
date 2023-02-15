@@ -7,7 +7,7 @@ loro nome) con la possibilità inoltre di modificare le loro informazioni nel ca
 Il cliente deve specificare giorno di arrivo, di partenza, tipo di ombrellone richiesto e eventuali servizi aggiuntivi,
 il commesso inserirà questi dati nel sistema per visualizzare le risorse disponibili secondo le richieste fatte.
 Il cliente può richiedere degli extra per un tempo differente da quello indicato per il soggiorno e disdire la prenotazione
-(con o senza rimborso). Un cliente non può richiedere extra senza aver prima prenotato un ombrellone.
+(con o senza rimborso). Un cliente non può richiedere extra senza aver prima prenotato un ombrellone/gazebo.
 Se vengono trovate tutte le risorse richieste, il sistema fornirà un prezzo che varierà a seconda degli oggetti selezionati
 e, dopo il pagamento, confermerà la richiesta riservandone le risorse e inviando una mail di conferma ordine al cliente.
 
