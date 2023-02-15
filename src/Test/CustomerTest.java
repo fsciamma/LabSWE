@@ -1,9 +1,7 @@
 package Test;
 
 import DAO.CustomerDAO;
-import DAO.ReservationDAO;
 import model.Customer;
-import model.Reservation;
 import org.junit.jupiter.api.*;
 
 import java.sql.ResultSet;
@@ -34,14 +32,6 @@ class CustomerTest {
     @BeforeAll
     public static void setUp(){
         cDAO = CustomerDAO.getINSTANCE();
-        ReservationDAO rDAO = ReservationDAO.getInstance();
-
-        String query = "delete from \"laZattera\".reservation where \"customerID\" = '" + email + "'";
-        try(Statement stmt = rDAO.getConnection().createStatement()){
-            stmt.executeUpdate(query);
-        } catch (SQLException e) {
-            System.err.println(e.getMessage());
-        }
         String query2 = "delete from \"laZattera\".customer where email = '" + email + "'";
         try(Statement stmt = cDAO.getConnection().createStatement()){
             stmt.executeUpdate(query2);
@@ -78,8 +68,6 @@ class CustomerTest {
         assertEquals(c.get_email(), c2.get_email());
         assertNotEquals(c.get_first_name(), c2.get_first_name());
         assertEquals(c.get_last_name(), c2.get_last_name());
-
-        //TODO assertThrows(IllegalArgumentException.class, c::set_email);
     }
 
     @AfterAll
