@@ -228,13 +228,8 @@ public abstract class BusinessLogic {
                 switch (choice) {
                     case 1 -> addAssetToReservation(resCode);
                     case 2 -> deleteAssetFromReservation(resCode);
-                    case 3 -> {
-                        modifyReservedAsset(resCode);
-                    }
-                    case 4 -> {
-                        System.out.println("Torna a pagina precedente");
-                        //running = false;
-                    }
+                    case 3 -> modifyReservedAsset(resCode);
+                    case 4 -> System.out.println("Torna a pagina precedente");
                     default -> System.err.println("Opzione non valida...");
                 }
             } else {
@@ -531,7 +526,7 @@ public abstract class BusinessLogic {
      * Aggiunge una reservation al database aggiornando tutte le tabelle influenzate
      * @param r : reservation, date
      */
-    public static int updateReservationTables(Reservation r, ArrayList<Integer> a) {
+    private static int updateReservationTables(Reservation r, ArrayList<Integer> a) {
         int reservationID = 0;
         ReservationDAO rDAO = ReservationDAO.getInstance();
         try{

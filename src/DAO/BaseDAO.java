@@ -6,7 +6,7 @@ import java.sql.SQLException;
 
 public abstract class BaseDAO {
 
-    static Connection conn = null; //Fare un singleton per avere una connessione comune a tutti gli ObjectDAO: viene condivisa la connessione fra tutti i DAO
+    static Connection conn = null; //comune a tutti gli oggetti DAO
 
     /**
      * Costruttore della superclass BaseDAO: viene chiamato da tutti i DAO che vengono istanziati, che condividono tutti lo stesso attributo Connection: in questo modo, solo la prima volta che viene istanziato un DAO viene creata la connessione, gli altri useranno quella in comune.
@@ -22,7 +22,6 @@ public abstract class BaseDAO {
     /**
      * Metodo che istanzia la connessione col database utilizzato
      * @return Oggetto Connection condiviso tra tutti i DAO
-     * @throws SQLException
      */
     public Connection getConnection() throws SQLException {
         try {
