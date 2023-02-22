@@ -68,6 +68,7 @@ class InvoiceTest {
         Reservation r = Reservation.createNewReservation(customer);
         Invoice i = new Invoice();
 
+        //Test, verifico il corretto calcolo del prezzo
         //Calcolo i giorni effettivi della durata della prenotazione
         long interval = DAYS.between(LocalDate.of(2024,6,18), LocalDate.of(2024,6,20)) + 1;
 
@@ -78,9 +79,9 @@ class InvoiceTest {
         r.addReservedAsset(a);
         r.compute_total();
 
-        //Test, verifico che il prezzo venga calcolato correttamente
         assertEquals((asset.getPrice().longValue() * interval) + (addOn.getPrice().longValue() * interval), r.getTotal_price().longValue());
 
+        //Test, verifica aggiunta con successo di un elemento
         //Aggiorno l'invoice e aggiungo la prenotazione al DB per passare ai test sul database
         i.setInvoice_amount(r.getTotal_price());
         int res_id = rDAO.addNewReservation(r);
@@ -89,9 +90,9 @@ class InvoiceTest {
         int prev = invCountElements();
         iDAO.addNewInvoice(i);
 
-        //Test, verifico che sia stato aggiunto correttamente al DB
         assertEquals(prev + 1, invCountElements());
 
+        //Test, verifica funzionamento dei metodi di update
         //Aggiungo un nuovo asset alla prenotazione e aggiorno il prezzo sull'invoice
         ReservedAsset a2 = new ReservedAsset(asset2, LocalDate.of(2024,6,18), LocalDate.of(2024,6,20));
         r.addReservedAsset(a2);
@@ -105,6 +106,7 @@ class InvoiceTest {
         inv = iDAO.findByInvoiceID(res_id);
         assertTrue(inv.isPaid());
 
+        //Test, verifica cancellazione con successo di un elemento dal DB
         iDAO.deleteInvoice(res_id);
         assertEquals(prev, invCountElements());
         rDAO.totalDestruction(res_id);
