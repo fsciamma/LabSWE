@@ -42,25 +42,26 @@ class CustomerTest {
 
     @Test
     public void testCustomerHandling() throws SQLException {
+        //Test, verifica aggiunta con successo di un elemento
         Customer c = new Customer();
         c.set_email(email);
         c.set_first_name("Giovanni");
         c.set_last_name("Gentile");
         int prec = countElements();
         cDAO.addNewCustomer(c);
-
         assertEquals(prec + 1, countElements());
 
+        //Test, verifica della consistenza dei dati
         Customer c2 = new Customer();
         c2.copy(c);
         cDAO.findAll();
 
         c = cDAO.findByEMail(email);
-
         assertEquals(c.get_email(), c2.get_email());
         assertEquals(c.get_first_name(), c2.get_first_name());
         assertEquals(c.get_last_name(), c2.get_last_name());
 
+        //Test, verifica della corretta esecuzione dell'update
         c2.set_first_name("Giacomo");
         cDAO.updateInfo(c2);
 
@@ -68,6 +69,15 @@ class CustomerTest {
         assertEquals(c.get_email(), c2.get_email());
         assertNotEquals(c.get_first_name(), c2.get_first_name());
         assertEquals(c.get_last_name(), c2.get_last_name());
+
+        //Test, verifica dell'applicazione corretta dei vincoli
+        Customer cw = new Customer();
+        cw.set_email(email);
+        cw.set_first_name("Aldo");
+        cw.set_last_name("Baglio");
+
+        assertThrows(SQLException.class, () -> cDAO.addNewCustomer(cw));
+        cDAO.findAll();
     }
 
     @AfterAll
