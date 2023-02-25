@@ -6,7 +6,6 @@ import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
@@ -25,36 +24,13 @@ public class AssetDAO extends  BaseDAO{
         return INSTANCE;
     }
 
-    public static String showReservedAssets(int resID) throws SQLException{
-        String query = "select * from \"laZattera\".reserved_assets join" +
-                " \"laZattera\".reservable_asset on reserved_assets.\"assetID\" = reservable_asset.\"assetID\" join" +
-                " \"laZattera\".reservable_type on reservable_asset.\"asset_type\" = reservable_type.\"typeID\"" +
-                " where \"reservationID\" = " + resID;
-        try(Statement stmt = conn.createStatement()){
-            ResultSet rs = stmt.executeQuery(query);
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-            StringBuilder s = new StringBuilder("   Sono stati richiesti i seguenti asset:\n");
-            while(rs.next()){
-                s.append("\t- ")
-                        .append(rs.getString("type_name"))
-                        .append(" N°").append(rs.getString("sub_classID"))
-                        .append(", dal ").append(sdf.format(rs.getDate("start_date")))
-                        .append(" al ").append(sdf.format(rs.getDate("end_date")))
-                        .append(AddOnDAO.showAssociatedAddOns(rs.getInt("reservedID")))
-                        .append("\n");
-            }
-            return s.toString();
-        }
-    }
-
-
 
     /**
      * Metodo che fetcha un RA dal database secondo la query immessa.
      * @param query: query per la ricerca del RA
      * @return RA: Istanza del RA cercato dalla query nel Database
      */
-    public Asset getRA(String query) throws SQLException {
+    private Asset getAsset(String query) throws SQLException {
         int type = 0, resID = 0, sub_classID = 0;
         BigDecimal price = BigDecimal.ZERO;
         try(Statement stmt = conn.createStatement()){
@@ -81,7 +57,7 @@ public class AssetDAO extends  BaseDAO{
     public Asset findByID(int ID) throws SQLException {
         String query = "select * from \"laZattera\".reservable_asset a join \"laZattera\".reservable_type b on a.asset_type = b.\"typeID\"" +
                 " where \"assetID\" = " + ID;
-        return getRA(query);
+        return getAsset(query);
     }
 
     /*metodi per la tabella reservable_type*/
