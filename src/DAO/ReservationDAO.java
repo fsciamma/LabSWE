@@ -3,6 +3,7 @@ package DAO;
 import model.*;
 
 import java.sql.*;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
@@ -239,7 +240,7 @@ public class ReservationDAO extends BaseDAO {
                     last = customer;
                 }
                 int resID = rs.getInt("reservationID");
-                s = s + "\n * Codice prenotazione: " + resID + "\n" + AssetDAO.showReservedAssets(resID);
+                s = s + "\n * Codice prenotazione: " + resID + "\n" + showReservedAssets(resID);
                 isFound = true;
             }
             if(isFound){
@@ -247,6 +248,52 @@ public class ReservationDAO extends BaseDAO {
             }
         }
         return isFound;
+    }
+
+    public static String showReservedAssets(int resID) throws SQLException{
+        String query = "select * from \"laZattera\".reserved_assets join" +
+                " \"laZattera\".reservable_asset on reserved_assets.\"assetID\" = reservable_asset.\"assetID\" join" +
+                " \"laZattera\".reservable_type on reservable_asset.\"asset_type\" = reservable_type.\"typeID\"" +
+                " where \"reservationID\" = " + resID;
+        try(Statement stmt = conn.createStatement()){
+            ResultSet rs = stmt.executeQuery(query);
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+            StringBuilder s = new StringBuilder("   Sono stati richiesti i seguenti asset:\n");
+            while(rs.next()){
+                s.append("\t- ")
+                        .append(rs.getString("type_name"))
+                        .append(" N°").append(rs.getString("sub_classID"))
+                        .append(", dal ").append(sdf.format(rs.getDate("start_date")))
+                        .append(" al ").append(sdf.format(rs.getDate("end_date")))
+                        .append(showAssociatedAddOns(rs.getInt("reservedID")))
+                        .append("\n");
+            }
+            return s.toString();
+        }
+    }
+
+    static String showAssociatedAddOns(int reservedID) throws SQLException {
+        String query = "select * from \"laZattera\".reserved_add_on" +
+                " join \"laZattera\".add_on on reserved_add_on.\"add_onID\" = add_on.\"add_onID\"" +
+                " join \"laZattera\".add_on_type on add_on.add_on_type = add_on_type.\"typeID\"" +
+                " where \"reserved_assetsID\" = " + reservedID;
+        try (Statement stmt = conn.createStatement()) {
+            ResultSet rs = stmt.executeQuery(query);
+            if(rs.isBeforeFirst()) {
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+                StringBuilder s = new StringBuilder("\n\t   con le seguenti aggiunte:\n");
+                while (rs.next()) {
+                    s.append("\t   - ")
+                            .append(rs.getString("type_name"))
+                            .append(" N°").append(rs.getString("sub_classID"))
+                            .append(", dal ").append(sdf.format(rs.getDate("start_date")))
+                            .append(" al ").append(sdf.format(rs.getDate("end_date")))
+                            .append("\n");
+                }
+                return s.toString();
+            }
+            return "\n";
+        }
     }
 
     //DELETE METHODS//
