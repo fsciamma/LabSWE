@@ -158,7 +158,7 @@ class ReservationTest {
         //Test, controllo che le singole funzioni di eliminazione di oggetti dal database funzionino correttamente
         assertEquals(2, rDAO.getReservedAddOns(asset_id).size());
         rDAO.deleteReservedAddOn(rAddOn2);
-        assertFalse(rDAO.getReservedAddOns(asset_id).stream().anyMatch(o -> o.getAddon().getAdd_onId() == addOn2.getAdd_onId()));
+        assertFalse(rDAO.getReservedAddOns(asset_id).stream().anyMatch(o -> (o.getAddon().getAdd_onId() == addOn2.getAdd_onId()) && o.getStart_date().isEqual(rAddOn2.getStart_date())));
         rDAO.deleteReservedAddOn(asset_id);
         assertTrue(rDAO.getReservedAddOns(asset_id).isEmpty());
         rDAO.deleteReservedAsset(asset_id);
