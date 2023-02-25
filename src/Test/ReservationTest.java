@@ -164,7 +164,7 @@ class ReservationTest {
         rDAO.deleteReservedAsset(asset_id);
         assertTrue(rDAO.getReservedAssets(res_id).isEmpty());
 
-        rDAO.totalDestruction(res_id);
+        rDAO.deleteReservation(res_id);
     }
 
     @Test
