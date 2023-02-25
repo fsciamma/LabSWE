@@ -11,12 +11,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
+import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class ReservationTest {
 
     static ReservationDAO rDAO;
+    static AssetDAO aDAO;
+    static AddOnDAO aoDAO;
     static String customer = "test.email@g.com";
     static Asset asset;
     static AddOn addOn;
@@ -66,6 +69,8 @@ class ReservationTest {
     @BeforeAll
     public static void setUp() throws SQLException {
         rDAO = ReservationDAO.getInstance();
+        aDAO = AssetDAO.getINSTANCE();
+        aoDAO = AddOnDAO.getINSTANCE();
         CustomerDAO cDAO = CustomerDAO.getINSTANCE();
 
         String query = "delete from \"laZattera\".customer where email = '" + customer + "'";
@@ -82,14 +87,14 @@ class ReservationTest {
         c.set_last_name("Test");
         cDAO.addNewCustomer(c);
 
-        asset = AssetDAO.getINSTANCE().findByID(20);
-        addOn = AddOnDAO.getINSTANCE().findByID(28);
-        addOn2 = AddOnDAO.getINSTANCE().findByID(1);
+        asset = aDAO.findByID(20);
+        addOn = aoDAO.findByID(28);
+        addOn2 = aoDAO.findByID(1);
     }
 
     @Test
     public void testReservationHandling() throws SQLException {
-        //Setup per test
+        //Setup specifico per test
         Reservation r = Reservation.createNewReservation(customer);
 
         ReservedAsset rAsset1 = new ReservedAsset(asset, LocalDate.of(2023,6,18), LocalDate.of(2023,6,20));
@@ -135,7 +140,7 @@ class ReservationTest {
 
     @Test
     void testReservedHandling() throws SQLException {
-        //Setup per test
+        //Setup specifico per test
         Reservation r = Reservation.createNewReservation(customer);
 
         ReservedAsset rAsset1 = new ReservedAsset(asset, LocalDate.of(2023,6,18), LocalDate.of(2023,6,20));
@@ -150,14 +155,38 @@ class ReservationTest {
         int asset_id = rDAO.addNewReserved_asset(res_id, rAsset1);
         rDAO.addNewReservedAddOn(asset_id, rAddOn1);
         rDAO.addNewReservedAddOn(asset_id, rAddOn2);
-
+        //Test, controllo che le singole funzioni di eliminazione di oggetti dal database funzionino correttamente
         assertEquals(2, rDAO.getReservedAddOns(asset_id).size());
         rDAO.deleteReservedAddOn(rAddOn2);
-        assertFalse(rDAO.getReservedAddOns(asset_id).contains(rAddOn2));
+        assertFalse(rDAO.getReservedAddOns(asset_id).stream().anyMatch(o -> o.getAddon().getAdd_onId() == addOn2.getAdd_onId()));
         rDAO.deleteReservedAddOn(asset_id);
         assertTrue(rDAO.getReservedAddOns(asset_id).isEmpty());
         rDAO.deleteReservedAsset(asset_id);
         assertTrue(rDAO.getReservedAssets(res_id).isEmpty());
+
+        rDAO.totalDestruction(res_id);
+    }
+
+    @Test
+    void availabilityHandling() throws SQLException {
+        //Setup specifico per test
+        Reservation r = Reservation.createNewReservation(customer);
+        ReservedAsset rAsset = new ReservedAsset(asset, LocalDate.of(2023,6,18), LocalDate.of(2023,6,20));
+        ReservedAddOn rAddOn = new ReservedAddOn(addOn, LocalDate.of(2023, 6, 18), LocalDate.of(2023, 6, 18));
+        rAsset.addReservedAddOn(rAddOn);
+        r.addReservedAsset(rAsset);
+        //Test, coltrollo che la logica scritta per vincolare la prenotazione di asset sia corretta
+        int res_id = rDAO.addNewReservation(r);
+        int asset_id = rDAO.addNewReserved_asset(res_id, rAsset);
+        rDAO.addNewReservedAddOn(asset_id, rAddOn);
+
+        //Controllo gli asset rimasti nelle date esatte in cui ho prenotato l'asset
+        ArrayList<Asset> a_remaining = aDAO.checkAvailability(LocalDate.of(2023,6,18), LocalDate.of(2023,6,20), 0);
+        //Controllo gli add-on rimasti nelle date che intersecano quelle in cui ho prenotato l'asset
+        ArrayList<AddOn> ao_remaining = aoDAO.checkAvailability(LocalDate.of(2023,6,18), LocalDate.of(2023,6,20), 0);
+
+        assertTrue(a_remaining.stream().noneMatch(o -> o.getAssetId() == asset.getAssetId()));
+        assertTrue(ao_remaining.stream().noneMatch(o -> o.getAdd_onId() == addOn.getAdd_onId()));
 
         rDAO.totalDestruction(res_id);
     }
