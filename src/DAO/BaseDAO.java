@@ -13,7 +13,9 @@ public abstract class BaseDAO {
      */
     public BaseDAO() {
         try {
-            conn = getConnection();
+            if (conn == null){
+                conn = getConnection();
+            }
         } catch (SQLException e) {
             System.err.println(e.getMessage());
         }
