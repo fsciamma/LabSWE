@@ -82,7 +82,7 @@ public class CustomerDAO extends BaseDAO {
      */
     public void findAll(){
         String query = "select * from \"laZattera\".customer";
-        System.out.println("Cod. " + "|" + String.format("%-15s", "Nome") + "|" + String.format("%-15s", "Cognome") + "|" + String.format("%-35s", "E-mail"));
+        System.out.println(String.format("%-15s", "Nome") + "|" + String.format("%-15s", "Cognome") + "|" + String.format("%-35s", "E-mail"));
         System.out.println(String.format("%40s", "").replace("", "_"));
         try{
             showCustomers(query);
